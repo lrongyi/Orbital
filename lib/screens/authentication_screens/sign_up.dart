@@ -25,57 +25,6 @@ class _SignUpState extends State<SignUp> {
   TextEditingController nameController = TextEditingController();
   final _formkey = GlobalKey<FormState>();
 
-  registration() async {
-    if (password != '' && name != '' && email != '') {
-      try {
-        UserCredential result = await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Registered Successfully', style: TextStyle(fontSize: 20.0),),
-            )
-        );
-        User? userDetails = result.user;
-
-        Map<String, dynamic> userInfoMap = {
-          'email': userDetails!.email,
-          'name': name,
-          'id': userDetails.uid,
-          'income': 0,
-          'month_budget': 0,
-          'expenditure': 0
-        };
-        
-        //Database methods
-        await DatabaseMethods().addUser(userDetails.uid, userInfoMap).then((value) {
-          Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => Navigation()), (route) => false);
-        });
-
-      } on FirebaseAuthException catch (e) {
-        if (e.code == 'weak-password') {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-              'Weak Password',
-              style: TextStyle(fontSize: 18.0),
-            ),
-            backgroundColor: Colors.amberAccent,
-            )
-          );
-        } else if (e.code == 'email-already-in-use') {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-              'Account Already Exists',
-              style: TextStyle(fontSize: 18.0),
-            ),
-            backgroundColor: Colors.amberAccent,
-            )
-          );
-        }
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -157,7 +106,7 @@ class _SignUpState extends State<SignUp> {
                                   password = passwordController.text;
                                 });
                               }
-                              registration();
+                              AuthMethods().registration(context, name, email, password);
                             },
                             child: Container(
                               width: MediaQuery.of(context).size.width,
@@ -221,7 +170,7 @@ class _SignUpState extends State<SignUp> {
                         Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: ((context) => LogIn())), (route) => false);
                       },
                       child: const Text('Log In', style: TextStyle(
-                        color: Color.fromARGB(255, 4, 39, 237),
+                        color: Colors.blue,
                         fontSize: 18.0,
                         fontWeight: FontWeight.w500,
                       ),),

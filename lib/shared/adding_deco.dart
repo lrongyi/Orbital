@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class AddingDeco {
 
   // method used to build a child that is a row (with title + text form field)
-  static Widget buildRow(labelText) {
+  Widget buildRow(labelText, TextEditingController controller) {
     String hintText = labelText.toLowerCase();
     TextInputType keyboardType;
     if (labelText == 'Amount') {
@@ -26,6 +26,7 @@ class AddingDeco {
         const SizedBox(width: 10),
         Expanded(
           child: TextFormField(
+            controller: controller,
             keyboardType: keyboardType,
             decoration: InputDecoration(
               hintText: 'Enter $hintText',

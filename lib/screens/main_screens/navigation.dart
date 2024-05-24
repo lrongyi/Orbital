@@ -112,6 +112,7 @@ class _NavigationState extends State<Navigation> {
       bottomNavigationBar: ClipRRect(
         borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
         child: BottomNavigationBar(
+          unselectedItemColor: Colors.white,
           selectedItemColor: Colors.amber,
           backgroundColor: mainColor,
           items: const [

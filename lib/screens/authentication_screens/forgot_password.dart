@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ss/screens/authentication_screens/log_in.dart';
 import 'package:ss/screens/authentication_screens/sign_up.dart';
+import 'package:ss/services/auth.dart';
 import 'package:ss/shared/authentication_deco.dart';
 
 class ForgotPassword extends StatefulWidget {
@@ -16,32 +17,6 @@ class _ForgotPasswordState extends State<ForgotPassword> {
   String email = '';
   TextEditingController emailController = TextEditingController();
   final _formkey = GlobalKey<FormState>();
-
-  resetPassword() async {
-    try {
-        await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'Password Reset Email has been Sent',
-              style: TextStyle(fontSize: 18.0),
-            )
-          )
-        );
-    } on FirebaseAuthException catch (e) {
-        if (e.code == 'user-not-found') {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-              'Email Invalid',
-              style: TextStyle(fontSize: 18.0),
-            ),
-            backgroundColor: Colors.amberAccent,
-            )
-        );
-        }
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -109,7 +84,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                             setState(() {
                               email = emailController.text;
                             });
-                            resetPassword();
+                            AuthMethods().resetPassword(context, email);
                           }
                         },
                         child: Container(
@@ -150,7 +125,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                               Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => SignUp()), (route) => false);
                             },
                             child: const Text('Sign Up', style: TextStyle(
-                              color: Color.fromARGB(255, 4, 39, 237),
+                              color: Colors.blue,
                               fontSize: 18.0,
                               fontWeight: FontWeight.w500,
                             ),),
@@ -179,7 +154,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                               Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => LogIn()), (route) => false);
                             },
                             child: const Text('Log In', style: TextStyle(
-                              color: Color.fromARGB(255, 4, 39, 237),
+                              color: Colors.blue,
                               fontSize: 18.0,
                               fontWeight: FontWeight.w500,
                             ),),

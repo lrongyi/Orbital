@@ -45,6 +45,112 @@ class AuthMethods{
       });
     }
   }
+  
+  login(BuildContext context, String email, String password) async {
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
+      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => Navigation()), (route) => false);
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+              'User Not Found',
+              style: TextStyle(fontSize: 18.0),
+            ),
+            backgroundColor: Colors.amberAccent,
+            )
+        );
+      } else if (e.code == 'wrong-password') {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+              'Wrong Password',
+              style: TextStyle(fontSize: 18.0),
+            ),
+            backgroundColor: Colors.amberAccent,
+            )
+        );
+      }
+    }
+  }
+
+  registration(BuildContext context, String name, String email, String password) async {
+    if (password != '' && name != '' && email != '') {
+      try {
+        UserCredential result = await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Registered Successfully', style: TextStyle(fontSize: 20.0),),
+            )
+        );
+        User? userDetails = result.user;
+
+        Map<String, dynamic> userInfoMap = {
+          'email': userDetails!.email,
+          'name': name,
+          'id': userDetails.uid,
+          'income': 0,
+          'month_budget': 0,
+          'expenditure': 0
+        };
+        
+        //Database methods
+        await DatabaseMethods().addUser(userDetails.uid, userInfoMap).then((value) {
+          Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => Navigation()), (route) => false);
+        });
+
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'weak-password') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+              'Weak Password',
+              style: TextStyle(fontSize: 18.0),
+            ),
+            backgroundColor: Colors.amberAccent,
+            )
+          );
+        } else if (e.code == 'email-already-in-use') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+              'Account Already Exists',
+              style: TextStyle(fontSize: 18.0),
+            ),
+            backgroundColor: Colors.amberAccent,
+            )
+          );
+        }
+      }
+    }
+  }
+
+  resetPassword(BuildContext context, String email) async {
+    try {
+        await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Password Reset Email has been Sent',
+              style: TextStyle(fontSize: 18.0),
+            )
+          )
+        );
+    } on FirebaseAuthException catch (e) {
+        if (e.code == 'user-not-found') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+              'Email Invalid',
+              style: TextStyle(fontSize: 18.0),
+            ),
+            backgroundColor: Colors.amberAccent,
+            )
+        );
+        }
+    }
+  }
 
   signOut() async {
     auth.signOut();

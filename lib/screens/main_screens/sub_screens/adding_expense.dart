@@ -1,6 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:ss/screens/main_screens/navigation.dart';
 import 'package:ss/screens/main_screens/sub_screens/adding_income.dart';
+import 'package:ss/services/database.dart';
+import 'package:ss/services/models/expense.dart';
 import 'package:ss/shared/adding_deco.dart';
 
 class AddingExpense extends StatefulWidget {
@@ -11,6 +14,13 @@ class AddingExpense extends StatefulWidget {
 }
 
 class _MyWidgetState extends State<AddingExpense> {
+
+  TextEditingController dateController = TextEditingController();
+  TextEditingController amountController = TextEditingController();
+  TextEditingController categoryController = TextEditingController();
+  TextEditingController noteController = TextEditingController();
+  TextEditingController descriptionController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -71,12 +81,12 @@ class _MyWidgetState extends State<AddingExpense> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  AddingDeco.buildRow('Date'),
-                  AddingDeco.buildRow('Amount'),
-                  AddingDeco.buildRow('Category'),
-                  AddingDeco.buildRow('Note'),
+                  AddingDeco().buildRow('Date', dateController),
+                  AddingDeco().buildRow('Amount', amountController),
+                  AddingDeco().buildRow('Category', categoryController),
+                  AddingDeco().buildRow('Note', noteController),
                   const SizedBox(height: 40),
-                  AddingDeco.buildRow('Description'),
+                  AddingDeco().buildRow('Description', descriptionController),
                 ],
               ),
             ),
@@ -88,8 +98,16 @@ class _MyWidgetState extends State<AddingExpense> {
                 MaterialButton(
                   color: Colors.red[300],
                   onPressed: () {
-                    // TODO: Handle saving data to firebase and routing back to home page
-                    Navigator.pop(context);
+                    // Needs testing
+                    Expense expense = Expense(
+                      date: Timestamp.now(), 
+                      amount: -1 * double.parse(amountController.text), 
+                      category: categoryController.text,
+                      note: noteController.text,
+                      description: descriptionController.text
+                      );
+                    DatabaseMethods().addExpense(expense);  
+                    Navigator.popUntil(context, (context) => context.isFirst);
                   },
                   minWidth: 250,
                   child: const Text('Save'),

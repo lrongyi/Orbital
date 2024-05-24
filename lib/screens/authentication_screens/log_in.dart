@@ -22,35 +22,6 @@ class _LogInState extends State<LogIn> {
   TextEditingController passwordController = TextEditingController();
   final _formkey = GlobalKey<FormState>();
 
-  login() async {
-    try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
-      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => Navigation()), (route) => false);
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-              'User Not Found',
-              style: TextStyle(fontSize: 18.0),
-            ),
-            backgroundColor: Colors.amberAccent,
-            )
-        );
-      } else if (e.code == 'wrong-password') {
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-              'Wrong Password',
-              style: TextStyle(fontSize: 18.0),
-            ),
-            backgroundColor: Colors.amberAccent,
-            )
-        );
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -116,7 +87,7 @@ class _LogInState extends State<LogIn> {
                                   password = passwordController.text;
                                 });
                               }
-                              login();
+                              AuthMethods().login(context, email, password);
                             },
                             child: Container(
                               width: MediaQuery.of(context).size.width,
@@ -146,7 +117,7 @@ class _LogInState extends State<LogIn> {
                   child: const Text(
                     'Forgot Password',
                     style: TextStyle(
-                      color: Color.fromARGB(255, 4, 39, 237),
+                      color: Colors.blue,
                       fontSize: 18.0,
                       fontWeight: FontWeight.w500,
                     )
@@ -194,7 +165,7 @@ class _LogInState extends State<LogIn> {
                         Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: ((context) => SignUp())), (route) => false);
                       },
                       child: const Text('Sign Up', style: TextStyle(
-                        color: Color.fromARGB(255, 4, 39, 237),
+                        color: Colors.blue,
                         fontSize: 18.0,
                         fontWeight: FontWeight.w500,
                       ),),
