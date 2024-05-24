@@ -10,6 +10,8 @@ class Budgeting extends StatefulWidget {
 class _BudgetingState extends State<Budgeting> {
   @override
   Widget build(BuildContext context) {
-    return const Text('Budgeting');
+    return Scaffold(
+      backgroundColor: Colors.white,
+    );
   }
 }

@@ -52,6 +52,17 @@ class _NavigationState extends State<Navigation> {
                 onTap: () {
                   Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => Home()), (route) => false);
                 },
+              ),
+              ListTile(
+                title: const Text(
+                  'Item 2',
+                  style: TextStyle(
+                    color: Colors.white,  
+                  ),
+                ),
+                onTap: () {
+                  Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => Home()), (route) => false);
+                },
               )
             ],
           ),
@@ -106,7 +117,7 @@ class _NavigationState extends State<Navigation> {
           items: const [
             BottomNavigationBarItem(
               icon: Icon(CupertinoIcons.plus, color: Colors.white,),
-              label: 'Expense',
+              label: 'Expenses',
             ),
             BottomNavigationBarItem(
               icon: Icon(CupertinoIcons.home, color: Colors.white,),
