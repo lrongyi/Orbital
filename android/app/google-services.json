@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "471080678953",
+    "project_id": "savings-squad-72b1a",
+    "storage_bucket": "savings-squad-72b1a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:471080678953:android:7d5d7db99d6b3f90cf4e38",
+        "android_client_info": {
+          "package_name": "com.example.ss"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAdvRXRDaZPAL1mNeu7sj3nwfODP9z9WfM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
