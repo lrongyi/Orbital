@@ -3,6 +3,7 @@ import 'package:ss/screens/main_screens/home.dart';
 import 'package:ss/screens/authentication_screens/log_in.dart';
 import 'package:ss/screens/main_screens/navigation.dart';
 import 'package:ss/services/auth.dart';
+import 'package:ss/services/database.dart';
 import 'package:ss/shared/authentication_deco.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -27,13 +28,28 @@ class _SignUpState extends State<SignUp> {
   registration() async {
     if (password != '' && name != '' && email != '') {
       try {
-        UserCredential user = await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);
+        UserCredential result = await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Registered Successfully', style: TextStyle(fontSize: 20.0),),
             )
         );
-        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => Navigation()), (route) => false);
+        User? userDetails = result.user;
+
+        Map<String, dynamic> userInfoMap = {
+          'email': userDetails!.email,
+          'name': name,
+          'id': userDetails.uid,
+          'income': 0,
+          'month_budget': 0,
+          'expenditure': 0
+        };
+        
+        //Database methods
+        await DatabaseMethods().addUser(userDetails.uid, userInfoMap).then((value) {
+          Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => Navigation()), (route) => false);
+        });
+
       } on FirebaseAuthException catch (e) {
         if (e.code == 'weak-password') {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -163,9 +179,7 @@ class _SignUpState extends State<SignUp> {
                     )
                   )
                 ),
-                const SizedBox(
-                  height: 40.0,
-                ),
+                sizedBoxSpacer,
                 const Text(
                   'or Login with',
                   style: TextStyle(
@@ -187,9 +201,7 @@ class _SignUpState extends State<SignUp> {
                     fit: BoxFit.cover,
                     )
                 ),
-                const SizedBox(
-                  height: 40.0,
-                ),
+                sizedBoxSpacer,
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

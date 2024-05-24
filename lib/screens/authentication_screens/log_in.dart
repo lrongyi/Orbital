@@ -100,9 +100,7 @@ class _LogInState extends State<LogIn> {
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return 'Enter Password';
-                                } else if (value.length < 8) {
-                                  return 'Password must be at least 6 characters';
-                                }
+                                } 
                                 return null;
                               },
                               controller: passwordController,
@@ -140,9 +138,7 @@ class _LogInState extends State<LogIn> {
                     )
                   )
                 ),
-                const SizedBox(
-                  height: 20.0,
-                ),
+                sizedBoxSpacer,
                 GestureDetector(
                   onTap: () {
                     Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => ForgotPassword()), (route) => false);
@@ -156,9 +152,7 @@ class _LogInState extends State<LogIn> {
                     )
                   )
                 ),
-                const SizedBox(
-                  height: 40.0,
-                ),
+                sizedBoxSpacer,
                 const Text(
                   'or Login with',
                   style: TextStyle(
@@ -180,9 +174,7 @@ class _LogInState extends State<LogIn> {
                     fit: BoxFit.cover,
                     )
                 ),
-                const SizedBox(
-                  height: 40.0,
-                ),
+                sizedBoxSpacer,
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

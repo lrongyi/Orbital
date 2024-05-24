@@ -7,10 +7,10 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: const FirebaseOptions(
-      apiKey: 'AIzaSyDZyWW3eRhtqVxcfoNUhAScNUi-DcgVLZU',
-      appId: '1:252318737722:android:4196a42d03abdffc78dc03', 
-      messagingSenderId: '252318737722', 
-      projectId: 'savings_squad')
+      apiKey: 'AIzaSyAdvRXRDaZPAL1mNeu7sj3nwfODP9z9WfM ',
+      appId: '1:471080678953:android:7d5d7db99d6b3f90cf4e38', 
+      messagingSenderId: '471080678953', 
+      projectId: 'savings-squad-72b1a')
   );
   runApp(const MyApp());
 }

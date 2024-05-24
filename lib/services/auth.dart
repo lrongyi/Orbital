@@ -8,10 +8,11 @@ import 'package:ss/services/database.dart';
 class AuthMethods{
   final FirebaseAuth auth = FirebaseAuth.instance;
 
-  getCurrentUser() {
+  User? getCurrentUser() {
     return auth.currentUser;
   }
 
+  // Needs fixing
   signInWithGoogle(BuildContext context) async {
     final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
     final GoogleSignIn googleSignIn = GoogleSignIn();
@@ -32,7 +33,10 @@ class AuthMethods{
       Map<String, dynamic> userInfoMap = {
         'email': userDetails!.email,
         'name': userDetails.displayName,
-        'id': userDetails.uid
+        'id': userDetails.uid,
+        'income': 0,
+        'monthly_budget': 0,
+        'expenditure': 0
       };
       
       //Database methods

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-Widget sizedBoxSpacer = const SizedBox(height: 30.0,);
+Widget sizedBoxSpacer = const SizedBox(height: 20.0,);
 EdgeInsets spaceBetweenForms = const EdgeInsets.symmetric(vertical: 2.0, horizontal: 30.0);
 BoxDecoration textFieldDeco = BoxDecoration(
                       color: Colors.white,
