@@ -98,7 +98,7 @@ class _MyWidgetState extends State<AddingIncome> {
                 MaterialButton(
                   color: Colors.blue[200],
                   onPressed: () {
-                    // Needs testing
+                    // Date needs to be edited 
                     Expense expense = Expense(
                       date: Timestamp.now(), 
                       amount: double.parse(amountController.text), 
