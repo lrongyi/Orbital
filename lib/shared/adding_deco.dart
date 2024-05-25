@@ -7,11 +7,9 @@ class AddingDeco {
     String hintText = labelText.toLowerCase();
     TextInputType keyboardType;
     if (labelText == 'Amount') {
-      keyboardType = TextInputType
-          .number; // Set keyboardType to number for Date and Amount
-    } else {
-      keyboardType =
-          TextInputType.text; // Set keyboardType to text for other fields
+      keyboardType = TextInputType.number; 
+    } else  {
+      keyboardType = TextInputType.text; 
     }
 
     return Row(
