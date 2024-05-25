@@ -1,14 +1,9 @@
-import 'dart:ffi';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:ss/screens/main_screens/budgeting.dart';
-import 'package:ss/screens/main_screens/expenses.dart';
-import 'package:ss/screens/main_screens/home.dart';
 import 'package:ss/shared/main_screens_deco.dart';
 
 class BudgetSettings extends StatefulWidget {
-  const BudgetSettings({super.key});
+  const BudgetSettings({Key? key}) : super(key: key);
 
   @override
   State<BudgetSettings> createState() => _BudgetSettingsState();
@@ -26,11 +21,11 @@ class _BudgetSettingsState extends State<BudgetSettings> {
       'Food': 0.0,
       'Transport': 0.0,
       'Household': 0.0,
-      'Clothing' : 0.0,
-      'Health' : 0.0,
-      'Education' : 0.0,
-      'Gaming' : 0.0,
-      'Subscriptions' : 0.0,
+      'Clothing': 0.0,
+      'Health': 0.0,
+      'Education': 0.0,
+      'Gaming': 0.0,
+      'Subscriptions': 0.0,
     };
 
     controllers = Map.fromIterable(categoryBudget.keys,
@@ -50,65 +45,65 @@ class _BudgetSettingsState extends State<BudgetSettings> {
           },
         ),
         backgroundColor: mainColor,
-        title: const Text('Budget Settings',
-            style: TextStyle(
-              color: Colors.white,
-            )),
+        title: const Text(
+          'Budget Settings',
+          style: TextStyle(
+            color: Colors.white,
+          ),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.only(top: 20.0, bottom: 20.0),
         child: Column(
-    children: [
-      Expanded(
-        child: ListView.separated(
-          itemCount: categoryBudget.length,
-          separatorBuilder: (context, index) => const Divider(),
-          itemBuilder: (context, index) {
-            final categoryName = categoryBudget.keys.elementAt(index);
-            final amountSpent = categoryBudget.values.elementAt(index);
-            return buildCategoryTile(context, categoryName, amountSpent);
-          },
+          children: [
+            Expanded(
+              child: ListView.separated(
+                itemCount: categoryBudget.length,
+                separatorBuilder: (context, index) => const Divider(),
+                itemBuilder: (context, index) {
+                  final categoryName = categoryBudget.keys.elementAt(index);
+                  final amountSpent = categoryBudget.values.elementAt(index);
+                  return buildCategoryTile(context, categoryName, amountSpent);
+                },
+              ),
+            ),
+            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Container(
+                  width: 150,
+                  child: MaterialButton(
+                    onPressed: () {
+                      // TODO: Save the changes of the budget amount and reflect it on the budgeting screen (e.g. change totalBudget)
+                      Navigator.pop(context);
+                    },
+                    color: Colors.green,
+                    textColor: Colors.white,
+                    child: const Text('Save Changes'),
+                  ),
+                ),
+                Container(
+                  width: 150,
+                  child: MaterialButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    color: Colors.red,
+                    textColor: Colors.white,
+                    child: const Text('Dismiss'),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
-      ),
-      const SizedBox(height: 10), 
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          Container(
-            width: 150,
-            child: MaterialButton(
-              onPressed: () {
-                // TODO: Save the changes of the budget amount and reflect it on the budgeting screen (e.g. change totalBudget)
-                Navigator.pop(context);
-              },
-              color: Colors.green,
-              textColor: Colors.white,
-              child: const Text('Save Changes'),
-            ),
-          ),
-          Container(
-            width: 150,
-            child: MaterialButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              color: Colors.red,
-              textColor: Colors.white,
-              child: const Text('Dismiss'),
-            ),
-          ),
-        ],
-      ),
-    ],
-  ),
       ),
     );
   }
 
-  Widget buildCategoryTile(
-      BuildContext context, String categoryName, double amountSpent) {
-    TextEditingController controller =
-        TextEditingController(text: amountSpent.toStringAsFixed(2));
+  Widget buildCategoryTile(BuildContext context, String categoryName, double amountSpent) {
+    TextEditingController controller = TextEditingController(text: amountSpent.toStringAsFixed(2));
     IconData iconData;
     switch (categoryName) {
       case 'Food':
@@ -160,8 +155,7 @@ class _BudgetSettingsState extends State<BudgetSettings> {
             width: 100,
             child: TextFormField(
               controller: controllers[categoryName],
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
               decoration: const InputDecoration(
                 labelText: 'Amount',
                 border: OutlineInputBorder(),
