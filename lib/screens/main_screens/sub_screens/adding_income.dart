@@ -140,12 +140,8 @@ class _MyWidgetState extends State<AddingIncome> {
                 MaterialButton(
                   color: Colors.blue[200],
                   onPressed: () {
-<<<<<<< HEAD
-                    // Date needs to be edited 
-=======
                     double rawAmount = double.parse(amountController.text);
                     double modAmount = rawAmount < 0 ? -1 *rawAmount : rawAmount;
->>>>>>> 5fe8119b186b8a795e7e5fc66b94d7ea24682e04
                     Expense expense = Expense(
                       date: Timestamp.fromDate(selectDate), 
                       amount: modAmount, 

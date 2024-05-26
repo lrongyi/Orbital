@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:ss/screens/authentication_screens/log_in.dart';
 import 'package:ss/screens/main_screens/budgeting.dart';
-import 'package:ss/screens/main_screens/expenses.dart';
+import 'package:ss/screens/main_screens/expenses_screens/expenses.dart';
 import 'package:ss/screens/main_screens/home.dart';
 import 'package:ss/services/auth.dart';
 import 'package:ss/shared/main_screens_deco.dart';
