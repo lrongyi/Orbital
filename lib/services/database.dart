@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -35,6 +37,12 @@ class DatabaseMethods {
 
   Stream<QuerySnapshot> getExpenses() {
     return getExpensesRef(getCurrentUserId()).snapshots();
+  }
+
+  Stream<QuerySnapshot> getExpensesByMonth(DateTime time) {
+    DateTime startOfMonth = DateTime(time.year, time.month);
+    DateTime endOfMonth = time.month != 12 ? DateTime(time.year, time.month + 1) : DateTime(time.year + 1, 1); 
+    return getExpensesRef(getCurrentUserId()).where('date', isGreaterThan: startOfMonth).where('date', isLessThan: endOfMonth).orderBy('date', descending: true).snapshots();
   }
 
   void addExpense(Expense expense) async {

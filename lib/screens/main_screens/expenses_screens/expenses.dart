@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:ss/services/database.dart';
@@ -100,11 +101,21 @@ class _ExpensesState extends State<Expenses> {
           ),
           const SizedBox(height: 20),
           Expanded(
+            // FIX 
             child: StreamBuilder(
               stream: DatabaseMethods().getExpenses(),
-              builder: (context, snapshot) {
-                List expenses = snapshot.data?.docs ?? [];
-                if (expenses.isEmpty) {
+              builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                List allExpenses = snapshot.data?.docs ?? [];
+
+                DateTime startOfMonth = DateTime(_currentMonth.year, _currentMonth.month, 1);
+                DateTime endOfMonth = DateTime(_currentMonth.year, _currentMonth.month + 1, 1);
+
+                List monthlyExpenses = allExpenses.where((doc) {
+                  DateTime expenseDate = DateTime.parse(doc.data().date.toDate().toString());
+                  return expenseDate.isAfter(startOfMonth) && expenseDate.isBefore(endOfMonth);
+                },).toList();
+
+                if (monthlyExpenses.isEmpty) {
                   return const Center(
                     child: Text(
                       'No Expenses Found',
@@ -113,9 +124,9 @@ class _ExpensesState extends State<Expenses> {
                 }
                 return ListView.separated(
                   separatorBuilder: (context, index) => const Divider(),
-                  itemCount: expenses.length,
+                  itemCount: monthlyExpenses.length,
                   itemBuilder: (context, index) {
-                    Expense expense = expenses[index].data();
+                    Expense expense = monthlyExpenses[index].data();
                     double amount = expense.amount;
                     return Padding(
                       padding: const EdgeInsets.symmetric(
