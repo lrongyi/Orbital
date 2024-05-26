@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
-import 'package:ss/screens/main_screens/sub_screens/budget_settings.dart';
+import 'package:ss/screens/main_screens/budgeting_screens/budget_settings.dart';
 import 'package:ss/shared/budgeting_deco.dart';
 
 class Budgeting extends StatefulWidget {
@@ -87,7 +87,8 @@ class _BudgetingState extends State<Budgeting> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => const BudgetSettings(),
+                                    builder: (context) =>
+                                        const BudgetSettings(),
                                   ),
                                 );
                               },
@@ -109,24 +110,33 @@ class _BudgetingState extends State<Budgeting> {
                                     return StatefulBuilder(
                                       builder: (context, setState) {
                                         return AlertDialog(
-                                          title: const Text('Create a Category'),
+                                          title:
+                                              const Text('Create a Category'),
                                           backgroundColor: Colors.purple[50],
                                           content: SingleChildScrollView(
                                             child: SizedBox(
-                                              width: MediaQuery.of(context).size.width,
+                                              width: MediaQuery.of(context)
+                                                  .size
+                                                  .width,
                                               child: Column(
                                                 mainAxisSize: MainAxisSize.min,
                                                 children: [
                                                   TextFormField(
-                                                    textAlignVertical: TextAlignVertical.center,
+                                                    textAlignVertical:
+                                                        TextAlignVertical
+                                                            .center,
                                                     decoration: InputDecoration(
                                                       isDense: true,
                                                       filled: true,
                                                       fillColor: Colors.white,
                                                       hintText: 'Name',
-                                                      border: OutlineInputBorder(
-                                                        borderRadius: BorderRadius.circular(12),
-                                                        borderSide: BorderSide.none,
+                                                      border:
+                                                          OutlineInputBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(12),
+                                                        borderSide:
+                                                            BorderSide.none,
                                                       ),
                                                     ),
                                                   ),
@@ -137,67 +147,104 @@ class _BudgetingState extends State<Budgeting> {
                                                         isOpen = !isOpen;
                                                       });
                                                     },
-                                                    textAlignVertical: TextAlignVertical.center,
+                                                    textAlignVertical:
+                                                        TextAlignVertical
+                                                            .center,
                                                     readOnly: true,
                                                     decoration: InputDecoration(
                                                       isDense: true,
                                                       filled: true,
                                                       suffixIcon: const Icon(
-                                                        CupertinoIcons.chevron_down,
+                                                        CupertinoIcons
+                                                            .chevron_down,
                                                         size: 14,
                                                       ),
                                                       fillColor: Colors.white,
                                                       hintText: 'Icon',
-                                                      border: OutlineInputBorder(
+                                                      border:
+                                                          OutlineInputBorder(
                                                         borderRadius: isOpen
-                                                            ? const BorderRadius.vertical(
-                                                                top: Radius.circular(12),
+                                                            ? const BorderRadius
+                                                                .vertical(
+                                                                top: Radius
+                                                                    .circular(
+                                                                        12),
                                                               )
-                                                            : BorderRadius.circular(12),
-                                                        borderSide: BorderSide.none,
+                                                            : BorderRadius
+                                                                .circular(12),
+                                                        borderSide:
+                                                            BorderSide.none,
                                                       ),
                                                     ),
                                                   ),
                                                   isOpen
                                                       ? Container(
-                                                          width: MediaQuery.of(context).size.width,
+                                                          width: MediaQuery.of(
+                                                                  context)
+                                                              .size
+                                                              .width,
                                                           height: 200,
-                                                          decoration: const BoxDecoration(
+                                                          decoration:
+                                                              const BoxDecoration(
                                                             color: Colors.white,
-                                                            borderRadius: BorderRadius.vertical(
-                                                              bottom: Radius.circular(12),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .vertical(
+                                                              bottom: Radius
+                                                                  .circular(12),
                                                             ),
                                                           ),
                                                           child: Padding(
-                                                            padding: const EdgeInsets.all(8.0),
-                                                            child: GridView.builder(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .all(8.0),
+                                                            child: GridView
+                                                                .builder(
                                                               gridDelegate:
                                                                   const SliverGridDelegateWithFixedCrossAxisCount(
-                                                                crossAxisCount: 3,
-                                                                mainAxisSpacing: 5,
-                                                                crossAxisSpacing: 5,
+                                                                crossAxisCount:
+                                                                    3,
+                                                                mainAxisSpacing:
+                                                                    5,
+                                                                crossAxisSpacing:
+                                                                    5,
                                                               ),
-                                                              itemCount: categoryIcons.length,
-                                                              itemBuilder: (context, int i) {
+                                                              itemCount:
+                                                                  categoryIcons
+                                                                      .length,
+                                                              itemBuilder:
+                                                                  (context,
+                                                                      int i) {
                                                                 return GestureDetector(
                                                                   onTap: () {
-                                                                    setState(() {
-                                                                      iconSelected = categoryIcons[i];
+                                                                    setState(
+                                                                        () {
+                                                                      iconSelected =
+                                                                          categoryIcons[
+                                                                              i];
                                                                     });
                                                                   },
-                                                                  child: Container(
+                                                                  child:
+                                                                      Container(
                                                                     width: 50,
                                                                     height: 50,
-                                                                    decoration: BoxDecoration(
-                                                                      border: Border.all(
-                                                                        width: 3,
+                                                                    decoration:
+                                                                        BoxDecoration(
+                                                                      border:
+                                                                          Border
+                                                                              .all(
+                                                                        width:
+                                                                            3,
                                                                         color: iconSelected ==
                                                                                 categoryIcons[i]
                                                                             ? Colors.green
                                                                             : Colors.grey,
                                                                       ),
-                                                                      borderRadius: BorderRadius.circular(12),
-                                                                      image: DecorationImage(
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                              12),
+                                                                      image:
+                                                                          DecorationImage(
                                                                         image: AssetImage(
                                                                             'assets/${categoryIcons[i]}.png'),
                                                                       ),
@@ -217,37 +264,57 @@ class _BudgetingState extends State<Budgeting> {
                                                         context: context,
                                                         builder: (ctx2) {
                                                           return AlertDialog(
-                                                            backgroundColor: Colors.white,
-                                                            content: SingleChildScrollView(
+                                                            backgroundColor:
+                                                                Colors.white,
+                                                            content:
+                                                                SingleChildScrollView(
                                                               child: Column(
-                                                                mainAxisSize: MainAxisSize.min,
+                                                                mainAxisSize:
+                                                                    MainAxisSize
+                                                                        .min,
                                                                 children: [
                                                                   ColorPicker(
-                                                                    pickerColor: categoryColor,
-                                                                    onColorChanged: (value) {
-                                                                      setState(() {
-                                                                        categoryColor = value;
+                                                                    pickerColor:
+                                                                        categoryColor,
+                                                                    onColorChanged:
+                                                                        (value) {
+                                                                      setState(
+                                                                          () {
+                                                                        categoryColor =
+                                                                            value;
                                                                       });
                                                                     },
                                                                   ),
                                                                   SizedBox(
-                                                                    width: double.infinity,
+                                                                    width: double
+                                                                        .infinity,
                                                                     height: 50,
-                                                                    child: TextButton(
-                                                                      onPressed: () {
-                                                                        Navigator.pop(context);
+                                                                    child:
+                                                                        TextButton(
+                                                                      onPressed:
+                                                                          () {
+                                                                        Navigator.pop(
+                                                                            context);
                                                                       },
-                                                                      style: TextButton.styleFrom(
-                                                                        backgroundColor: Colors.black,
-                                                                        shape: RoundedRectangleBorder(
-                                                                          borderRadius: BorderRadius.circular(12),
+                                                                      style: TextButton
+                                                                          .styleFrom(
+                                                                        backgroundColor:
+                                                                            Colors.black,
+                                                                        shape:
+                                                                            RoundedRectangleBorder(
+                                                                          borderRadius:
+                                                                              BorderRadius.circular(12),
                                                                         ),
                                                                       ),
-                                                                      child: const Text(
+                                                                      child:
+                                                                          const Text(
                                                                         'Save',
-                                                                        style: TextStyle(
-                                                                          fontSize: 22,
-                                                                          color: Colors.white,
+                                                                        style:
+                                                                            TextStyle(
+                                                                          fontSize:
+                                                                              22,
+                                                                          color:
+                                                                              Colors.white,
                                                                         ),
                                                                       ),
                                                                     ),
@@ -259,15 +326,21 @@ class _BudgetingState extends State<Budgeting> {
                                                         },
                                                       );
                                                     },
-                                                    textAlignVertical: TextAlignVertical.center,
+                                                    textAlignVertical:
+                                                        TextAlignVertical
+                                                            .center,
                                                     decoration: InputDecoration(
                                                       isDense: true,
                                                       filled: true,
                                                       fillColor: categoryColor,
                                                       hintText: 'Colour',
-                                                      border: OutlineInputBorder(
-                                                        borderRadius: BorderRadius.circular(12),
-                                                        borderSide: BorderSide.none,
+                                                      border:
+                                                          OutlineInputBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(12),
+                                                        borderSide:
+                                                            BorderSide.none,
                                                       ),
                                                     ),
                                                   ),
@@ -280,10 +353,15 @@ class _BudgetingState extends State<Budgeting> {
                                                         // TODO: Create Category Object and send to firebase
                                                         Navigator.pop(context);
                                                       },
-                                                      style: TextButton.styleFrom(
-                                                        backgroundColor: Colors.black,
-                                                        shape: RoundedRectangleBorder(
-                                                          borderRadius: BorderRadius.circular(12),
+                                                      style:
+                                                          TextButton.styleFrom(
+                                                        backgroundColor:
+                                                            Colors.black,
+                                                        shape:
+                                                            RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(12),
                                                         ),
                                                       ),
                                                       child: const Text(
@@ -351,7 +429,8 @@ class _BudgetingState extends State<Budgeting> {
                                   minHeight: 10,
                                   value: ratioSpent,
                                   backgroundColor: Colors.black,
-                                  valueColor: AlwaysStoppedAnimation<Color>(progressBarColour),
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      progressBarColour),
                                 ),
                               ),
                               Column(
@@ -410,7 +489,8 @@ class _BudgetingState extends State<Budgeting> {
               itemBuilder: (context, index) {
                 String categoryName = categorySpent.keys.elementAt(index);
                 double amountSpent = categorySpent.values.elementAt(index);
-                return BudgetingDeco.buildCategoryTile(categoryName, amountSpent);
+                return BudgetingDeco.buildCategoryTile(
+                    categoryName, amountSpent);
               },
             ),
           ),

@@ -1,20 +1,21 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:ss/screens/main_screens/navigation.dart';
-import 'package:ss/screens/main_screens/sub_screens/adding_expense.dart';
+import 'package:ss/screens/main_screens/home_screens/home.dart';
+import 'package:ss/screens/navigation_screen/navigation.dart';
+import 'package:ss/screens/navigation_screen/adding_income.dart';
 import 'package:ss/services/database.dart';
 import 'package:ss/services/models/expense.dart';
 import 'package:ss/shared/adding_deco.dart';
 
-class AddingIncome extends StatefulWidget {
-  const AddingIncome({super.key});
+class AddingExpense extends StatefulWidget {
+  const AddingExpense({super.key});
 
   @override
-  State<AddingIncome> createState() => _MyWidgetState();
+  State<AddingExpense> createState() => _MyWidgetState();
 }
 
-class _MyWidgetState extends State<AddingIncome> {
+class _MyWidgetState extends State<AddingExpense> {
   TextEditingController dateController = TextEditingController();
   TextEditingController amountController = TextEditingController();
   TextEditingController categoryController = TextEditingController();
@@ -44,7 +45,7 @@ class _MyWidgetState extends State<AddingIncome> {
           },
         ),
         centerTitle: true,
-        title: const Text('Income'),
+        title: const Text('Expense'),
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -53,9 +54,20 @@ class _MyWidgetState extends State<AddingIncome> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                MaterialButton(
+                  color: Colors.grey[100],
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (builder) => AddingIncome()));
+                  },
+                  minWidth: 175,
+                  child: const Text('Income'),
+                ),
                 Container(
                   decoration: BoxDecoration(
-                    border: Border.all(color: Colors.blue, width: 2),
+                    border: Border.all(color: Colors.red, width: 2),
                   ),
                   child: SizedBox(
                     width: 175,
@@ -64,25 +76,14 @@ class _MyWidgetState extends State<AddingIncome> {
                       color: Colors.grey[100],
                       onPressed: () {},
                       minWidth: 175,
-                      child: const Text('Income'),
+                      child: const Text('Expense'),
                     ),
                   ),
-                ),
-                MaterialButton(
-                  color: Colors.grey[100],
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (builder) => AddingExpense()));
-                  },
-                  minWidth: 175,
-                  child: const Text('Expense'),
                 ),
               ],
             ),
             const SizedBox(height: 10),
-            //Box containing the titles and the text form fields
+            //SizedBox containing the titles and the text form fields
             SizedBox(
               width: double.infinity,
               child: Column(
@@ -109,10 +110,10 @@ class _MyWidgetState extends State<AddingIncome> {
                                 firstDate: DateTime(2002),
                                 lastDate: DateTime.now()
                                     .add(const Duration(days: 365)));
-
                             if (newDate != null) {
                               setState(() {
-                                dateController.text = DateFormat('dd/MM/yyyy').format(newDate);
+                                dateController.text =
+                                    DateFormat('dd/MM/yyyy').format(newDate);
                                 selectDate = newDate;
                               });
                             }
@@ -138,16 +139,17 @@ class _MyWidgetState extends State<AddingIncome> {
               children: [
                 // Save button
                 MaterialButton(
-                  color: Colors.blue[200],
+                  color: Colors.red[300],
                   onPressed: () {
                     double rawAmount = double.parse(amountController.text);
-                    double modAmount = rawAmount < 0 ? -1 *rawAmount : rawAmount;
+                    double modAmount =
+                        rawAmount > 0 ? -1 * rawAmount : rawAmount;
                     Expense expense = Expense(
-                      date: Timestamp.fromDate(selectDate), 
-                      amount: modAmount, 
-                      category: categoryController.text,
-                      note: noteController.text,
-                      description: descriptionController.text);
+                        date: Timestamp.fromDate(selectDate),
+                        amount: modAmount,
+                        category: categoryController.text,
+                        note: noteController.text,
+                        description: descriptionController.text);
                     DatabaseMethods().addExpense(expense);
                     Navigator.popUntil(context, (context) => context.isFirst);
                   },
