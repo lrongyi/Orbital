@@ -91,7 +91,7 @@ class _MyWidgetState extends State<AddingExpense> {
                 children: [
                   Row(
                     children: [
-                      SizedBox(
+                      const SizedBox(
                         width: 100,
                         child: Text(
                           'Date',
@@ -107,10 +107,9 @@ class _MyWidgetState extends State<AddingExpense> {
                             DateTime? newDate = await showDatePicker(
                                 context: context,
                                 initialDate: selectDate,
-                                firstDate: DateTime.now(),
+                                firstDate: DateTime(2002),
                                 lastDate: DateTime.now()
                                     .add(const Duration(days: 365)));
-
                             if (newDate != null) {
                               setState(() {
                                 dateController.text = DateFormat('dd/MM/yyyy').format(newDate);
@@ -118,7 +117,7 @@ class _MyWidgetState extends State<AddingExpense> {
                               });
                             }
                           },
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             hintText: 'Enter date',
                           ),
                         ),
@@ -141,10 +140,11 @@ class _MyWidgetState extends State<AddingExpense> {
                 MaterialButton(
                   color: Colors.red[300],
                   onPressed: () {
-                    // Needs testing
+                    double rawAmount = double.parse(amountController.text);
+                    double modAmount = rawAmount > 0 ? -1 *rawAmount : rawAmount;
                     Expense expense = Expense(
-                      date: Timestamp.now(), 
-                      amount: -1 * double.parse(amountController.text), 
+                      date: Timestamp.fromDate(selectDate), 
+                      amount: modAmount, 
                       category: categoryController.text,
                       note: noteController.text,
                       description: descriptionController.text

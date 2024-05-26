@@ -90,7 +90,7 @@ class _MyWidgetState extends State<AddingIncome> {
                 children: [
                   Row(
                     children: [
-                      SizedBox(
+                      const SizedBox(
                         width: 100,
                         child: Text(
                           'Date',
@@ -106,7 +106,7 @@ class _MyWidgetState extends State<AddingIncome> {
                             DateTime? newDate = await showDatePicker(
                                 context: context,
                                 initialDate: selectDate,
-                                firstDate: DateTime.now(),
+                                firstDate: DateTime(2002),
                                 lastDate: DateTime.now()
                                     .add(const Duration(days: 365)));
 
@@ -117,7 +117,7 @@ class _MyWidgetState extends State<AddingIncome> {
                               });
                             }
                           },
-                          decoration: InputDecoration(
+                          decoration: const InputDecoration(
                             hintText: 'Enter date',
                           ),
                         ),
@@ -140,13 +140,14 @@ class _MyWidgetState extends State<AddingIncome> {
                 MaterialButton(
                   color: Colors.blue[200],
                   onPressed: () {
-                    // Needs testing
+                    double rawAmount = double.parse(amountController.text);
+                    double modAmount = rawAmount < 0 ? -1 *rawAmount : rawAmount;
                     Expense expense = Expense(
-                        date: Timestamp.now(),
-                        amount: double.parse(amountController.text),
-                        category: categoryController.text,
-                        note: noteController.text,
-                        description: descriptionController.text);
+                      date: Timestamp.fromDate(selectDate), 
+                      amount: modAmount, 
+                      category: categoryController.text,
+                      note: noteController.text,
+                      description: descriptionController.text);
                     DatabaseMethods().addExpense(expense);
                     Navigator.popUntil(context, (context) => context.isFirst);
                   },
