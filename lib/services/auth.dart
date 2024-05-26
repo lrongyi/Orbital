@@ -34,9 +34,8 @@ class AuthMethods{
         'email': userDetails!.email,
         'name': userDetails.displayName,
         'id': userDetails.uid,
-        'income': 0,
-        'monthly_budget': 0,
-        'expenditure': 0
+        'monthlyBudget': 0,
+        'netSpend': 0
       };
       
       //Database methods
@@ -91,9 +90,8 @@ class AuthMethods{
           'email': userDetails!.email,
           'name': name,
           'id': userDetails.uid,
-          'income': 0,
-          'month_budget': 0,
-          'expenditure': 0
+          'monthBudget': 0,
+          'netSpend': 0
         };
         
         //Database methods
