@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:ss/screens/main_screens/navigation.dart';
 import 'package:ss/screens/main_screens/sub_screens/adding_income.dart';
 import 'package:ss/services/database.dart';
@@ -20,7 +21,14 @@ class _MyWidgetState extends State<AddingExpense> {
   TextEditingController categoryController = TextEditingController();
   TextEditingController noteController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
+  DateTime selectDate = DateTime.now();
 
+  @override
+  void initState() {
+    dateController.text = DateFormat('dd/MM/yyyy').format(DateTime.now());
+    super.initState();
+  }
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -81,7 +89,41 @@ class _MyWidgetState extends State<AddingExpense> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  AddingDeco().buildRow('Date', dateController),
+                  Row(
+                    children: [
+                      const SizedBox(
+                        width: 100,
+                        child: Text(
+                          'Date',
+                          textAlign: TextAlign.start,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: TextFormField(
+                          controller: dateController,
+                          readOnly: true,
+                          onTap: () async {
+                            DateTime? newDate = await showDatePicker(
+                                context: context,
+                                initialDate: selectDate,
+                                firstDate: DateTime(2002),
+                                lastDate: DateTime.now()
+                                    .add(const Duration(days: 365)));
+                            if (newDate != null) {
+                              setState(() {
+                                dateController.text = DateFormat('dd/MM/yyyy').format(newDate);
+                                selectDate = newDate;
+                              });
+                            }
+                          },
+                          decoration: const InputDecoration(
+                            hintText: 'Enter date',
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                   AddingDeco().buildRow('Amount', amountController),
                   AddingDeco().buildRow('Category', categoryController),
                   AddingDeco().buildRow('Note', noteController),
@@ -98,10 +140,11 @@ class _MyWidgetState extends State<AddingExpense> {
                 MaterialButton(
                   color: Colors.red[300],
                   onPressed: () {
-                    // Date needs to be edited
+                    double rawAmount = double.parse(amountController.text);
+                    double modAmount = rawAmount > 0 ? -1 *rawAmount : rawAmount;
                     Expense expense = Expense(
-                      date: Timestamp.now(), 
-                      amount: -1 * double.parse(amountController.text), 
+                      date: Timestamp.fromDate(selectDate), 
+                      amount: modAmount, 
                       category: categoryController.text,
                       note: noteController.text,
                       description: descriptionController.text

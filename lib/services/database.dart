@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:ss/services/auth.dart';
 import 'package:ss/services/models/expense.dart';
 
@@ -30,7 +31,9 @@ class DatabaseMethods {
     return getExpensesRef(getCurrentUserId()).snapshots();
   }
 
+  // add the ability to modify user's expenditure field, might need user model
   void addExpense(Expense expense) async {
+    final userRef = _firestore.collection(USER_COLLECTION).doc(getCurrentUserId());
     getExpensesRef(getCurrentUserId()).add(expense);
   }
 

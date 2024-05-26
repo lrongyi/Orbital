@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:ss/screens/main_screens/navigation.dart';
 import 'package:ss/screens/main_screens/sub_screens/adding_expense.dart';
 import 'package:ss/services/database.dart';
@@ -14,12 +15,18 @@ class AddingIncome extends StatefulWidget {
 }
 
 class _MyWidgetState extends State<AddingIncome> {
-
   TextEditingController dateController = TextEditingController();
   TextEditingController amountController = TextEditingController();
   TextEditingController categoryController = TextEditingController();
   TextEditingController noteController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
+  DateTime selectDate = DateTime.now();
+
+  @override
+  void initState() {
+    dateController.text = DateFormat('dd/MM/yyyy').format(DateTime.now());
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +88,42 @@ class _MyWidgetState extends State<AddingIncome> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  AddingDeco().buildRow('Date', dateController),
+                  Row(
+                    children: [
+                      const SizedBox(
+                        width: 100,
+                        child: Text(
+                          'Date',
+                          textAlign: TextAlign.start,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: TextFormField(
+                          controller: dateController,
+                          readOnly: true,
+                          onTap: () async {
+                            DateTime? newDate = await showDatePicker(
+                                context: context,
+                                initialDate: selectDate,
+                                firstDate: DateTime(2002),
+                                lastDate: DateTime.now()
+                                    .add(const Duration(days: 365)));
+
+                            if (newDate != null) {
+                              setState(() {
+                                dateController.text = DateFormat('dd/MM/yyyy').format(newDate);
+                                selectDate = newDate;
+                              });
+                            }
+                          },
+                          decoration: const InputDecoration(
+                            hintText: 'Enter date',
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                   AddingDeco().buildRow('Amount', amountController),
                   AddingDeco().buildRow('Category', categoryController),
                   AddingDeco().buildRow('Note', noteController),
@@ -98,15 +140,19 @@ class _MyWidgetState extends State<AddingIncome> {
                 MaterialButton(
                   color: Colors.blue[200],
                   onPressed: () {
+<<<<<<< HEAD
                     // Date needs to be edited 
+=======
+                    double rawAmount = double.parse(amountController.text);
+                    double modAmount = rawAmount < 0 ? -1 *rawAmount : rawAmount;
+>>>>>>> 5fe8119b186b8a795e7e5fc66b94d7ea24682e04
                     Expense expense = Expense(
-                      date: Timestamp.now(), 
-                      amount: double.parse(amountController.text), 
+                      date: Timestamp.fromDate(selectDate), 
+                      amount: modAmount, 
                       category: categoryController.text,
                       note: noteController.text,
-                      description: descriptionController.text
-                      );
-                    DatabaseMethods().addExpense(expense);  
+                      description: descriptionController.text);
+                    DatabaseMethods().addExpense(expense);
                     Navigator.popUntil(context, (context) => context.isFirst);
                   },
                   minWidth: 250,

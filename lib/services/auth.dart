@@ -17,12 +17,12 @@ class AuthMethods{
     final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
     final GoogleSignIn googleSignIn = GoogleSignIn();
 
-    final GoogleSignInAccount? googleSignInAccount = await googleSignIn.signIn();
-    final GoogleSignInAuthentication? googleSignInAuthentication = await googleSignInAccount?.authentication;
+    final googleUser = await googleSignIn.signIn();
+    final googleAuth = await googleUser?.authentication;
 
     final AuthCredential credential = GoogleAuthProvider.credential(
-      idToken: googleSignInAuthentication?.idToken,
-      accessToken: googleSignInAuthentication?.accessToken
+      idToken: googleAuth?.idToken,
+      accessToken: googleAuth?.accessToken
     );
 
     UserCredential result = await firebaseAuth.signInWithCredential(credential);
@@ -50,27 +50,28 @@ class AuthMethods{
       await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
       Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => Navigation()), (route) => false);
     } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
+      if (e.code == 'invalid-credential') {
         ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text(
-              'User Not Found',
+              'Wrong Email or Password',
               style: TextStyle(fontSize: 18.0),
             ),
-            backgroundColor: Colors.amberAccent,
+            backgroundColor: Colors.red,
             )
         );
-      } else if (e.code == 'wrong-password') {
+      } else {
         ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-              'Wrong Password',
+          SnackBar(
+            content: Text(
+              e.code,
               style: TextStyle(fontSize: 18.0),
             ),
-            backgroundColor: Colors.amberAccent,
-            )
+            backgroundColor: Colors.red,
+          )
         );
       }
+      
     }
   }
 
@@ -99,31 +100,41 @@ class AuthMethods{
         });
 
       } on FirebaseAuthException catch (e) {
-        if (e.code == 'weak-password') {
+        if (e.code == 'email-already-in-use') {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
+          const SnackBar(
+            content: Text(
+              'User Already Exists',
+              style: TextStyle(fontSize: 18.0),
+              ),
+              backgroundColor: Colors.red,
+            )
+        );
+        } else if (e.code =='weak-password') {
+          ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
               'Weak Password',
               style: TextStyle(fontSize: 18.0),
-            ),
-            backgroundColor: Colors.amberAccent,
+              ),
+              backgroundColor: Colors.red,
             )
           );
-        } else if (e.code == 'email-already-in-use') {
+        } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-              'Account Already Exists',
+          SnackBar(
+            content: Text(
+              e.code,
               style: TextStyle(fontSize: 18.0),
-            ),
-            backgroundColor: Colors.amberAccent,
+              ),
+              backgroundColor: Colors.red,
             )
           );
         }
       }
     }
   }
-
+  
   resetPassword(BuildContext context, String email) async {
     try {
         await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
@@ -136,17 +147,16 @@ class AuthMethods{
           )
         );
     } on FirebaseAuthException catch (e) {
-        if (e.code == 'user-not-found') {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-              'Email Invalid',
-              style: TextStyle(fontSize: 18.0),
-            ),
-            backgroundColor: Colors.amberAccent,
-            )
-        );
-        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+            'Email Invalid',
+            style: TextStyle(fontSize: 18.0),
+          ),
+          backgroundColor: Colors.red,
+          )
+      );
+        
     }
   }
 

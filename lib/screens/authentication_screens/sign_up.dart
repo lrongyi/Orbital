@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ss/screens/main_screens/home.dart';
 import 'package:ss/screens/authentication_screens/log_in.dart';
@@ -34,16 +35,14 @@ class _SignUpState extends State<SignUp> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              Container(
+              SizedBox(
+                height: 250.0,
                 width: MediaQuery.of(context).size.width,
                 //insert an image
                 child: Image.asset(
-                  "assets/ss_logo.png",
-                  fit: BoxFit.cover,
+                  "assets/ss_red.png",
+                  fit: BoxFit.scaleDown,
                 )
-              ),
-              const SizedBox(
-                height: 30.0
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 20.0, right: 20.0),
