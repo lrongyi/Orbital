@@ -1,12 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:ss/screens/main_screens/home_screens/home.dart';
 import 'package:ss/screens/navigation_screen/navigation.dart';
 import 'package:ss/screens/navigation_screen/adding_income.dart';
 import 'package:ss/services/database.dart';
 import 'package:ss/services/models/expense.dart';
 import 'package:ss/shared/adding_deco.dart';
+import 'package:ss/shared/main_screens_deco.dart';
 
 class AddingExpense extends StatefulWidget {
   const AddingExpense({super.key});
@@ -34,9 +34,12 @@ class _MyWidgetState extends State<AddingExpense> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: mainColor,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(
+            Icons.arrow_back,
+            color: Colors.white,
+            ),
           onPressed: () {
             Navigator.pushAndRemoveUntil(
                 context,
@@ -45,10 +48,18 @@ class _MyWidgetState extends State<AddingExpense> {
           },
         ),
         centerTitle: true,
-        title: const Text('Expense'),
+        title: const Text(
+          'Expense',
+          style: const TextStyle(
+            color: Colors.white,
+          )
+          ),
       ),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
+        padding: const EdgeInsets.only(
+          left: 20, right: 20,
+          top: 30,
+        ),
         child: Column(
           children: [
             Row(

@@ -6,6 +6,7 @@ import 'package:ss/screens/navigation_screen/adding_expense.dart';
 import 'package:ss/services/database.dart';
 import 'package:ss/services/models/expense.dart';
 import 'package:ss/shared/adding_deco.dart';
+import 'package:ss/shared/main_screens_deco.dart';
 
 class AddingIncome extends StatefulWidget {
   const AddingIncome({super.key});
@@ -33,9 +34,12 @@ class _MyWidgetState extends State<AddingIncome> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: mainColor,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(
+            Icons.arrow_back,
+            color: Colors.white,
+            ),
           onPressed: () {
             Navigator.pushAndRemoveUntil(
                 context,
@@ -44,10 +48,18 @@ class _MyWidgetState extends State<AddingIncome> {
           },
         ),
         centerTitle: true,
-        title: const Text('Income'),
+        title: const Text(
+          'Income',
+          style: const TextStyle(
+            color: Colors.white,
+          )
+          ),
       ),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
+        padding: const EdgeInsets.only(
+          left: 20, right: 20,
+          top: 30,
+        ),
         child: Column(
           children: [
             Row(

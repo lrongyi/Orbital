@@ -40,13 +40,8 @@ class _BudgetingState extends State<Budgeting> {
 
     Map<String, double> categorySpent = {
       'Food': 900.0,
-      'Transport': 300.0,
-      'Household': 200.0,
-      'Clothing': 0,
-      'Health': 0,
-      'Education': 0,
-      'Gaming': 0,
-      'Subscriptions': 0,
+      'Transportation': 300.0,
+      'Entertainment': 200.0,
     };
 
     return Column(
@@ -79,6 +74,7 @@ class _BudgetingState extends State<Budgeting> {
                       Column(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
+                          // budget settings button
                           Container(
                             width: 150,
                             child: MaterialButton(
@@ -95,6 +91,7 @@ class _BudgetingState extends State<Budgeting> {
                               child: const Text('Budget Settings'),
                             ),
                           ),
+                          // add category button
                           Container(
                             width: 150,
                             child: MaterialButton(
@@ -115,28 +112,20 @@ class _BudgetingState extends State<Budgeting> {
                                           backgroundColor: Colors.purple[50],
                                           content: SingleChildScrollView(
                                             child: SizedBox(
-                                              width: MediaQuery.of(context)
-                                                  .size
-                                                  .width,
+                                              width: MediaQuery.of(context).size.width,
                                               child: Column(
                                                 mainAxisSize: MainAxisSize.min,
                                                 children: [
                                                   TextFormField(
-                                                    textAlignVertical:
-                                                        TextAlignVertical
-                                                            .center,
+                                                    textAlignVertical: TextAlignVertical.center,
                                                     decoration: InputDecoration(
                                                       isDense: true,
                                                       filled: true,
                                                       fillColor: Colors.white,
                                                       hintText: 'Name',
-                                                      border:
-                                                          OutlineInputBorder(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(12),
-                                                        borderSide:
-                                                            BorderSide.none,
+                                                      border: OutlineInputBorder(
+                                                        borderRadius: BorderRadius.circular(12),
+                                                        borderSide: BorderSide.none,
                                                       ),
                                                     ),
                                                   ),
@@ -147,16 +136,13 @@ class _BudgetingState extends State<Budgeting> {
                                                         isOpen = !isOpen;
                                                       });
                                                     },
-                                                    textAlignVertical:
-                                                        TextAlignVertical
-                                                            .center,
+                                                    textAlignVertical:TextAlignVertical.center,
                                                     readOnly: true,
                                                     decoration: InputDecoration(
                                                       isDense: true,
                                                       filled: true,
                                                       suffixIcon: const Icon(
-                                                        CupertinoIcons
-                                                            .chevron_down,
+                                                        CupertinoIcons.chevron_down,
                                                         size: 14,
                                                       ),
                                                       fillColor: Colors.white,
@@ -164,99 +150,90 @@ class _BudgetingState extends State<Budgeting> {
                                                       border:
                                                           OutlineInputBorder(
                                                         borderRadius: isOpen
-                                                            ? const BorderRadius
-                                                                .vertical(
-                                                                top: Radius
-                                                                    .circular(
-                                                                        12),
+                                                            ? const BorderRadius.vertical(
+                                                                top: Radius.circular(12),
                                                               )
-                                                            : BorderRadius
-                                                                .circular(12),
-                                                        borderSide:
-                                                            BorderSide.none,
+                                                            : BorderRadius.circular(12),
+                                                        borderSide: BorderSide.none,
                                                       ),
                                                     ),
                                                   ),
+                                                  // when icon grid view is open
                                                   isOpen
                                                       ? Container(
-                                                          width: MediaQuery.of(
-                                                                  context)
-                                                              .size
-                                                              .width,
+                                                          width: MediaQuery.of(context).size.width,
                                                           height: 200,
-                                                          decoration:
-                                                              const BoxDecoration(
+                                                          decoration: const BoxDecoration(
                                                             color: Colors.white,
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .vertical(
-                                                              bottom: Radius
-                                                                  .circular(12),
+                                                            borderRadius: BorderRadius.vertical(
+                                                              bottom: Radius.circular(12),
                                                             ),
                                                           ),
                                                           child: Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .all(8.0),
-                                                            child: GridView
-                                                                .builder(
-                                                              gridDelegate:
-                                                                  const SliverGridDelegateWithFixedCrossAxisCount(
-                                                                crossAxisCount:
-                                                                    3,
-                                                                mainAxisSpacing:
-                                                                    5,
-                                                                crossAxisSpacing:
-                                                                    5,
-                                                              ),
-                                                              itemCount:
-                                                                  categoryIcons
-                                                                      .length,
-                                                              itemBuilder:
-                                                                  (context,
-                                                                      int i) {
-                                                                return GestureDetector(
-                                                                  onTap: () {
-                                                                    setState(
-                                                                        () {
-                                                                      iconSelected =
-                                                                          categoryIcons[
-                                                                              i];
-                                                                    });
-                                                                  },
-                                                                  child:
-                                                                      Container(
-                                                                    width: 50,
-                                                                    height: 50,
-                                                                    decoration:
-                                                                        BoxDecoration(
-                                                                      border:
-                                                                          Border
-                                                                              .all(
-                                                                        width:
-                                                                            3,
-                                                                        color: iconSelected ==
-                                                                                categoryIcons[i]
-                                                                            ? Colors.green
-                                                                            : Colors.grey,
-                                                                      ),
-                                                                      borderRadius:
-                                                                          BorderRadius.circular(
-                                                                              12),
-                                                                      image:
-                                                                          DecorationImage(
-                                                                        image: AssetImage(
-                                                                            'assets/${categoryIcons[i]}.png'),
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                      .all(8.0),
+                                                              child: GridView
+                                                                  .builder(
+                                                                gridDelegate:
+                                                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                                                  crossAxisCount:
+                                                                      3,
+                                                                  mainAxisSpacing:
+                                                                      5,
+                                                                  crossAxisSpacing:
+                                                                      5,
+                                                                ),
+                                                                itemCount:
+                                                                    categoryIcons
+                                                                        .length,
+                                                                itemBuilder:
+                                                                    (context,
+                                                                        int i) {
+                                                                  return GestureDetector(
+                                                                    onTap: () {
+                                                                      setState(
+                                                                          () {
+                                                                        iconSelected =
+                                                                            categoryIcons[
+                                                                                i];
+                                                                      });
+                                                                    },
+                                                                    child:
+                                                                        Container(
+                                                                      width: 50,
+                                                                      height: 50,
+                                                                      decoration:
+                                                                          BoxDecoration(
+                                                                        border:
+                                                                            Border
+                                                                                .all(
+                                                                          width:
+                                                                              3,
+                                                                          color: iconSelected ==
+                                                                                  categoryIcons[i]
+                                                                              ? Colors.green
+                                                                              : Colors.grey,
+                                                                        ),
+                                                                        borderRadius:
+                                                                            BorderRadius.circular(
+                                                                                12),
+                                                                        image:
+                                                                            DecorationImage(
+                                                                          image: AssetImage(
+                                                                              'assets/${categoryIcons[i]}.png'),
+                                                                        ),
                                                                       ),
                                                                     ),
-                                                                  ),
-                                                                );
-                                                              },
+                                                                  );
+                                                                },
+                                                              ),
                                                             ),
-                                                          ),
-                                                        )
+                                                          )
+                                                      // otherwise null
                                                       : Container(),
                                                   const SizedBox(height: 16),
+                                                  // colour button
                                                   TextFormField(
                                                     readOnly: true,
                                                     onTap: () {
@@ -345,12 +322,13 @@ class _BudgetingState extends State<Budgeting> {
                                                     ),
                                                   ),
                                                   const SizedBox(height: 16),
+                                                  // save button of the overall create a category dialog box
                                                   SizedBox(
                                                     width: double.infinity,
                                                     height: 50,
                                                     child: TextButton(
                                                       onPressed: () {
-                                                        // TODO: Create Category Object and send to firebase
+                                                        // TODO: Create Category Object and send to firebase after saving
                                                         Navigator.pop(context);
                                                       },
                                                       style:
@@ -393,6 +371,7 @@ class _BudgetingState extends State<Budgeting> {
                 ),
               ),
               const SizedBox(height: 10),
+              // visual aid (spent/total + linear progress bar)
               Padding(
                 padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
                 child: Container(
@@ -463,6 +442,7 @@ class _BudgetingState extends State<Budgeting> {
           ),
         ),
         const SizedBox(height: 30),
+        //everything else below (labels + categories list view)
         const Padding(
           padding: EdgeInsets.symmetric(horizontal: 16),
           child: Row(

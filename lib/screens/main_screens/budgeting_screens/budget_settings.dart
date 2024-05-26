@@ -19,13 +19,8 @@ class _BudgetSettingsState extends State<BudgetSettings> {
 
     categoryBudget = {
       'Food': 0.0,
-      'Transport': 0.0,
-      'Household': 0.0,
-      'Clothing': 0.0,
-      'Health': 0.0,
-      'Education': 0.0,
-      'Gaming': 0.0,
-      'Subscriptions': 0.0,
+      'Transportation': 0.0,
+      'Entertainment': 0.0,
     };
 
     controllers = Map.fromIterable(categoryBudget.keys,
@@ -102,6 +97,8 @@ class _BudgetSettingsState extends State<BudgetSettings> {
     );
   }
 
+  // this was hard coded, might need to gpt this on how to make it dynamic according to
+  // the details provided for the Create a Category
   Widget buildCategoryTile(BuildContext context, String categoryName, double amountSpent) {
     TextEditingController controller = TextEditingController(text: amountSpent.toStringAsFixed(2));
     IconData iconData;
