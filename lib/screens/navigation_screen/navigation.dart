@@ -229,6 +229,9 @@ class _NavigationState extends State<Navigation> {
     return MaterialButton(
       onPressed: () => _onTapped(index),
       minWidth: 40,
+      // to hide the touch indication
+      splashColor: Colors.transparent,
+      highlightColor: Colors.transparent,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,

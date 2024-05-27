@@ -62,7 +62,7 @@ class _MyWidgetState extends State<EditingExpense> {
         ),
         centerTitle: true,
         title: const Text(
-          'Expense',
+          'Edit',
           style: TextStyle(
             color: Colors.white,
           )

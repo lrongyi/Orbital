@@ -162,7 +162,12 @@ class _ExpensesState extends State<Expenses> {
                               ),
                               trailing: Text(
                                 expense.amount.toStringAsFixed(2),
-                                style: const TextStyle(fontSize: 18.0),
+                                style: TextStyle(
+                                  fontSize: 18.0,
+                                  color: expense.amount > 0
+                                  ? Colors.blue
+                                  : Colors.red,
+                                  ),
                               ),
                               onTap: () {
                                 // make a view to see the expense description 
@@ -171,7 +176,59 @@ class _ExpensesState extends State<Expenses> {
                                 // category is expense.category
                                 // date is expense.date -> as a TimeStamp convert to DateTime using toDate()
                                 String? description = expense.description;
-                                
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return AlertDialog(
+                                      backgroundColor: expense.amount > 0
+                                      ? Colors.blue[50]
+                                      : Colors.red[50],
+                                      title: Text(expense.amount > 0 
+                                        ? 'Income Description'
+                                        : 'Expense Description',
+                                        style: const TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 20,
+                                        ),
+                                      ),
+                                      content: Container(
+                                        color: Colors.white,                                 
+                                        constraints: BoxConstraints(
+                                          // size of description box, can change minHeight
+                                          // according to what looks best
+                                          minHeight: 200, 
+                                          maxWidth: MediaQuery.of(context).size.width * 0.8,
+                                        ),
+                                        child: Text(
+                                          // the no description provided isn't showing
+                                          // when i don't put a description
+                                          // which means that the program thinks that not putting
+                                          // a description is a value on its own (and not null)
+                                          // need to change that under editing_expense/income
+                                          // and adding_expense/income. but if you're okay with the dialog box
+                                          // not showing anything if no description is provided,
+                                          // can just delete this comment and delete the ?? 'No description provided'
+                                          description ?? 'No description provided',
+                                          style: const TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: const Text(
+                                            'Close',
+                                          ),
+                                        ),
+                                      ]
+                                    );
+                                  }
+                                );
                               },
                               onLongPress: () {
                                 // make option to delete or edit expense

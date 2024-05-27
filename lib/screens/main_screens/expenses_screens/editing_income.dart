@@ -48,7 +48,7 @@ class _MyWidgetState extends State<EditingIncome> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: mainColor,
+        backgroundColor: Colors.blue,
         leading: IconButton(
           icon: const Icon(
             Icons.arrow_back,
@@ -60,7 +60,7 @@ class _MyWidgetState extends State<EditingIncome> {
         ),
         centerTitle: true,
         title: const Text(
-          'Income',
+          'Edit',
           style: TextStyle(
             color: Colors.white,
           )

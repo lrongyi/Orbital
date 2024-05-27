@@ -107,9 +107,18 @@ class _BudgetingState extends State<Budgeting> {
                                     return StatefulBuilder(
                                       builder: (context, setState) {
                                         return AlertDialog(
+                                          // shape: const RoundedRectangleBorder(
+                                          //   borderRadius: BorderRadius.zero,
+                                          // ),
                                           title:
-                                              const Text('Create a Category'),
-                                          backgroundColor: Colors.purple[50],
+                                              const Text(
+                                                'Create a Category',
+                                                style: TextStyle(
+                                                  fontSize: 22,
+                                                  // fontWeight: FontWeight.bold,
+                                                )
+                                                ),
+                                          backgroundColor: Colors.red[50],
                                           content: SingleChildScrollView(
                                             child: SizedBox(
                                               width: MediaQuery.of(context).size.width,
