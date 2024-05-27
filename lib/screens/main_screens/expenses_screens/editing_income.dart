@@ -1,21 +1,30 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:ss/screens/main_screens/expenses_screens/editing_expense.dart';
 import 'package:ss/screens/navigation_screen/navigation.dart';
-import 'package:ss/screens/navigation_screen/adding_income.dart';
+import 'package:ss/screens/navigation_screen/adding_expense.dart';
 import 'package:ss/services/database.dart';
 import 'package:ss/services/models/expense.dart';
 import 'package:ss/shared/adding_deco.dart';
 import 'package:ss/shared/main_screens_deco.dart';
 
-class AddingExpense extends StatefulWidget {
-  const AddingExpense({super.key});
+class EditingIncome extends StatefulWidget {
+
+  String expenseId;
+  DateTime date;
+  double amount;
+  String? category;
+  String? note;
+  String? description;
+
+  EditingIncome({super.key, required this.expenseId, required this.date, required this.amount, required this.category, required this.note, required this.description});
 
   @override
-  State<AddingExpense> createState() => _MyWidgetState();
+  State<EditingIncome> createState() => _MyWidgetState();
 }
 
-class _MyWidgetState extends State<AddingExpense> {
+class _MyWidgetState extends State<EditingIncome> {
   TextEditingController dateController = TextEditingController();
   TextEditingController amountController = TextEditingController();
   TextEditingController categoryController = TextEditingController();
@@ -25,7 +34,12 @@ class _MyWidgetState extends State<AddingExpense> {
 
   @override
   void initState() {
-    dateController.text = DateFormat('dd/MM/yyyy').format(DateTime.now());
+    dateController.text = DateFormat('dd/MM/yyyy').format(widget.date);
+    selectDate = widget.date;
+    amountController.text = widget.amount.toStringAsFixed(2);
+    categoryController.text = widget.category ?? '';
+    noteController.text = widget.note ?? '';
+    descriptionController.text = widget.description ?? '';
     super.initState();
   }
 
@@ -41,15 +55,12 @@ class _MyWidgetState extends State<AddingExpense> {
             color: Colors.white,
             ),
           onPressed: () {
-            Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (context) => Navigation()),
-                (route) => false);
+            Navigator.pop(context);
           },
         ),
         centerTitle: true,
         title: const Text(
-          'Expense',
+          'Income',
           style: TextStyle(
             color: Colors.white,
           )
@@ -65,20 +76,9 @@ class _MyWidgetState extends State<AddingExpense> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                MaterialButton(
-                  color: Colors.grey[100],
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (builder) => AddingIncome()));
-                  },
-                  minWidth: 175,
-                  child: const Text('Income'),
-                ),
                 Container(
                   decoration: BoxDecoration(
-                    border: Border.all(color: Colors.red, width: 2),
+                    border: Border.all(color: Colors.blue, width: 2),
                   ),
                   child: SizedBox(
                     width: 175,
@@ -87,14 +87,32 @@ class _MyWidgetState extends State<AddingExpense> {
                       color: Colors.grey[100],
                       onPressed: () {},
                       minWidth: 175,
-                      child: const Text('Expense'),
+                      child: const Text('Income'),
                     ),
                   ),
+                ),
+                MaterialButton(
+                  color: Colors.grey[100],
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (builder) => EditingExpense(
+                              expenseId: widget.expenseId,
+                              date: widget.date,
+                              amount: widget.amount,
+                              category: widget.category,
+                              note: widget.note,
+                              description: widget.description,
+                              )));
+                  },
+                  minWidth: 175,
+                  child: const Text('Expense'),
                 ),
               ],
             ),
             const SizedBox(height: 10),
-            //SizedBox containing the titles and the text form fields
+            //Box containing the titles and the text form fields
             SizedBox(
               width: double.infinity,
               child: Column(
@@ -121,6 +139,7 @@ class _MyWidgetState extends State<AddingExpense> {
                                 firstDate: DateTime(2002),
                                 lastDate: DateTime.now()
                                     .add(const Duration(days: 365)));
+
                             if (newDate != null) {
                               setState(() {
                                 dateController.text =
@@ -150,19 +169,19 @@ class _MyWidgetState extends State<AddingExpense> {
               children: [
                 // Save button
                 MaterialButton(
-                  color: Colors.red[300],
+                  color: Colors.blue[200],
                   onPressed: () {
                     double rawAmount = double.parse(amountController.text);
                     double modAmount =
-                        rawAmount > 0 ? -1 * rawAmount : rawAmount;
+                        rawAmount < 0 ? -1 * rawAmount : rawAmount;
                     Expense expense = Expense(
                         date: Timestamp.fromDate(selectDate),
                         amount: modAmount,
                         category: categoryController.text,
                         note: noteController.text,
                         description: descriptionController.text);
-                    DatabaseMethods().addExpense(expense);
-                    Navigator.popUntil(context, (context) => context.isFirst);
+                    DatabaseMethods().updateExpense(widget.expenseId, expense);
+                    Navigator.pop(context);
                   },
                   minWidth: 250,
                   child: const Text('Save'),
@@ -171,10 +190,7 @@ class _MyWidgetState extends State<AddingExpense> {
                 MaterialButton(
                   color: Colors.grey[100],
                   onPressed: () {
-                    Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(builder: (context) => Navigation()),
-                        (route) => false);
+                    Navigator.pop(context);
                   },
                   minWidth: 100,
                   child: const Text('Cancel'),

@@ -6,6 +6,7 @@ import 'package:ss/screens/main_screens/expenses_screens/expenses.dart';
 import 'package:ss/screens/main_screens/budgeting_screens/budgeting.dart';
 import 'package:ss/screens/main_screens/settings_screeens/settings.dart';
 import 'package:ss/screens/navigation_screen/edit_profile.dart';
+import 'package:ss/services/auth.dart';
 import 'package:ss/shared/main_screens_deco.dart';
 
 class Navigation extends StatefulWidget {
@@ -120,6 +121,7 @@ class _NavigationState extends State<Navigation> {
               ),
               onTap: () {
                 // Handle logout
+                AuthMethods().signOut();
               },
             ),
           ],
@@ -143,7 +145,7 @@ class _NavigationState extends State<Navigation> {
         title: Text(
           appBarTitles[_selectedIndex],
           textAlign: TextAlign.center,
-          style: TextStyle(
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 20.0,
             fontWeight: FontWeight.w500,

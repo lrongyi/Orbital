@@ -63,14 +63,16 @@ class DatabaseMethods {
     final userRef = _firestore.collection(USER_COLLECTION).doc(getCurrentUserId());
 
     if (expenseDoc.exists) {
-      final currentExpense = Expense.fromjson(expenseDoc.data()! as Map<String, Object?>);
+      final data = expenseDoc.data();
+      
+        final currentExpense = data!.toJson();
 
       await getExpensesRef(getCurrentUserId()).doc(expenseId).update(expense.toJson());
 
       final userDoc = await userRef.get();
       if (userDoc.exists) {
         final currentNetSpend = userDoc.data()!['netSpend'] ?? 0;
-        final newNetSpend = currentNetSpend - currentExpense.amount + expense.amount;
+        final newNetSpend = currentNetSpend - currentExpense['amount'] + expense.amount;
         await userRef.update({'netSpend': newNetSpend});
       }
     }
