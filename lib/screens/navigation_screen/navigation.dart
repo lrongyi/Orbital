@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:ss/screens/authentication_screens/log_in.dart';
 import 'package:ss/screens/navigation_screen/adding_expense.dart';
 import 'package:ss/screens/main_screens/home_screens/home.dart';
 import 'package:ss/screens/main_screens/expenses_screens/expenses.dart';
@@ -7,6 +8,7 @@ import 'package:ss/screens/main_screens/budgeting_screens/budgeting.dart';
 import 'package:ss/screens/main_screens/settings_screeens/settings.dart';
 import 'package:ss/screens/navigation_screen/edit_profile.dart';
 import 'package:ss/services/auth.dart';
+import 'package:ss/services/database.dart';
 import 'package:ss/shared/main_screens_deco.dart';
 
 class Navigation extends StatefulWidget {
@@ -17,7 +19,11 @@ class Navigation extends StatefulWidget {
 }
 
 class _NavigationState extends State<Navigation> {
+
+  final currentUser = AuthMethods().getCurrentUser();
   int _selectedIndex = 0;
+
+
 
   void _onTapped(int index) {
     setState(() {
@@ -39,8 +45,26 @@ class _NavigationState extends State<Navigation> {
           padding: EdgeInsets.zero,
           children: [
             UserAccountsDrawerHeader(
-              accountName: const Text('Username'),
-              accountEmail: const Text('user@example.com'),
+              accountName: FutureBuilder<String>(
+                future: DatabaseMethods().getUserNameAsync(),
+                builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+                  if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}'); // Display error message if any
+                  } else {
+                    return Text(snapshot.data ?? ''); // Display the user name
+                  }
+                },
+              ),
+              accountEmail: FutureBuilder<String>(
+                future: DatabaseMethods().getEmailAsync(),
+                builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+                  if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}'); // Display error message if any
+                  } else {
+                    return Text(snapshot.data ?? ''); // Display the user email
+                  }
+                },
+              ),
               currentAccountPicture: CircleAvatar(
                 backgroundColor: Colors.white,
                 child: Text(
@@ -119,9 +143,10 @@ class _NavigationState extends State<Navigation> {
                 'Logout',
                 style: TextStyle(color: Colors.white),
               ),
-              onTap: () {
+              onTap: () async {
                 // Handle logout
-                AuthMethods().signOut();
+                await AuthMethods().signOut(context);
+                Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => LogIn()), (route) => false);
               },
             ),
           ],
@@ -184,13 +209,13 @@ class _NavigationState extends State<Navigation> {
         shape: RoundedRectangleBorder(
           side: const BorderSide(
             width: 3,
-            color: Colors.brown,
+            color: Color.fromARGB(255, 88, 33, 33),
           ),
           borderRadius: BorderRadius.circular(30),
         ),
         child: const Icon(
           CupertinoIcons.add,
-          color: Colors.black,
+          color: Color.fromARGB(255, 88, 33, 33),
         ),
       ),
     );

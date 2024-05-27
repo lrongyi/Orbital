@@ -18,6 +18,30 @@ class DatabaseMethods {
     return FirebaseAuth.instance.currentUser!.uid;
   }
 
+  User? getCurrentUser() {
+    return FirebaseAuth.instance.currentUser!;
+  }
+
+  Future<String> getUserNameAsync() async {
+    DocumentSnapshot userDoc = await _firestore.collection(USER_COLLECTION).doc(getCurrentUserId()).get();
+
+    if (userDoc.exists) {
+      return userDoc['name'];
+    } else {
+      return '';
+    }
+  }
+
+  Future<String> getEmailAsync() async {
+    DocumentSnapshot userDoc = await _firestore.collection(USER_COLLECTION).doc(getCurrentUserId()).get();
+
+    if (userDoc.exists) {
+      return userDoc['email'];
+    } else {
+      return '';
+    }
+  }
+
   Future addUser(String userId, Map<String, dynamic> userInfoMap) {
     return _firestore.collection(USER_COLLECTION).doc(userId).set(userInfoMap);
   }  
@@ -65,7 +89,7 @@ class DatabaseMethods {
     if (expenseDoc.exists) {
       final data = expenseDoc.data();
       
-        final currentExpense = data!.toJson();
+      final currentExpense = data!.toJson();
 
       await getExpensesRef(getCurrentUserId()).doc(expenseId).update(expense.toJson());
 
@@ -83,14 +107,15 @@ class DatabaseMethods {
     final expenseDoc = await getExpensesRef(getCurrentUserId()).doc(expenseId).get();
 
     if (expenseDoc.exists) {
-      final currentExpense = Expense.fromjson(expenseDoc.data()! as Map<String, Object?>);
+      final data = expenseDoc.data();
+      final currentExpense = data!.toJson();
 
       await getExpensesRef(getCurrentUserId()).doc(expenseId).delete();
 
       final userDoc = await userRef.get();
       if (userDoc.exists) {
         final currentNetSpend = userDoc.data()!['netSpend'] ?? 0;
-        final newNetSpend = currentNetSpend - currentExpense.amount;
+        final newNetSpend = currentNetSpend - currentExpense['amount'];
         await userRef.update({'netSpend': newNetSpend});
       }
     }

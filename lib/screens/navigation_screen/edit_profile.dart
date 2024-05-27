@@ -28,7 +28,7 @@ class _EditProfileState extends State<EditProfile> {
         backgroundColor: mainColor,
         title: const Text(
           'Profile Page',
-          style: const TextStyle(
+          style: TextStyle(
             color: Colors.white,
           )
         ),

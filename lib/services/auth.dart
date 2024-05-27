@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -28,23 +29,27 @@ class AuthMethods {
     User? userDetails = result.user;
 
     if (result != null) {
-      Map<String, dynamic> userInfoMap = {
-        'email': userDetails!.email,
-        'name': userDetails.displayName,
-        'id': userDetails.uid,
-        'monthlyBudget': 0,
-        'netSpend': 0
-      };
 
-      //Database methods
-      await DatabaseMethods()
-          .addUser(userDetails.uid, userInfoMap)
-          .then((value) {
-        Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) => Navigation()),
-            (route) => false);
-      });
+      final userDoc = await FirebaseFirestore.instance.collection('User').doc(userDetails?.uid).get();
+
+      if (!userDoc.exists) {
+        Map<String, dynamic> userInfoMap = {
+          'email': userDetails!.email,
+          'name': userDetails.displayName,
+          'id': userDetails.uid,
+          'monthlyBudget': 0,
+          'netSpend': 0
+        };
+
+        //Database methods
+        await DatabaseMethods()
+            .addUser(userDetails.uid, userInfoMap);
+      }
+
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => Navigation()),
+          (route) => false);
     }
   }
 
@@ -157,7 +162,13 @@ class AuthMethods {
     }
   }
 
-  signOut() async {
-    auth.signOut();
+  signOut(BuildContext context) async {
+    await auth.signOut();
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      content: Text(
+        'Signed Out',
+        style: TextStyle(fontSize: 18.0),
+      ),
+      ));
   }
 }

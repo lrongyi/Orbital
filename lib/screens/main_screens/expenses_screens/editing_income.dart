@@ -65,6 +65,18 @@ class _MyWidgetState extends State<EditingIncome> {
             color: Colors.white,
           )
           ),
+        actions: <Widget>[
+          IconButton(
+            icon: const Icon(
+              Icons.delete,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              DatabaseMethods().deleteExpense(widget.expenseId);
+              Navigator.pop(context);
+            },
+          ),
+        ]
       ),
       body: Padding(
         padding: const EdgeInsets.only(
@@ -94,6 +106,9 @@ class _MyWidgetState extends State<EditingIncome> {
                 MaterialButton(
                   color: Colors.grey[100],
                   onPressed: () {
+                    // Pops everything but the latest screen
+                    // Might need to tidy up the animations
+                    Navigator.popUntil(context, (context) => context.isFirst);
                     Navigator.push(
                         context,
                         MaterialPageRoute(
