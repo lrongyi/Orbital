@@ -1,8 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:intl/intl.dart';
 import 'package:ss/screens/main_screens/budgeting_screens/budget_settings.dart';
 import 'package:ss/shared/budgeting_deco.dart';
+import 'package:ss/shared/main_screens_deco.dart';
 
 class Budgeting extends StatefulWidget {
   const Budgeting({super.key});
@@ -12,479 +14,231 @@ class Budgeting extends StatefulWidget {
 }
 
 class _BudgetingState extends State<Budgeting> {
-  double monthlySpent = 1400;
-  double totalBudget = 1500;
-
-  List<String> categoryIcons = [
-    'entertainment',
-    'food',
-    'home',
-    'pet',
-    'shopping',
-    'tech',
-    'travel',
+  // TODO: replace dummy categories with user categories from firebase
+  List<Category> categories = [
+    Category(name: 'Food', spending: 100, budget: 200),
+    Category(name: 'Transportation', spending: 50, budget: 150),
+    Category(name: 'Health', spending: 300, budget: 150),
   ];
+  // TODO: replace with firebase values. budgetTotal should be 0 first because initial state
+  // user would not have implemented a bnudget
+  double monthlyTotalSpent = 450;
+  double budgetTotal = 500;
+  double moneyLeftToSpend = 50;
 
   @override
   Widget build(BuildContext context) {
-    double ratioSpent = (monthlySpent / totalBudget);
-    double remainingAmount = totalBudget - monthlySpent;
-    Color progressBarColour;
-    if (ratioSpent < 1 / 3) {
-      progressBarColour = Colors.green;
-    } else if (1 / 3 <= ratioSpent && ratioSpent < 2 / 3) {
-      progressBarColour = Colors.orange;
-    } else {
-      progressBarColour = Colors.red;
-    }
-
-    Map<String, double> categorySpent = {
-      'Food': 900.0,
-      'Transportation': 300.0,
-      'Entertainment': 200.0,
-    };
-
     return Column(
       children: [
-        // Container
+        const Divider(
+            color: Colors.grey,
+            height: 1,
+            thickness: 1,
+        ),
+        // date picker
         Container(
-          child: Column(
+          color: mainColor,
+          height: 50,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Container(
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 5, left: 16, right: 16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text('Remaining (Monthly)'),
-                          const SizedBox(height: 4),
-                          Text(
-                            '\$${remainingAmount.toStringAsFixed(2)}',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 24,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          // budget settings button
-                          Container(
-                            width: 150,
-                            child: MaterialButton(
-                              color: Colors.white,
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        const BudgetSettings(),
-                                  ),
-                                );
-                              },
-                              child: const Text('Budget Settings'),
-                            ),
-                          ),
-                          // add category button
-                          Container(
-                            width: 150,
-                            child: MaterialButton(
-                              color: Colors.white,
-                              onPressed: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (ctx) {
-                                    bool isOpen = false;
-                                    String iconSelected = '';
-                                    Color categoryColor = Colors.white;
-
-                                    return StatefulBuilder(
-                                      builder: (context, setState) {
-                                        return AlertDialog(
-                                          // shape: const RoundedRectangleBorder(
-                                          //   borderRadius: BorderRadius.zero,
-                                          // ),
-                                          title:
-                                              const Text(
-                                                'Create a Category',
-                                                style: TextStyle(
-                                                  fontSize: 22,
-                                                  // fontWeight: FontWeight.bold,
-                                                )
-                                                ),
-                                          backgroundColor: Colors.red[50],
-                                          content: SingleChildScrollView(
-                                            child: SizedBox(
-                                              width: MediaQuery.of(context).size.width,
-                                              child: Column(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  TextFormField(
-                                                    textAlignVertical: TextAlignVertical.center,
-                                                    decoration: InputDecoration(
-                                                      isDense: true,
-                                                      filled: true,
-                                                      fillColor: Colors.white,
-                                                      hintText: 'Name',
-                                                      border: OutlineInputBorder(
-                                                        borderRadius: BorderRadius.circular(12),
-                                                        borderSide: BorderSide.none,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  const SizedBox(height: 16),
-                                                  TextFormField(
-                                                    onTap: () {
-                                                      setState(() {
-                                                        isOpen = !isOpen;
-                                                      });
-                                                    },
-                                                    textAlignVertical:TextAlignVertical.center,
-                                                    readOnly: true,
-                                                    decoration: InputDecoration(
-                                                      isDense: true,
-                                                      filled: true,
-                                                      suffixIcon: const Icon(
-                                                        CupertinoIcons.chevron_down,
-                                                        size: 14,
-                                                      ),
-                                                      fillColor: Colors.white,
-                                                      hintText: 'Icon',
-                                                      border:
-                                                          OutlineInputBorder(
-                                                        borderRadius: isOpen
-                                                            ? const BorderRadius.vertical(
-                                                                top: Radius.circular(12),
-                                                              )
-                                                            : BorderRadius.circular(12),
-                                                        borderSide: BorderSide.none,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  // when icon grid view is open
-                                                  isOpen
-                                                      ? Container(
-                                                          width: MediaQuery.of(context).size.width,
-                                                          height: 200,
-                                                          decoration: const BoxDecoration(
-                                                            color: Colors.white,
-                                                            borderRadius: BorderRadius.vertical(
-                                                              bottom: Radius.circular(12),
-                                                            ),
-                                                          ),
-                                                          child: Padding(
-                                                              padding:
-                                                                  const EdgeInsets
-                                                                      .all(8.0),
-                                                              child: GridView
-                                                                  .builder(
-                                                                gridDelegate:
-                                                                    const SliverGridDelegateWithFixedCrossAxisCount(
-                                                                  crossAxisCount:
-                                                                      3,
-                                                                  mainAxisSpacing:
-                                                                      5,
-                                                                  crossAxisSpacing:
-                                                                      5,
-                                                                ),
-                                                                itemCount:
-                                                                    categoryIcons
-                                                                        .length,
-                                                                itemBuilder:
-                                                                    (context,
-                                                                        int i) {
-                                                                  return GestureDetector(
-                                                                    onTap: () {
-                                                                      setState(
-                                                                          () {
-                                                                        iconSelected =
-                                                                            categoryIcons[
-                                                                                i];
-                                                                      });
-                                                                    },
-                                                                    child:
-                                                                        Container(
-                                                                      width: 50,
-                                                                      height: 50,
-                                                                      decoration:
-                                                                          BoxDecoration(
-                                                                        border:
-                                                                            Border
-                                                                                .all(
-                                                                          width:
-                                                                              3,
-                                                                          color: iconSelected ==
-                                                                                  categoryIcons[i]
-                                                                              ? Colors.green
-                                                                              : Colors.grey,
-                                                                        ),
-                                                                        borderRadius:
-                                                                            BorderRadius.circular(
-                                                                                12),
-                                                                        image:
-                                                                            DecorationImage(
-                                                                          image: AssetImage(
-                                                                              'assets/${categoryIcons[i]}.png'),
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                  );
-                                                                },
-                                                              ),
-                                                            ),
-                                                          )
-                                                      // otherwise null
-                                                      : Container(),
-                                                  const SizedBox(height: 16),
-                                                  // colour button
-                                                  TextFormField(
-                                                    readOnly: true,
-                                                    onTap: () {
-                                                      showDialog(
-                                                        context: context,
-                                                        builder: (ctx2) {
-                                                          return AlertDialog(
-                                                            backgroundColor:
-                                                                Colors.white,
-                                                            content:
-                                                                SingleChildScrollView(
-                                                              child: Column(
-                                                                mainAxisSize:
-                                                                    MainAxisSize
-                                                                        .min,
-                                                                children: [
-                                                                  ColorPicker(
-                                                                    pickerColor:
-                                                                        categoryColor,
-                                                                    onColorChanged:
-                                                                        (value) {
-                                                                      setState(
-                                                                          () {
-                                                                        categoryColor =
-                                                                            value;
-                                                                      });
-                                                                    },
-                                                                  ),
-                                                                  SizedBox(
-                                                                    width: double
-                                                                        .infinity,
-                                                                    height: 50,
-                                                                    child:
-                                                                        TextButton(
-                                                                      onPressed:
-                                                                          () {
-                                                                        Navigator.pop(
-                                                                            context);
-                                                                      },
-                                                                      style: TextButton
-                                                                          .styleFrom(
-                                                                        backgroundColor:
-                                                                            Colors.black,
-                                                                        shape:
-                                                                            RoundedRectangleBorder(
-                                                                          borderRadius:
-                                                                              BorderRadius.circular(12),
-                                                                        ),
-                                                                      ),
-                                                                      child:
-                                                                          const Text(
-                                                                        'Save',
-                                                                        style:
-                                                                            TextStyle(
-                                                                          fontSize:
-                                                                              22,
-                                                                          color:
-                                                                              Colors.white,
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                            ),
-                                                          );
-                                                        },
-                                                      );
-                                                    },
-                                                    textAlignVertical:
-                                                        TextAlignVertical
-                                                            .center,
-                                                    decoration: InputDecoration(
-                                                      isDense: true,
-                                                      filled: true,
-                                                      fillColor: categoryColor,
-                                                      hintText: 'Colour',
-                                                      border:
-                                                          OutlineInputBorder(
-                                                        borderRadius:
-                                                            BorderRadius
-                                                                .circular(12),
-                                                        borderSide:
-                                                            BorderSide.none,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  const SizedBox(height: 16),
-                                                  // save button of the overall create a category dialog box
-                                                  SizedBox(
-                                                    width: double.infinity,
-                                                    height: 50,
-                                                    child: TextButton(
-                                                      onPressed: () {
-                                                        // TODO: Create Category Object and send to firebase after saving
-                                                        Navigator.pop(context);
-                                                      },
-                                                      style:
-                                                          TextButton.styleFrom(
-                                                        backgroundColor:
-                                                            Colors.black,
-                                                        shape:
-                                                            RoundedRectangleBorder(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(12),
-                                                        ),
-                                                      ),
-                                                      child: const Text(
-                                                        'Save',
-                                                        style: TextStyle(
-                                                          fontSize: 22,
-                                                          color: Colors.white,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    );
-                                  },
-                                );
-                              },
-                              child: const Text('Add Category'),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+              // back arrow
+              IconButton(
+                icon: const Icon(
+                  Icons.arrow_left,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  // I didn't copy paste the class that u used (monthNotifier) fyi
+                  // monthNotifier.decrementMonth();
+                },
+              ),
+              // the date itself
+              Text(
+                // DateFormat.yMMMM().format(monthNotifier.currentMonth),
+                DateFormat.yMMMM().format(DateTime.now()),
+                style: const TextStyle(
+                  fontSize: 18,
+                  color: Colors.white,
                 ),
               ),
-              const SizedBox(height: 10),
-              // visual aid (spent/total + linear progress bar)
-              Padding(
-                padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
-                child: Container(
-                  alignment: Alignment.bottomCenter,
-                  height: 50,
-                  child: Column(
-                    children: [
-                      Stack(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text('Spent',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 12,
-                                      )),
-                                  Text(
-                                    '\$${monthlySpent.toStringAsFixed(2)}',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 15,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Container(
-                                width: 150,
-                                child: LinearProgressIndicator(
-                                  minHeight: 10,
-                                  value: ratioSpent,
-                                  backgroundColor: Colors.black,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                      progressBarColour),
-                                ),
-                              ),
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  const Text('Total',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 12,
-                                      )),
-                                  Text(
-                                    '\$${totalBudget.toStringAsFixed(2)}',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 15,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+              // right arrow
+              IconButton(
+                icon: const Icon(
+                  Icons.arrow_right,
+                  color: Colors.white,
                 ),
+                onPressed: () {
+                  // monthNotifier.incrementMonth();
+                },
               ),
             ],
           ),
         ),
-        const SizedBox(height: 30),
-        //everything else below (labels + categories list view)
+        const SizedBox(height: 20),
+        //Money Left to spend and budget this month
+        Container(
+          // color: Colors.red,
+          height: 200,
+          width: MediaQuery.of(context).size.width,
+          child: Column(
+            children: [
+              //money left to spend
+              Text(
+                '\$${moneyLeftToSpend.toStringAsFixed(2)}',
+                style: const TextStyle(
+                  fontSize: 60,
+                ),
+              ),
+              const Text(
+                'Left to spend',
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Colors.black,
+                )
+              ),
+              Text(
+                '(Budget this month: \$${budgetTotal.toStringAsFixed(2)})',
+                style: const TextStyle(
+                  fontSize: 15,
+                  color: Colors.blue,
+                )
+              )
+            ],
+            
+          )
+        ),
+        //row to show the Categories label
         const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16),
+          padding: EdgeInsets.symmetric(horizontal: 10.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Categories',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                  )),
               Text(
-                'Spending',
-                style: TextStyle(color: Colors.grey),
+                'Categories',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 19,
+                )
+              ),
+              Text(
+                'Spending / Budget',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Colors.grey,
+                )
               )
             ],
           ),
         ),
-        const SizedBox(height: 15),
+        const SizedBox(height: 20),
+        //List view of the categories itself
         Expanded(
-          child: Container(
-            width: double.maxFinite,
-            child: ListView.separated(
-              itemCount: categorySpent.length,
-              separatorBuilder: (context, index) => const Divider(),
-              itemBuilder: (context, index) {
-                String categoryName = categorySpent.keys.elementAt(index);
-                double amountSpent = categorySpent.values.elementAt(index);
-                return BudgetingDeco.buildCategoryTile(
-                    categoryName, amountSpent);
-              },
-            ),
-          ),
-        ),
+          child: ListView.separated(
+            itemCount: categories.length,
+            separatorBuilder: (context, index) => const Divider(),
+            itemBuilder: (context, index) {
+              Category category = categories[index];
+              return ListTile(
+                // if you tap the category tile, you can change the budget
+                onTap: () {
+                  showDialog(
+                    context: context, 
+                    builder: (context) {
+                      double newBudget = category.budget;
+                      return AlertDialog(
+                        backgroundColor: Color.fromARGB(255, 255, 239, 242),
+                        title: const Text(
+                          'Change Budget',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          )
+                        ),
+                        content: TextFormField(
+                          initialValue: category.budget.toStringAsFixed(2),
+                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                          onChanged: (value) {
+                            // update newBudget
+                            newBudget = double.tryParse(value) ?? category.budget;
+                          },
+                        ),
+                        actions: [
+                          // cancel button
+                          TextButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();                        
+                            },
+                            child: const Text(
+                              'Cancel',
+                              // style: TextStyle(
+                              //   color: Colors.black,
+                              // ),
+                            )
+                          ),
+                          // save button
+                          TextButton(
+                            onPressed: () {
+                              setState(() {
+                                //when saved, old category budeget is replaced with new
+                                category.budget = newBudget;
+                              });
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text(
+                              'Save',
+                              // style: TextStyle(
+                              //   color: Colors.black,
+                              // ),
+                            )
+                          ),
+                        ],
+                      );
+                    }
+                  );
+                },
+                title: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(category.name),
+                    Text.rich(
+                      TextSpan(
+                        text: '\$',
+                        style: TextStyle(
+                          color: category.spending < category.budget ? Colors.green : Colors.red,
+                        ),
+                        children: [
+                          TextSpan(
+                            text: '${category.spending.toStringAsFixed(2)}',
+                            style: TextStyle(
+                              color: category.spending < category.budget ? Colors.green : Colors.red,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          TextSpan(
+                            text: ' / ${category.budget.toStringAsFixed(2)}',
+                            style: const TextStyle(
+                              color: Colors.black, // Default color
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          )
+        )
       ],
     );
   }
+}
+
+class Category {
+  String name;
+  double spending;
+  double budget;
+
+  Category({required this.name, required this.spending, required this.budget});
 }
