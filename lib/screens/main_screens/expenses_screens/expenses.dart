@@ -103,7 +103,9 @@ class _ExpensesState extends State<Expenses> {
                 const SizedBox(height: 20),
                 Expanded(
                   child: StreamBuilder<QuerySnapshot>(
+                    
                     stream: DatabaseMethods().getExpensesByMonth(monthNotifier.currentMonth),
+                    
                     builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
                       if (!snapshot.hasData) {
                         return const Center(
@@ -170,11 +172,6 @@ class _ExpensesState extends State<Expenses> {
                                   ),
                               ),
                               onTap: () {
-                                // make a view to see the expense description 
-                                // amount is amount
-                                // note is expense.note
-                                // category is expense.category
-                                // date is expense.date -> as a TimeStamp convert to DateTime using toDate()
                                 String? description = expense.description;
                                 showDialog(
                                   context: context,
@@ -201,15 +198,7 @@ class _ExpensesState extends State<Expenses> {
                                           maxWidth: MediaQuery.of(context).size.width * 0.8,
                                         ),
                                         child: Text(
-                                          // the no description provided isn't showing
-                                          // when i don't put a description
-                                          // which means that the program thinks that not putting
-                                          // a description is a value on its own (and not null)
-                                          // need to change that under editing_expense/income
-                                          // and adding_expense/income. but if you're okay with the dialog box
-                                          // not showing anything if no description is provided,
-                                          // can just delete this comment and delete the ?? 'No description provided'
-                                          description ?? 'No description provided',
+                                          description == '' ? 'No description provided' : description ?? '',
                                           style: const TextStyle(
                                             color: Colors.black,
                                             fontSize: 16,

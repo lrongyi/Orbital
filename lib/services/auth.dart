@@ -37,7 +37,7 @@ class AuthMethods {
           'email': userDetails!.email,
           'name': userDetails.displayName,
           'id': userDetails.uid,
-          'monthlyBudget': 0,
+          // 'monthlyBudget': 0,
           'netSpend': 0
         };
 
@@ -100,7 +100,7 @@ class AuthMethods {
           'email': userDetails!.email,
           'name': name,
           'id': userDetails.uid,
-          'monthBudget': 0,
+          // 'monthlyBudget': 0,
           'netSpend': 0
         };
 

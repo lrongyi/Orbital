@@ -50,9 +50,9 @@ class _MyWidgetState extends State<AddingIncome> {
         centerTitle: true,
         title: const Text(
           'Income',
-          style: const TextStyle(
+          style: TextStyle(
             color: Colors.white,
-          )
+            )
           ),
       ),
       body: Padding(
