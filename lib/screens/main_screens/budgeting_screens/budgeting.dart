@@ -2,8 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:intl/intl.dart';
-import 'package:ss/screens/main_screens/budgeting_screens/budget_settings.dart';
-import 'package:ss/shared/budgeting_deco.dart';
 import 'package:ss/shared/main_screens_deco.dart';
 
 class Budgeting extends StatefulWidget {
@@ -20,8 +18,7 @@ class _BudgetingState extends State<Budgeting> {
     Category(name: 'Transportation', spending: 50, budget: 150),
     Category(name: 'Health', spending: 300, budget: 150),
   ];
-  // TODO: replace with firebase values. budgetTotal should be 0 first because initial state
-  // user would not have implemented a bnudget
+  // TODO: replace with firebase values. budgetTotal should be 0 first because at initial state, user would not have implemented a budget
   double monthlyTotalSpent = 450;
   double budgetTotal = 500;
   double moneyLeftToSpend = 50;
