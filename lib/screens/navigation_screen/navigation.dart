@@ -37,6 +37,8 @@ class _NavigationState extends State<Navigation> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      //set to false to prevent FAB from moving
+      resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
       drawerEnableOpenDragGesture: false,
       drawer: Drawer(

@@ -18,6 +18,8 @@ class Budgeting extends StatefulWidget {
 class _BudgetingState extends State<Budgeting> {
 
   DateTime _currentMonth = DateTime.now();
+  final categoryController = TextEditingController();
+  final budgetController = TextEditingController();
 
   @override
   void initState() {
@@ -80,7 +82,7 @@ class _BudgetingState extends State<Budgeting> {
               //Money Left to spend and budget this month
               Container(
                 // color: Colors.red,
-                height: 200,
+                height: 150,
                 width: MediaQuery.of(context).size.width,
                 child: Column(
                   children: [
@@ -133,6 +135,93 @@ class _BudgetingState extends State<Budgeting> {
                   ],
                   
                 )
+              ),
+              // add budget button
+              Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    MaterialButton(
+                      color: Colors.white,
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              backgroundColor: Colors.white,
+                              title: const Text(
+                                'Add Budget',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,                           
+                                ),
+                              ),
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  TextFormField(
+                                    controller: categoryController,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Category'
+                                    ),
+                                  ),
+                                  TextFormField(
+                                    controller: budgetController,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Budget Value',
+                                    ),
+                                    keyboardType: const TextInputType.numberWithOptions(
+                                      decimal: true,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    categoryController.clear();
+                                    budgetController.clear();
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: const Text(
+                                    'Cancel',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                    )
+                                  ),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    // TODO: Perform save operation (firebase)
+
+                                    categoryController.clear();
+                                    budgetController.clear();
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: const Text(
+                                    'Save',
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                    )
+                                  ),
+                                ),
+                              ],
+                            );
+                          }
+                        );
+                      },
+                      child: const Text(
+                        'Add Budget',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      )
+                    )
+                
+                  ],
+                ),
               ),
               //row to show the Categories label
               const Padding(
