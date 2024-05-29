@@ -171,4 +171,37 @@ class AuthMethods {
       ),
       ));
   }
+
+  Future<void> changePassword(String newPassword) async {
+    User? user = auth.currentUser;
+
+    if (user != null) {
+      await user.updatePassword(newPassword);
+    } else {
+      throw Exception('No User Signed In');
+    }
+  }
+
+  Future<void> changeDisplayName(String newName) async {
+    User? user = auth.currentUser;
+
+    if (user != null) {
+      await user.updateDisplayName(newName);
+      await DatabaseMethods().updateUserDisplayName(user.uid, newName);
+    } else {
+      throw Exception('No User Signed In');
+    }
+  }  
+
+  Future<void> changeEmail(String newEmail) async {
+    User? user = auth.currentUser;
+
+    if (user != null) {
+      await user.verifyBeforeUpdateEmail(newEmail);
+      await DatabaseMethods().updateUserEmail(user.uid, newEmail);
+    } else {
+      throw Exception('No User Signed In');
+    }
+  }  
+
 }

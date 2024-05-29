@@ -48,6 +48,14 @@ class DatabaseMethods {
     return _firestore.collection(USER_COLLECTION).doc(userId).set(userInfoMap);
   }  
 
+  Future updateUserDisplayName(String userId, String newDisplayName) {
+    return _firestore.collection(USER_COLLECTION).doc(userId).update({'name': newDisplayName});
+  }
+
+  Future updateUserEmail(String userId, String newEmail) {
+    return _firestore.collection(USER_COLLECTION).doc(userId).update({'email': newEmail});
+  }
+
   CollectionReference<UserModel> getUserRef() {
     return _firestore.collection(USER_COLLECTION).withConverter(fromFirestore: (snapshots, _) => UserModel.fromjson(snapshots.data() as Map<String, Object?>), 
       toFirestore: (userModel, _) => userModel.toJson());

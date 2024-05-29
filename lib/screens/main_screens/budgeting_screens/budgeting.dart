@@ -40,6 +40,7 @@ class _BudgetingState extends State<Budgeting> {
                   height: 1,
                   thickness: 1,
               ),
+
               // date picker
               Container(
                 color: mainColor,
@@ -57,6 +58,7 @@ class _BudgetingState extends State<Budgeting> {
                         monthNotifier.decrementMonth();
                       },
                     ),
+
                     // the date itself
                     Text(
                       DateFormat.yMMMM().format(monthNotifier.currentMonth),
@@ -65,6 +67,7 @@ class _BudgetingState extends State<Budgeting> {
                         color: Colors.white,
                       ),
                     ),
+
                     // right arrow
                     IconButton(
                       icon: const Icon(
@@ -78,7 +81,9 @@ class _BudgetingState extends State<Budgeting> {
                   ],
                 ),
               ),
+
               const SizedBox(height: 20),
+
               //Money Left to spend and budget this month
               Container(
                 // color: Colors.red,
@@ -136,6 +141,7 @@ class _BudgetingState extends State<Budgeting> {
                   
                 )
               ),
+
               // add budget button
               Padding(
                 padding: const EdgeInsets.only(right: 8.0),
@@ -144,6 +150,8 @@ class _BudgetingState extends State<Budgeting> {
                   children: [
                     MaterialButton(
                       color: Colors.white,
+
+                      // Allocate new budget
                       onPressed: () {
                         showDialog(
                           context: context,
@@ -169,7 +177,7 @@ class _BudgetingState extends State<Budgeting> {
                                   TextFormField(
                                     controller: budgetController,
                                     decoration: const InputDecoration(
-                                      labelText: 'Budget Value',
+                                      labelText: 'Budget Allocated',
                                     ),
                                     keyboardType: const TextInputType.numberWithOptions(
                                       decimal: true,
@@ -193,8 +201,9 @@ class _BudgetingState extends State<Budgeting> {
                                 ),
                                 TextButton(
                                   onPressed: () {
-                                    // TODO: Perform save operation (firebase)
-
+                                    String category = categoryController.text;
+                                    double amount = double.parse(budgetController.text);
+                                    DatabaseMethods().addBudget(category, amount);
                                     categoryController.clear();
                                     budgetController.clear();
                                     Navigator.of(context).pop();
@@ -218,12 +227,12 @@ class _BudgetingState extends State<Budgeting> {
                           fontSize: 14,
                         ),
                       )
-                    )
-                
+                    ) 
                   ],
                 ),
               ),
-              //row to show the Categories label
+
+              // Row to show the Categories label
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 10.0),
                 child: Row(
@@ -246,7 +255,9 @@ class _BudgetingState extends State<Budgeting> {
                   ],
                 ),
               ),
+
               const SizedBox(height: 20),
+
               //List view of the categories itself
               Expanded(
                 child: StreamBuilder<QuerySnapshot> (
@@ -293,7 +304,8 @@ class _BudgetingState extends State<Budgeting> {
                         double amount = entry.value;
 
                         return ListTile(
-                          // if you tap the category tile, you can change the budget
+
+                          // Update the budget
                           onTap: () {
                             showDialog(
                               context: context, 
@@ -311,8 +323,9 @@ class _BudgetingState extends State<Budgeting> {
                                   content: TextFormField(
                                     initialValue: amount.toStringAsFixed(2),
                                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
+
+                                    // Update budget as value is changed
                                     onChanged: (value) {
-                                      // update newBudget
                                       newAmount = double.tryParse(value) ?? amount;
                                       DatabaseMethods().updateBudget(category, newAmount);
                                     },
@@ -335,15 +348,18 @@ class _BudgetingState extends State<Budgeting> {
                               }
                             );
                           },
+
+                          // Delete budget
                           onLongPress: () {
-                            // Delete the budget
                             // add some type of confirmation 
                             DatabaseMethods().deleteBudget(category);
                           },
                           title: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
+                              
                               Text(category),
+
                               FutureBuilder<double>(
                                 
                                 future: DatabaseMethods().getMonthlySpendingCategorized(monthNotifier._currentMonth, category),

@@ -40,6 +40,8 @@ class _ExpensesState extends State<Expenses> {
                   thickness: 1,
                   color: Colors.grey,
                 ),
+
+                // Select month
                 Container(
                   color: mainColor,
                   height: 50,
@@ -77,7 +79,10 @@ class _ExpensesState extends State<Expenses> {
                     ],
                   ),
                 ),
+                
                 const SizedBox(height: 20),
+
+                // Header for Transaction History and Amount
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16.0),
                   child: Row(
@@ -100,7 +105,10 @@ class _ExpensesState extends State<Expenses> {
                     ],
                   ),
                 ),
+
                 const SizedBox(height: 20),
+
+                // List of expenses 
                 Expanded(
                   child: StreamBuilder<QuerySnapshot>(
                     
@@ -128,12 +136,15 @@ class _ExpensesState extends State<Expenses> {
                           Expense expense = expenses[index].data() as Expense;
                           String expenseId = expenses[index].id;
                           double amount = expense.amount;
+
                           return Padding(
                             padding: const EdgeInsets.symmetric(
                               vertical: 5,
                               horizontal: 5,
                             ),
                             child: ListTile(
+
+                              // Icon 
                               leading: CircleAvatar(
                                 backgroundColor:
                                     amount < 0 ? Colors.red : Colors.blue,
@@ -144,10 +155,13 @@ class _ExpensesState extends State<Expenses> {
                                   color: Colors.white,
                                 ),
                               ),
+
+                              // List Tile
                               title: Text(
                                 expense.category ?? '',
                                 style: const TextStyle(fontSize: 20.0),
                               ),
+
                               subtitle: Row(
                                 children: [
                                   Text(
@@ -162,6 +176,7 @@ class _ExpensesState extends State<Expenses> {
                                   ),
                                 ],
                               ),
+
                               trailing: Text(
                                 expense.amount.toStringAsFixed(2),
                                 style: TextStyle(
@@ -171,6 +186,8 @@ class _ExpensesState extends State<Expenses> {
                                   : Colors.red,
                                   ),
                               ),
+
+                              // See description
                               onTap: () {
                                 String? description = expense.description;
                                 showDialog(
@@ -180,6 +197,7 @@ class _ExpensesState extends State<Expenses> {
                                       backgroundColor: expense.amount > 0
                                       ? Colors.blue[50]
                                       : Colors.red[50],
+                                      
                                       title: Text(expense.amount > 0 
                                         ? 'Income Description'
                                         : 'Expense Description',
@@ -189,6 +207,7 @@ class _ExpensesState extends State<Expenses> {
                                           fontSize: 20,
                                         ),
                                       ),
+
                                       content: Container(
                                         color: Colors.white,                                 
                                         constraints: BoxConstraints(
@@ -205,6 +224,7 @@ class _ExpensesState extends State<Expenses> {
                                           ),
                                         ),
                                       ),
+
                                       actions: [
                                         TextButton(
                                           onPressed: () {
@@ -219,6 +239,8 @@ class _ExpensesState extends State<Expenses> {
                                   }
                                 );
                               },
+
+                              // Edit or Delete expense
                               onLongPress: () {
                                 // make option to delete or edit expense
                                 if (expense.amount < 0) {

@@ -1,9 +1,13 @@
+import 'dart:math';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:ss/services/database.dart';
+import 'package:ss/services/models/budget.dart';
 import 'package:ss/shared/main_screens_deco.dart';
 
 class Home extends StatefulWidget {
@@ -31,6 +35,20 @@ class _HomeState extends State<Home> {
         icon: Icons.movie),
   ];
 
+  // Piechart Colors
+  final List<Color> colors = [
+    Colors.blue,
+    Colors.green,
+    Colors.orange,
+    Colors.purple,
+    Colors.red,
+    Colors.yellow,
+    Colors.cyan,
+  ];
+
+  // To get a random color for the piechart
+  final Random random = Random();
+
   DateTime _currentMonth = DateTime.now();
 
   @override
@@ -45,11 +63,13 @@ class _HomeState extends State<Home> {
             body: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                
                 const Divider(
                   color: Colors.grey,
                   height: 1,
                   thickness: 1,
                 ),
+
                 // date picker
                 Container(
                   color: mainColor,
@@ -57,6 +77,7 @@ class _HomeState extends State<Home> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
+                      
                       // back arrow
                       IconButton(
                         icon: const Icon(
@@ -67,6 +88,7 @@ class _HomeState extends State<Home> {
                           monthNotifier.decrementMonth();
                         },
                       ),
+                      
                       // the date itself
                       Text(
                         DateFormat.yMMMM().format(monthNotifier.currentMonth),
@@ -75,6 +97,7 @@ class _HomeState extends State<Home> {
                           color: Colors.white,
                         ),
                       ),
+                      
                       // right arrow
                       IconButton(
                         icon: const Icon(
@@ -88,10 +111,14 @@ class _HomeState extends State<Home> {
                     ],
                   ),
                 ),
-                // Pie chart with total spending in its center
+
                 const SizedBox(height: 20),
+
+                // Pie chart with total spending in its center                
                 Stack(
                   children: [
+                    
+                    // Piechart
                     SizedBox(
                       width: 300,
                       height: 300,
@@ -99,7 +126,7 @@ class _HomeState extends State<Home> {
                         PieChartData(
                           sections: categories.map((category) {
                             return PieChartSectionData(
-                              color: category.color,
+                              color: colors[random.nextInt(colors.length)],
                               value: category.spending,
                               title: '',
                             );
@@ -107,6 +134,8 @@ class _HomeState extends State<Home> {
                         ),
                       ),
                     ),
+
+                    // Centre of the piechart
                     Positioned.fill(
                       child: Center(
                         child: Column(
@@ -162,6 +191,8 @@ class _HomeState extends State<Home> {
                 // Categories label + View All button
                 // For some reason the outer padding doesn't work
                 // So the row needs its own padding
+
+                // Header for Categories and Amount
                 const Padding(
                   padding: EdgeInsets.only(top: 0, bottom: 16, right: 16, left: 16),
                   child: Row(
@@ -172,34 +203,116 @@ class _HomeState extends State<Home> {
                               fontWeight: FontWeight.bold,
                               fontSize: 17,
                             )),
-                        Text('Amount',
+                        Text('Spending',
                             style: TextStyle(
                               color: Colors.grey,
                               fontSize: 14,
                             )),
                       ]),
                 ),
-                // List of categories and their spending
+
+                // List of user's categories and spending
                 Expanded(
-                  child: ListView.builder(
-                    itemCount: categories.length,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: categories[index].color,
-                          child: Icon(categories[index].icon, color: Colors.white),
-                        ),
-                        title: Text(categories[index].name),
-                        trailing: Text(
-                          '\$${categories[index].spending.toStringAsFixed(2)}',
-                          style: const TextStyle(
-                            fontSize: 17,
-                          ),
-                        ),
+
+                  // Icon for each category 
+                  // child: ListView.builder(
+                  //   itemCount: categories.length,
+                  //   itemBuilder: (context, index) {
+                  //     return ListTile(
+                  //       leading: CircleAvatar(
+                  //         backgroundColor: categories[index].color,
+                  //         child: Icon(categories[index].icon, color: Colors.white),
+                  //       ),
+                  //       title: Text(categories[index].name),
+                  //       trailing: Text(
+                  //         '\$${categories[index].spending.toStringAsFixed(2)}',
+                  //         style: const TextStyle(
+                  //           fontSize: 17,
+                  //         ),
+                  //       ),
+                  //     );
+                  //   },
+                  // ),
+
+                  child: StreamBuilder(
+                    
+                    stream: DatabaseMethods().getBudgetsByMonth(monthNotifier._currentMonth),
+
+                    builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                      
+                      if (!snapshot.hasData) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+
+                      final budgets = snapshot.data!.docs;
+
+                      if (snapshot.hasError) {
+                        return const Center(
+                          child: Text('Error fetching data'),
+                        );
+                      }
+
+                      if (budgets.isEmpty) {
+                        return const Center(
+                          child: Text('No Spending Found'),
+                        );
+                      }
+
+                      List<MapEntry<String, double>> allCategories = [];
+                      for (var budgetDoc in budgets) {
+                        Budget budget = budgetDoc.data() as Budget;
+                        allCategories.addAll(budget.categories.entries);
+                      }
+
+                      return ListView.separated(
+                        itemCount: allCategories.length,
+                        separatorBuilder: (context, index) => const Divider(),
+                        itemBuilder: (context, index) {
+                          // Budget budget = budgets[index].data() as Budget;
+                          // String budgetId = budgets[index].id;
+                          // Map<String, double> categories = budget.categories;
+                          
+                          var entry = allCategories[index];
+                          String category = entry.key;
+                          double amount = entry.value;
+                          return ListTile(
+                            // leading: CircleAvatar(
+                            //   backgroundColor: categories[index].color,
+                            //   child: Icon(categories[index].icon, color: Colors.white),
+                            // ),
+                            
+                            // Category 
+                            title: Text(category),
+
+                            // Spending
+                            trailing: FutureBuilder<double>(
+
+                              future: DatabaseMethods().getMonthlySpendingCategorized(monthNotifier._currentMonth, category),
+
+                              builder: (BuildContext context, AsyncSnapshot<double> snapshot) {
+                                
+                                if (snapshot.hasError) {
+                                    return Text('${snapshot.error}'); 
+                                }
+
+                                double spending = snapshot.data ?? 0.0;
+
+                                return Text(
+                                  '\$${spending.toStringAsFixed(2)}',
+                                  style: const TextStyle(
+                                    fontSize: 17,
+                                  ),
+                                );
+                              }
+                            ),
+                          );
+                        }
                       );
-                    },
+                    }
                   ),
-                ),
+                ),   
               ],
             ),
           );

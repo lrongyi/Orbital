@@ -47,6 +47,8 @@ class _MyWidgetState extends State<EditingIncome> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+
+      // App Bar
       appBar: AppBar(
         backgroundColor: Colors.blue,
         leading: IconButton(
@@ -66,6 +68,7 @@ class _MyWidgetState extends State<EditingIncome> {
           )
           ),
         actions: <Widget>[
+          // Delete
           IconButton(
             icon: const Icon(
               Icons.delete,
@@ -78,16 +81,20 @@ class _MyWidgetState extends State<EditingIncome> {
           ),
         ]
       ),
+
       body: Padding(
         padding: const EdgeInsets.only(
           left: 20, right: 20,
           top: 30,
         ),
+
         child: Column(
           children: [
+            
+            // Select between expenses and income
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
+              children: [                
                 Container(
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.blue, width: 2),
@@ -126,7 +133,9 @@ class _MyWidgetState extends State<EditingIncome> {
                 ),
               ],
             ),
+            
             const SizedBox(height: 10),
+
             //Box containing the titles and the text form fields
             SizedBox(
               width: double.infinity,
@@ -170,6 +179,8 @@ class _MyWidgetState extends State<EditingIncome> {
                       ),
                     ],
                   ),
+
+                  // TextFormFields
                   AddingDeco().buildRow('Amount', amountController),
                   AddingDeco().buildRow('Category', categoryController),
                   AddingDeco().buildRow('Note', noteController),
@@ -178,7 +189,10 @@ class _MyWidgetState extends State<EditingIncome> {
                 ],
               ),
             ),
+            
             const SizedBox(height: 20),
+
+            // Save or Cancel
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [

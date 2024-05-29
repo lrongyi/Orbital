@@ -19,6 +19,7 @@ class _SettingsState extends State<Settings> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          
           // Notification Toggle
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -39,7 +40,9 @@ class _SettingsState extends State<Settings> {
               ),
             ],
           ),
+
           const Spacer(),
+          
           // About Us section
           const Center(
             child: Column(

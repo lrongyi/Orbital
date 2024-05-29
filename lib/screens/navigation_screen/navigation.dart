@@ -46,7 +46,11 @@ class _NavigationState extends State<Navigation> {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
+
+            // Drawer
             UserAccountsDrawerHeader(
+              
+              // username
               accountName: FutureBuilder<String>(
                 future: DatabaseMethods().getUserNameAsync(),
                 builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
@@ -57,6 +61,8 @@ class _NavigationState extends State<Navigation> {
                   }
                 },
               ),
+
+              // email
               accountEmail: FutureBuilder<String>(
                 future: DatabaseMethods().getEmailAsync(),
                 builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
@@ -67,6 +73,8 @@ class _NavigationState extends State<Navigation> {
                   }
                 },
               ),
+
+              // profile pic
               currentAccountPicture: CircleAvatar(
                 backgroundColor: Colors.white,
                 child: Text(
@@ -81,6 +89,10 @@ class _NavigationState extends State<Navigation> {
                 color: mainColor,
               ),
             ),
+
+            // Options within drawer 
+            
+            // Edit profile
             ListTile(
               leading: const Icon(Icons.person, color: Colors.white),
               title: const Text(
@@ -93,7 +105,10 @@ class _NavigationState extends State<Navigation> {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => EditProfile()));
               },
             ),
+
             const Divider(color: Colors.white),
+
+            // Home
             ListTile(
               leading: const Icon(Icons.home, color: Colors.white),
               title: const Text(
@@ -105,6 +120,8 @@ class _NavigationState extends State<Navigation> {
                 _onTapped(0);
               },
             ),
+
+            // Expenses
             ListTile(
               leading: const Icon(Icons.graphic_eq, color: Colors.white),
               title: const Text(
@@ -116,6 +133,8 @@ class _NavigationState extends State<Navigation> {
                 _onTapped(1);
               },
             ),
+
+            // Budget
             ListTile(
               leading: const Icon(Icons.money, color: Colors.white),
               title: const Text(
@@ -127,6 +146,8 @@ class _NavigationState extends State<Navigation> {
                 _onTapped(2);
               },
             ),
+
+            // Settings
             ListTile(
               leading: const Icon(Icons.settings, color: Colors.white),
               title: const Text(
@@ -138,7 +159,10 @@ class _NavigationState extends State<Navigation> {
                 _onTapped(3);
               },
             ),
+
             const Divider(color: Colors.white),
+
+            // Signout
             ListTile(
               leading: const Icon(Icons.logout, color: Colors.white),
               title: const Text(
@@ -154,6 +178,8 @@ class _NavigationState extends State<Navigation> {
           ],
         ),
       ),
+
+      // AppBar
       appBar: AppBar(
         backgroundColor: mainColor,
         leading: Center(
@@ -180,6 +206,8 @@ class _NavigationState extends State<Navigation> {
         ),
       ),
       body: IndexedStack(index: _selectedIndex, children: screens),
+
+      // Bottom Navigation Bar
       bottomNavigationBar: BottomAppBar(
         shape: const CircularNotchedRectangle(),
         notchMargin: 6.0,
@@ -199,6 +227,8 @@ class _NavigationState extends State<Navigation> {
           ],
         ),
       ),
+
+      // Floating Action Button
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: _selectedIndex != 3
       ? FloatingActionButton(

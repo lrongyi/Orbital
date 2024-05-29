@@ -49,6 +49,8 @@ class _MyWidgetState extends State<EditingExpense> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+
+      // App Bar
       appBar: AppBar(
         backgroundColor: mainColor,
         leading: IconButton(
@@ -80,13 +82,17 @@ class _MyWidgetState extends State<EditingExpense> {
           ),
         ]
       ),
+      
       body: Padding(
         padding: const EdgeInsets.only(
           left: 20, right: 20,
           top: 30,
         ),
+
         child: Column(
           children: [
+
+            // Select between expenses and incom
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -128,7 +134,9 @@ class _MyWidgetState extends State<EditingExpense> {
                 ),
               ],
             ),
+            
             const SizedBox(height: 10),
+            
             //SizedBox containing the titles and the text form fields
             SizedBox(
               width: double.infinity,
@@ -171,6 +179,8 @@ class _MyWidgetState extends State<EditingExpense> {
                       ),
                     ],
                   ),
+
+                  // TextFormFields
                   AddingDeco().buildRow('Amount', amountController),
                   AddingDeco().buildRow('Category', categoryController),
                   AddingDeco().buildRow('Note', noteController),
@@ -179,7 +189,10 @@ class _MyWidgetState extends State<EditingExpense> {
                 ],
               ),
             ),
+            
             const SizedBox(height: 20),
+
+            // Save or Cancel
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
