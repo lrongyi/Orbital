@@ -200,26 +200,28 @@ class _NavigationState extends State<Navigation> {
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.white,
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const AddingExpense()),
-          );
-        },
-        shape: RoundedRectangleBorder(
-          side: const BorderSide(
-            width: 3,
+      floatingActionButton: _selectedIndex != 3
+      ? FloatingActionButton(
+          backgroundColor: Colors.white,
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const AddingExpense()),
+            );
+          },
+          shape: RoundedRectangleBorder(
+            side: const BorderSide(
+              width: 3,
+              color: Color.fromARGB(255, 88, 33, 33),
+            ),
+            borderRadius: BorderRadius.circular(30),
+          ),
+          child: const Icon(
+            CupertinoIcons.add,
             color: Color.fromARGB(255, 88, 33, 33),
           ),
-          borderRadius: BorderRadius.circular(30),
-        ),
-        child: const Icon(
-          CupertinoIcons.add,
-          color: Color.fromARGB(255, 88, 33, 33),
-        ),
-      ),
+        )
+      : null,
     );
   }
 
@@ -230,7 +232,12 @@ class _NavigationState extends State<Navigation> {
       {required IconData icon, required String label, required int index}) {
     return MaterialButton(
       onPressed: () => _onTapped(index),
-      minWidth: 40,
+      // minWidth: 40,
+      padding: index == 2 
+      ? const EdgeInsets.only(left: 10) // to move budgeting icon away from the FAB
+      : index == 1 
+      ? const EdgeInsets.only(right: 5) // to move the expenses icon away from the FAB
+      : EdgeInsets.zero, 
       // to hide the touch indication
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
