@@ -192,9 +192,10 @@ class _BudgetingState extends State<Budgeting> {
                                         Navigator.of(context).pop();
                                       },
                                       child: const Text('Cancel',
-                                          style: TextStyle(
-                                            color: Colors.black,
-                                          )),
+                                        // style: TextStyle(
+                                        //   color: Colors.black,
+                                        // )
+                                      ),
                                     ),
                                     TextButton(
                                       onPressed: () {
@@ -209,9 +210,10 @@ class _BudgetingState extends State<Budgeting> {
                                         Navigator.of(context).pop();
                                       },
                                       child: const Text('Save',
-                                          style: TextStyle(
-                                            color: Colors.black,
-                                          )),
+                                        // style: TextStyle(
+                                        //   color: Colors.black,
+                                        // )
+                                      ),
                                     ),
                                   ],
                                 );
@@ -320,8 +322,7 @@ class _BudgetingState extends State<Budgeting> {
                                     onChanged: (value) {
                                       newAmount =
                                           double.tryParse(value) ?? amount;
-                                      DatabaseMethods()
-                                          .updateBudget(category, newAmount);
+                                      DatabaseMethods().updateBudget(category, newAmount);
                                     },
                                   ),
                                   actions: [
@@ -345,39 +346,44 @@ class _BudgetingState extends State<Budgeting> {
                         onLongPress: () {
                           // add some type of confirmation
                           showDialog(
-                              context: context,
-                              builder: (context) {
-                                return AlertDialog(
-                                    title: const Text('Delete Budget'),
-                                    content: const Text(
-                                        'Are you sure you want to delete this budget?'),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                        },
-                                        child: const Text(
-                                          'Cancel',
-                                          style: TextStyle(
-                                            color: Colors.black,
-                                          ),
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                  title: const Text(
+                                    'Delete Budget'
+                                  ),
+                                  content: const Text(
+                                    'Are you sure you want to delete this budget?'
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: const Text(
+                                        'Cancel',
+                                        style: TextStyle(
+                                          color: Colors.black,
                                         ),
                                       ),
-                                      TextButton(
-                                        onPressed: () {
-                                          DatabaseMethods()
-                                              .deleteBudget(category);
-                                          Navigator.of(context).pop();
-                                        },
-                                        child: const Text(
-                                          'Delete',
-                                          style: TextStyle(
-                                            color: Colors.red,
-                                          ),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        DatabaseMethods().deleteBudget(category);
+                                        Navigator.of(context).pop();
+                                        
+                                      },
+                                      child: const Text(
+                                        'Delete',
+                                        style: TextStyle(
+                                          color: Colors.red,
                                         ),
                                       ),
-                                    ]);
-                              });
+                                    ),
+                                  ]
+                                );
+                            }
+                          );
                         },
                         title: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -46,12 +46,13 @@ class _EditProfileState extends State<EditProfile> {
           children: [
 
             // Profile Picture
-            const CircleAvatar(
+            CircleAvatar(
+              backgroundColor: mainColor,
               radius: 50,
-              child: Icon(
+              child: const Icon(
                 Icons.person,
                 size: 50,
-                color: Colors.black,
+                color: Colors.white,
               )
               // backgroundImage: AssetImage('assets/profile_picture.png'), 
               // child: Text(
@@ -115,16 +116,27 @@ class _EditProfileState extends State<EditProfile> {
 
             // Change Profile Picture Button
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: mainColor,
+              ),
               onPressed: () {
                 // TODO: firebase change profile picture operation
               },
-              child: const Text('Change Profile Picture (WIP)'),
+              child: const Text(
+                'Change Profile Picture (WIP)',
+                style: TextStyle(
+                  color: Colors.white,
+                )
+              ),
             ),
 
             const SizedBox(height: 10),
 
             // Change Username Button
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: mainColor,
+              ),
               onPressed: () {
                 // TODO: firebase change username operation
                 // Add a pop up to ask user for new username pass the string in as newName
@@ -135,6 +147,7 @@ class _EditProfileState extends State<EditProfile> {
                     final newNameController = TextEditingController();
 
                     return AlertDialog(
+                      backgroundColor: Colors.white,
                       title: const Text(
                         'Change Username',
                         style: TextStyle(
@@ -164,11 +177,25 @@ class _EditProfileState extends State<EditProfile> {
                             String newName = newNameController.text;
                             if (newName.isNotEmpty) {
                               AuthMethods().changeDisplayName(newName);
-                              Navigator.of(context).pop();
-                            } else {
-                              // shows error message to prevent empty text form field input
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
+                                  content: Text(
+                                    'Username changed successfully!',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                    )
+                                    ),
+                                ),
+                              );
+                              Navigator.of(context).pop();
+                              
+
+                            } else {
+                              // shows error message to prevent empty text form field input
+                              Navigator.of(context).pop();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  backgroundColor: Colors.red,
                                   content: Text(
                                     'Username cannot be empty',
                                     style: TextStyle(
@@ -188,13 +215,21 @@ class _EditProfileState extends State<EditProfile> {
                   }
                 );
               },
-              child: const Text('Change Username (WIP)'),
+              child: const Text(
+                'Change Username',
+                style: TextStyle(
+                  color: Colors.white,
+                )
+              ),
             ),
 
             const SizedBox(height: 10),
 
             // Change Password Button
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: mainColor,
+              ),
               onPressed: () {
                 // TODO: firebase change password operation
                 // Add a pop up to ask user for new password pass the string in as newPassword
@@ -206,6 +241,7 @@ class _EditProfileState extends State<EditProfile> {
                     final confirmPasswordController = TextEditingController();
 
                     return AlertDialog(
+                      backgroundColor: Colors.white,
                       title: const Text(
                         'Change Password',
                         style: TextStyle(
@@ -251,8 +287,10 @@ class _EditProfileState extends State<EditProfile> {
 
                             if (newPassword.isEmpty || confirmPassword.isEmpty) {
                               // show an error message if any input is empty
+                              Navigator.of(context).pop();
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
+                                  backgroundColor: Colors.red,
                                   content: Text(
                                     'Password fields cannot be empty'
                                   ),
@@ -260,8 +298,10 @@ class _EditProfileState extends State<EditProfile> {
                               );
                             } else if (newPassword != confirmPassword) {
                               // show an error message if passwords do not match
+                              Navigator.of(context).pop();
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
+                                  backgroundColor: Colors.red,
                                   content: Text(
                                     'Passwords do not match',
                                   ),
@@ -269,6 +309,16 @@ class _EditProfileState extends State<EditProfile> {
                               );
                             } else {
                               AuthMethods().changePassword(newPassword);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Password changed successfully!',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                    )
+                                    ),
+                                ),
+                              );
                               Navigator.of(context).pop();
                             }
                           },
@@ -281,7 +331,12 @@ class _EditProfileState extends State<EditProfile> {
                   }
                 );
               },
-              child: const Text('Change Password (WIP)'),
+              child: const Text(
+                'Change Password',
+                style: TextStyle(
+                  color: Colors.white,
+                )
+              ),
             ),
           ],
         ),
