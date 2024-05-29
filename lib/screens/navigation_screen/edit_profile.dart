@@ -129,6 +129,64 @@ class _EditProfileState extends State<EditProfile> {
                 // TODO: firebase change username operation
                 // Add a pop up to ask user for new username pass the string in as newName
                 // AuthMethods().changeDisplayName(newName);
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    final newNameController = TextEditingController();
+
+                    return AlertDialog(
+                      title: const Text(
+                        'Change Username',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,                       
+                        ),
+                      ),
+                      content: TextFormField(
+                        controller: newNameController,
+                        decoration: const InputDecoration(
+                          labelText: 'New Username',
+                        ),
+                      ),
+                      actions: [
+                        // cancel button
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: const Text(
+                            'Cancel',
+                          ),
+                        ),
+                        // save button
+                        TextButton(
+                          onPressed: () {
+                            String newName = newNameController.text;
+                            if (newName.isNotEmpty) {
+                              AuthMethods().changeDisplayName(newName);
+                              Navigator.of(context).pop();
+                            } else {
+                              // shows error message to prevent empty text form field input
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Username cannot be empty',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                    )
+                                    ),
+                                ),
+                              );
+                            }
+                          },
+                          child: const Text(
+                            'Save',
+                          ),
+                        ),
+                      ]
+                    );
+                  }
+                );
               },
               child: const Text('Change Username (WIP)'),
             ),
@@ -141,6 +199,87 @@ class _EditProfileState extends State<EditProfile> {
                 // TODO: firebase change password operation
                 // Add a pop up to ask user for new password pass the string in as newPassword
                 // AuthMethods().changePassword(newPassword);
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    final newPasswordController = TextEditingController();
+                    final confirmPasswordController = TextEditingController();
+
+                    return AlertDialog(
+                      title: const Text(
+                        'Change Password',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                          fontSize: 18,
+                        )                       
+                      ),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          TextFormField(
+                            controller: newPasswordController,
+                            decoration: const InputDecoration(
+                              labelText: 'New Password',
+                            ),
+                            obscureText: true,
+                          ),
+                          TextFormField(
+                            controller: confirmPasswordController,
+                            decoration: const InputDecoration(
+                              labelText: 'Confirm Password',
+                            ),
+                            obscureText: true,
+                          ),
+                        ],
+                      ),
+                      actions: [
+                        // cancel button
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: const Text(
+                            'Cancel',
+                          ),
+                        ),
+                        // save button
+                        TextButton(
+                          onPressed: () {
+                            String newPassword = newPasswordController.text;
+                            String confirmPassword = confirmPasswordController.text;
+
+                            if (newPassword.isEmpty || confirmPassword.isEmpty) {
+                              // show an error message if any input is empty
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Password fields cannot be empty'
+                                  ),
+                                ),
+                              );
+                            } else if (newPassword != confirmPassword) {
+                              // show an error message if passwords do not match
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Passwords do not match',
+                                  ),
+                                ),
+                              );
+                            } else {
+                              AuthMethods().changePassword(newPassword);
+                              Navigator.of(context).pop();
+                            }
+                          },
+                          child: const Text(
+                            'Save',
+                          ),
+                        ),
+                      ],
+                    );
+                  }
+                );
               },
               child: const Text('Change Password (WIP)'),
             ),
