@@ -1,9 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ss/screens/authentication_screens/forgot_password.dart';
-import 'package:ss/screens/main_screens/home.dart';
 import 'package:ss/screens/authentication_screens/sign_up.dart';
-import 'package:ss/screens/main_screens/navigation.dart';
 import 'package:ss/services/auth.dart';
 import 'package:ss/shared/authentication_deco.dart';
 
@@ -27,20 +26,23 @@ class _LogInState extends State<LogIn> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Container(
+        padding: const EdgeInsets.only(
+          top: 100,
+          left: 20,
+          right: 20,
+          ),
         height: MediaQuery.of(context).size.height,
         child: SingleChildScrollView(
           child: Column(
             children: [
-              Container(
+              SizedBox(
+                height: 250.0,
                 width: MediaQuery.of(context).size.width,
                 //insert an image
                 child: Image.asset(
-                  "assets/ss_logo.png",
-                  fit: BoxFit.contain,
+                  "assets/ss_red.png",
+                  fit: BoxFit.scaleDown,
                 )
-              ),
-              const SizedBox(
-                height: 30.0
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 20.0, right: 20.0),
@@ -115,7 +117,7 @@ class _LogInState extends State<LogIn> {
                     Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => ForgotPassword()), (route) => false);
                   },
                   child: const Text(
-                    'Forgot Password',
+                    'Forgot Password?',
                     style: TextStyle(
                       color: Colors.blue,
                       fontSize: 18.0,
