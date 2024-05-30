@@ -114,7 +114,7 @@ class _HomeState extends State<Home> {
 
                           if (budgets.isEmpty) {
                             return const Center(
-                              child: Text('No Spending Found'),
+                              child: Text(''),
                             );
                           }
 

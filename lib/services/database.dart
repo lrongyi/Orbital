@@ -84,7 +84,7 @@ class DatabaseMethods {
   Stream<QuerySnapshot> getBudgetsByMonth(DateTime time) {
     DateTime startOfMonth = DateTime(time.year, time.month);
     DateTime endOfMonth = time.month != 12 ? DateTime(time.year, time.month + 1) : DateTime(time.year + 1, 1); 
-    return getBudgetRef(getCurrentUserId()).where('month', isGreaterThan: startOfMonth).where('month', isLessThan: endOfMonth).snapshots();
+    return getBudgetRef(getCurrentUserId()).where('month', isGreaterThanOrEqualTo: startOfMonth).where('month', isLessThan: endOfMonth).snapshots();
   }
 
   Future<double> getMonthlyBudgetAsync(DateTime time) async {
@@ -176,7 +176,7 @@ class DatabaseMethods {
   Stream<QuerySnapshot> getExpensesByMonth(DateTime time) {
     DateTime startOfMonth = DateTime(time.year, time.month);
     DateTime endOfMonth = time.month != 12 ? DateTime(time.year, time.month + 1) : DateTime(time.year + 1, 1); 
-    return getExpensesRef(getCurrentUserId()).where('date', isGreaterThan: startOfMonth).where('date', isLessThan: endOfMonth).orderBy('date', descending: true).snapshots();
+    return getExpensesRef(getCurrentUserId()).where('date', isGreaterThanOrEqualTo: startOfMonth).where('date', isLessThan: endOfMonth).orderBy('date', descending: true).snapshots();
   }
 
   Future<double> getMonthlySpendingCategorized(DateTime time, String category) async {
@@ -185,7 +185,7 @@ class DatabaseMethods {
 
     try {
       QuerySnapshot query = await getExpensesRef(getCurrentUserId())
-        .where('date', isGreaterThan: startOfMonth)
+        .where('date', isGreaterThanOrEqualTo: startOfMonth)
         .where('date', isLessThan: endOfMonth)
         .where('category', isEqualTo: category)
         .get();
@@ -211,7 +211,7 @@ class DatabaseMethods {
     DateTime startOfMonth = DateTime(time.year, time.month);
     DateTime endOfMonth = time.month != 12 ? DateTime(time.year, time.month + 1) : DateTime(time.year + 1, 1); 
 
-    QuerySnapshot<Expense> query = await getExpensesRef(getCurrentUserId()).where('date', isGreaterThan: startOfMonth).where('date', isLessThan: endOfMonth).get();
+    QuerySnapshot<Expense> query = await getExpensesRef(getCurrentUserId()).where('date', isGreaterThanOrEqualTo: startOfMonth).where('date', isLessThan: endOfMonth).get();
 
     double totalSpending = 0.0;
 
