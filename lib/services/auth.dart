@@ -172,11 +172,21 @@ class AuthMethods {
       ));
   }
 
-  Future<void> changePassword(String newPassword) async {
+  Future<void> changePassword(String email, String oldPassword, String newPassword) async {
     User? user = auth.currentUser;
 
     if (user != null) {
-      await user.updatePassword(newPassword);
+      AuthCredential cred = EmailAuthProvider.credential(email: email, password: oldPassword);
+
+      try {
+        await user.reauthenticateWithCredential(cred);
+
+        await user.updatePassword(newPassword);
+      } catch (e) {
+        print('Error: $e');
+        throw Exception('Failed to re-authenticate user');
+      }
+
     } else {
       throw Exception('No User Signed In');
     }

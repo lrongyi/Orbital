@@ -344,7 +344,6 @@ class _BudgetingState extends State<Budgeting> {
 
                         // Delete budget
                         onLongPress: () {
-                          // add some type of confirmation
                           showDialog(
                             context: context,
                             builder: (context) {
@@ -371,7 +370,6 @@ class _BudgetingState extends State<Budgeting> {
                                       onPressed: () {
                                         DatabaseMethods().deleteBudget(category);
                                         Navigator.of(context).pop();
-                                        
                                       },
                                       child: const Text(
                                         'Delete',

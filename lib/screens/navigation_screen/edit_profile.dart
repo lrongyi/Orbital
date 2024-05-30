@@ -138,9 +138,6 @@ class _EditProfileState extends State<EditProfile> {
                 backgroundColor: mainColor,
               ),
               onPressed: () {
-                // TODO: firebase change username operation
-                // Add a pop up to ask user for new username pass the string in as newName
-                // AuthMethods().changeDisplayName(newName);
                 showDialog(
                   context: context,
                   builder: (context) {
@@ -231,14 +228,13 @@ class _EditProfileState extends State<EditProfile> {
                 backgroundColor: mainColor,
               ),
               onPressed: () {
-                // TODO: firebase change password operation
-                // Add a pop up to ask user for new password pass the string in as newPassword
-                // AuthMethods().changePassword(newPassword);
                 showDialog(
                   context: context,
                   builder: (context) {
                     final newPasswordController = TextEditingController();
                     final confirmPasswordController = TextEditingController();
+                    final emailController = TextEditingController();
+                    final oldPasswordController = TextEditingController();
 
                     return AlertDialog(
                       backgroundColor: Colors.white,
@@ -253,6 +249,19 @@ class _EditProfileState extends State<EditProfile> {
                       content: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
+                          TextFormField(
+                            controller: emailController,
+                            decoration: const InputDecoration(
+                              labelText: 'Email',
+                            ),
+                          ),
+                          TextFormField(
+                            controller: oldPasswordController,
+                            decoration: const InputDecoration(
+                              labelText: 'Current Password',
+                            ),
+                            obscureText: true,
+                          ),
                           TextFormField(
                             controller: newPasswordController,
                             decoration: const InputDecoration(
@@ -284,6 +293,8 @@ class _EditProfileState extends State<EditProfile> {
                           onPressed: () {
                             String newPassword = newPasswordController.text;
                             String confirmPassword = confirmPasswordController.text;
+                            String email = emailController.text;
+                            String oldPassword = oldPasswordController.text;
 
                             if (newPassword.isEmpty || confirmPassword.isEmpty) {
                               // show an error message if any input is empty
@@ -308,7 +319,7 @@ class _EditProfileState extends State<EditProfile> {
                                 ),
                               );
                             } else {
-                              AuthMethods().changePassword(newPassword);
+                              AuthMethods().changePassword(email, oldPassword, newPassword);
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text(
