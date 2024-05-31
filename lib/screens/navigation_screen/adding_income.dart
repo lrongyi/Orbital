@@ -177,6 +177,7 @@ class _MyWidgetState extends State<AddingIncome> {
                                 size: 25,
                               ),
                               onPressed: () async {
+
                                 // Open a dialog to show the dropdown items
                                 selectedItem = await showDialog<String>(
                                   context: context,
@@ -193,6 +194,7 @@ class _MyWidgetState extends State<AddingIncome> {
                                           fontSize: 20,
                                         )
                                       ),
+
                                       // TODO: need to change this to the dynamic list of categories in firebase
                                       children: dropdownItems.map((category) {
                                         return SimpleDialogOption(
@@ -211,6 +213,7 @@ class _MyWidgetState extends State<AddingIncome> {
                                     );
                                   },
                                 );
+                                
                                 // Update the text form field with the selected item
                                 if (selectedItem != null) {
                                   categoryController.text = selectedItem!;

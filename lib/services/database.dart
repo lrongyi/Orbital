@@ -3,6 +3,7 @@ import 'dart:ffi';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:ss/services/auth.dart';
 import 'package:ss/services/models/budget.dart';
 import 'package:ss/services/models/expense.dart';
@@ -41,6 +42,16 @@ class DatabaseMethods {
       return userDoc['email'];
     } else {
       return '';
+    }
+  }
+
+  Future<double> getNetSpendAsync() async {
+    DocumentSnapshot userDoc = await _firestore.collection(USER_COLLECTION).doc(getCurrentUserId()).get();
+
+    if (userDoc.exists) {
+      return userDoc['netSpend'];
+    } else {
+      return 0.00;
     }
   }
 
@@ -194,8 +205,9 @@ class DatabaseMethods {
 
       if (query.docs.isNotEmpty) {
         for (var doc in query.docs) {
-        Expense data = doc.data() as Expense;
-          totalSpending += -1 * data.amount;
+          Expense data = doc.data() as Expense;
+          // totalSpending += -1 * data.amount;
+          data.amount < 0 ? totalSpending += -1 * data.amount : totalSpending = totalSpending;
         }
       }
 
@@ -218,11 +230,30 @@ class DatabaseMethods {
     if (query.docs.isNotEmpty) {
       for (var expenses in query.docs) {
         Expense data = expenses.data();
-        totalSpending += -1 * data.amount.toDouble();
+        // totalSpending += -1 * data.amount;
+        data.amount < 0 ? totalSpending += -1 * data.amount : totalSpending = totalSpending;
       }
     }
 
     return totalSpending;
+  }
+
+  Future<double> getMonthlyNetChange(DateTime time) async {
+    DateTime startOfMonth = DateTime(time.year, time.month);
+    DateTime endOfMonth = time.month != 12 ? DateTime(time.year, time.month + 1) : DateTime(time.year + 1, 1); 
+
+    QuerySnapshot<Expense> query = await getExpensesRef(getCurrentUserId()).where('date', isGreaterThanOrEqualTo: startOfMonth).where('date', isLessThan: endOfMonth).get();
+
+    double totalSpending = 0.0;
+
+    if (query.docs.isNotEmpty) {
+      for (var expenses in query.docs) {
+        Expense data = expenses.data();
+        totalSpending += -1 * data.amount;
+      }
+    }
+
+    return totalSpending;    
   }
 
   Stream<double> getMonthlySpendingStream(DateTime time) async* {
@@ -241,7 +272,7 @@ class DatabaseMethods {
     await getExpensesRef(getCurrentUserId()).add(expense);
     
     final userDoc = await userRef.get();
-    if (userDoc.exists) {
+    if (userDoc.exists && expense.amount < 0) {
       final currentNetSpend = userDoc.data()!['netSpend'] ?? 0;
       final newNetSpend = currentNetSpend + expense.amount;
       await userRef.update({'netSpend': newNetSpend});
@@ -254,16 +285,20 @@ class DatabaseMethods {
 
     if (expenseDoc.exists) {
       final data = expenseDoc.data();
-      
       final currentExpense = data!.toJson();
+      final spend = currentExpense?['amount'];
 
-      await getExpensesRef(getCurrentUserId()).doc(expenseId).update(expense.toJson());
+      if (spend is num) {
+        final spendAmount = spend.toDouble();
 
-      final userDoc = await userRef.get();
-      if (userDoc.exists) {
-        final currentNetSpend = userDoc.data()!['netSpend'] ?? 0;
-        final newNetSpend = currentNetSpend - currentExpense['amount'] + expense.amount;
-        await userRef.update({'netSpend': newNetSpend});
+        await getExpensesRef(getCurrentUserId()).doc(expenseId).update(expense.toJson());
+
+        final userDoc = await userRef.get();
+        if (userDoc.exists && spendAmount < 0) {
+          final currentNetSpend = userDoc.data()!['netSpend'] ?? 0;
+          final newNetSpend = currentNetSpend - currentExpense['amount'] + expense.amount;
+          await userRef.update({'netSpend': newNetSpend});
+        }
       }
     }
   }
@@ -275,14 +310,20 @@ class DatabaseMethods {
     if (expenseDoc.exists) {
       final data = expenseDoc.data();
       final currentExpense = data!.toJson();
+      final spend = currentExpense?['amount'];
 
-      await getExpensesRef(getCurrentUserId()).doc(expenseId).delete();
+      if (spend is num) {
+        final spendAmount = spend.toDouble();
+      
 
-      final userDoc = await userRef.get();
-      if (userDoc.exists) {
-        final currentNetSpend = userDoc.data()!['netSpend'] ?? 0;
-        final newNetSpend = currentNetSpend - currentExpense['amount'];
-        await userRef.update({'netSpend': newNetSpend});
+        await getExpensesRef(getCurrentUserId()).doc(expenseId).delete();
+
+        final userDoc = await userRef.get();
+        if (userDoc.exists && (spendAmount < 0)) {
+          final currentNetSpend = userDoc.data()!['netSpend'] ?? 0;
+          final newNetSpend = currentNetSpend - currentExpense['amount'];
+          await userRef.update({'netSpend': newNetSpend});
+        }
       }
     }
   }

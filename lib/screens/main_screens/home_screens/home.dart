@@ -135,7 +135,7 @@ class _HomeState extends State<Home> {
                                         title: '',
                                         titleStyle: const TextStyle(color: Colors.black),
                                         badgeWidget: HomeDeco.pieChartTitleWidget(
-                                          category,
+                                          category, (-1 * spending)
                                         ),
                                         badgePositionPercentageOffset: 1,
                                         );
