@@ -85,77 +85,122 @@ class _BudgetingState extends State<Budgeting> {
 
               //Money Left to spend and budget this month
               Container(
-                  // color: Colors.red,
-                  height: 150,
-                  width: MediaQuery.of(context).size.width,
-                  child: Column(
-                    children: [
-                      //money left to spend
-                      FutureBuilder<double>(
-                          future: DatabaseMethods()
-                              .getRemainingMonthly(monthNotifier._currentMonth),
-                          builder: (BuildContext context,
-                              AsyncSnapshot<double> snapshot) {
-                            if (snapshot.hasError) {
-                              return Text(
-                                  'Error: ${snapshot.error}'); // Display error message if any
-                            } else {
-                              double moneyLeftToSpend =
-                                  snapshot.data?.toDouble() ??
-                                      0.0; // Default to 0.0 if no data
-                              return Text(
-                                '\$${moneyLeftToSpend.toStringAsFixed(2)}',
-                                style: TextStyle(
-                                    fontSize: 60,
-                                    color: moneyLeftToSpend < 0
-                                        ? Colors.red
-                                        : Colors.green),
-                              );
-                            }
-                          }),
-                      const Text('Left to spend',
-                          style: TextStyle(
-                            fontSize: 15,
-                            color: Colors.black,
-                          )),
-                      FutureBuilder<double>(
-                          future: DatabaseMethods().getMonthlyBudgetAsync(
-                              monthNotifier._currentMonth),
-                          builder: (BuildContext context,
-                              AsyncSnapshot<double> snapshot) {
-                            if (snapshot.hasError) {
-                              return Text(
-                                  'Error: ${snapshot.error}'); // Display error message if any
-                            } else {
-                              double budgetTotal = snapshot.data?.toDouble() ??
-                                  0.0; // Default to 0.0 if no data
-                              return Text(
-                                '(Budget this month: \$${budgetTotal.toStringAsFixed(2)})',
-                                style: const TextStyle(
-                                  fontSize: 15,
-                                  color: Colors.blue,
+                // color: Colors.red,
+                height: 200,
+                width: MediaQuery.of(context).size.width,
+                child: Column(
+                  children: [
+                    FutureBuilder<double>(
+                      future: DatabaseMethods().getMonthlyBudgetAsync(
+                          monthNotifier._currentMonth),
+                      builder: (BuildContext context,
+                          AsyncSnapshot<double> snapshot) {
+                        if (snapshot.hasError) {
+                          return Text(
+                              'Error: ${snapshot.error}'); // Display error message if any
+                        } else {
+                          double budgetTotal = snapshot.data?.toDouble() ??
+                              0.0; // Default to 0.0 if no data
+                          return Text(
+                            '\$${budgetTotal.toStringAsFixed(2)}',
+                            style: const TextStyle(
+                              fontSize: 60,
+                              color: Colors.blue,
+                            ),
+                          );
+                        }
+                      }
+                    ),
+                    //money left to spend
+                    FutureBuilder<double>(
+                        future: DatabaseMethods()
+                            .getRemainingMonthly(monthNotifier._currentMonth),
+                        builder: (BuildContext context,
+                            AsyncSnapshot<double> snapshot) {
+                          if (snapshot.hasError) {
+                            return Text(
+                                'Error: ${snapshot.error}'); // Display error message if any
+                          } else {
+                            double moneyLeftToSpend =
+                                snapshot.data?.toDouble() ??
+                                    0.0; // Default to 0.0 if no data
+                            if (moneyLeftToSpend < 0) {
+                              return RichText(
+                                text: TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: '\$${moneyLeftToSpend.abs().toStringAsFixed(2)}\n',
+                                      style: const TextStyle(
+                                        fontSize: 60,
+                                        color: Colors.red,
+                                      ),
+                                    ),
+                                    const TextSpan(
+                                      text: 'Overspent',
+                                      style: TextStyle(
+                                        fontSize: 30,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ]
                                 ),
+                                textAlign: TextAlign.center,
+                              );
+                            } else {
+                              return RichText(
+                                text: TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: '\$${moneyLeftToSpend.abs().toStringAsFixed(2)}\n',
+                                      style: const TextStyle(
+                                        fontSize: 60,
+                                        color: Colors.green
+                                      ),
+                                    ),
+                                    const TextSpan(
+                                      text: 'Left to spend',
+                                      style: TextStyle(
+                                        fontSize: 30,
+                                        color: Colors.grey,
+                                      ),
+                                    )
+                                  ]
+                                ),
+                                textAlign: TextAlign.center,
                               );
                             }
-                          })
-                    ],
-                  )),
+                          }
+                        }),
+                    // const Text('Left to spend',
+                    //     style: TextStyle(
+                    //       fontSize: 30,
+                    //       color: Colors.grey,
+                    //     )),
+                    
+                  ],
+                )
+              ),
 
               // add budget button
               Padding(
-                padding: const EdgeInsets.only(right: 8.0),
+                padding: const EdgeInsets.only(top: 10, right: 8.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     MaterialButton(
+                        shape: const RoundedRectangleBorder(
+                          side: BorderSide(color: Colors.black),
+                        ),
                         color: Colors.white,
-
                         // Allocate new budget
                         onPressed: () {
                           showDialog(
                               context: context,
                               builder: (context) {
                                 return AlertDialog(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(0), 
+                                  ),
                                   backgroundColor: Colors.white,
                                   title: const Text(
                                     'Add Budget',
@@ -192,9 +237,9 @@ class _BudgetingState extends State<Budgeting> {
                                         Navigator.of(context).pop();
                                       },
                                       child: const Text('Cancel',
-                                        // style: TextStyle(
-                                        //   color: Colors.black,
-                                        // )
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                        )
                                       ),
                                     ),
                                     TextButton(
@@ -210,9 +255,9 @@ class _BudgetingState extends State<Budgeting> {
                                         Navigator.of(context).pop();
                                       },
                                       child: const Text('Save',
-                                        // style: TextStyle(
-                                        //   color: Colors.black,
-                                        // )
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                        )
                                       ),
                                     ),
                                   ],
@@ -305,8 +350,10 @@ class _BudgetingState extends State<Budgeting> {
                               builder: (context) {
                                 double newAmount = amount;
                                 return AlertDialog(
-                                  backgroundColor:
-                                      Color.fromARGB(255, 255, 239, 242),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(0), 
+                                  ),
+                                  backgroundColor:Colors.white,
                                   title: const Text('Change Budget',
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
@@ -348,38 +395,42 @@ class _BudgetingState extends State<Budgeting> {
                             context: context,
                             builder: (context) {
                               return AlertDialog(
-                                  title: const Text(
-                                    'Delete Budget'
-                                  ),
-                                  content: const Text(
-                                    'Are you sure you want to delete this budget?'
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                      child: const Text(
-                                        'Cancel',
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                        ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(0), 
+                                ),
+                                backgroundColor: Colors.white,
+                                title: const Text(
+                                  'Delete Budget'
+                                ),
+                                content: const Text(
+                                  'Are you sure you want to delete this budget?'
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text(
+                                      'Cancel',
+                                      style: TextStyle(
+                                        color: Colors.black,
                                       ),
                                     ),
-                                    TextButton(
-                                      onPressed: () {
-                                        DatabaseMethods().deleteBudget(category);
-                                        Navigator.of(context).pop();
-                                      },
-                                      child: const Text(
-                                        'Delete',
-                                        style: TextStyle(
-                                          color: Colors.red,
-                                        ),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      DatabaseMethods().deleteBudget(category);
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text(
+                                      'Delete',
+                                      style: TextStyle(
+                                        color: Colors.red,
                                       ),
                                     ),
-                                  ]
-                                );
+                                  ),
+                                ]
+                              );
                             }
                           );
                         },
@@ -401,18 +452,21 @@ class _BudgetingState extends State<Budgeting> {
 
                                     return Text.rich(
                                       TextSpan(
-                                        text: '\$',
+                                        text: catSpending < 0
+                                        ? '-\$'
+                                        : '\$',
                                         style: TextStyle(
-                                          color: catSpending < amount
+                                          color: catSpending <= amount
                                               ? Colors.green
                                               : Colors.red,
                                         ),
                                         children: [
                                           TextSpan(
-                                            text:
-                                                catSpending.toStringAsFixed(2),
+                                            text: catSpending < 0
+                                            ? catSpending.abs().toStringAsFixed(2)
+                                            : catSpending.toStringAsFixed(2),
                                             style: TextStyle(
-                                              color: catSpending < amount
+                                              color: catSpending <= amount
                                                   ? Colors.green
                                                   : Colors.red,
                                               fontWeight: FontWeight.bold,

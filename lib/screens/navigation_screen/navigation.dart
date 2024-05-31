@@ -77,13 +77,11 @@ class _NavigationState extends State<Navigation> {
               // profile pic
               currentAccountPicture: CircleAvatar(
                 backgroundColor: Colors.white,
-                child: Text(
-                  'U',
-                  style: TextStyle(
-                    fontSize: 40.0,
-                    color: mainColor,
-                  ),
-                ),
+                child: Icon(
+                  Icons.person,
+                  size: 40,
+                  color: mainColor,
+                )
               ),
               decoration: BoxDecoration(
                 color: mainColor,

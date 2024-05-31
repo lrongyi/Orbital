@@ -147,7 +147,7 @@ class _ExpensesState extends State<Expenses> {
                               // Icon 
                               leading: CircleAvatar(
                                 backgroundColor:
-                                    amount < 0 ? Colors.red : Colors.blue,
+                                    amount < 0 ? Colors.red : Colors.green,
                                 child: Icon(
                                   amount < 0
                                       ? Icons.money_off_csred_outlined
@@ -177,16 +177,25 @@ class _ExpensesState extends State<Expenses> {
                                 ],
                               ),
 
-                              trailing: Text(
-                                expense.amount.toStringAsFixed(2),
-                                style: TextStyle(
-                                  fontSize: 18.0,
-                                  color: expense.amount > 0
-                                  ? Colors.blue
-                                  : Colors.red,
+                              trailing: expense.amount < 0
+                              ? Text(
+                                  '-\$${expense.amount.abs().toStringAsFixed(2)}',
+                                  style: TextStyle(
+                                    fontSize: 18.0,
+                                    color: expense.amount > 0
+                                    ? Colors.green
+                                    : Colors.red,
+                                  ),
+                                )
+                              : Text(
+                                  '\$${expense.amount.toStringAsFixed(2)}',
+                                  style: TextStyle(
+                                    fontSize: 18.0,
+                                    color: expense.amount > 0
+                                    ? Colors.green
+                                    : Colors.red,
                                   ),
                               ),
-
                               // See description
                               onTap: () {
                                 String? description = expense.description;

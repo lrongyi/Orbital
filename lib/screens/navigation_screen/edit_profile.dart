@@ -48,21 +48,25 @@ class _EditProfileState extends State<EditProfile> {
             // Profile Picture
             CircleAvatar(
               backgroundColor: mainColor,
-              radius: 50,
-              child: const Icon(
-                Icons.person,
-                size: 50,
-                color: Colors.white,
-              )
-              // backgroundImage: AssetImage('assets/profile_picture.png'), 
-              // child: Text(
-              //   'U',
-              //   style: TextStyle(
-              //     fontSize: 40,
-              //     fontWeight: FontWeight.bold,
-              //     color: Colors.black,
-              //   )
-              // )
+              radius: 52,
+              child: CircleAvatar(
+                backgroundColor: Colors.white,
+                radius: 50,
+                child: Icon(
+                  Icons.person,
+                  size: 50,
+                  color: mainColor,
+                )
+                // backgroundImage: AssetImage('assets/profile_picture.png'), 
+                // child: Text(
+                //   'U',
+                //   style: TextStyle(
+                //     fontSize: 40,
+                //     fontWeight: FontWeight.bold,
+                //     color: Colors.black,
+                //   )
+                // )
+              ),
             ),
             const SizedBox(height: 20),
 
@@ -144,6 +148,9 @@ class _EditProfileState extends State<EditProfile> {
                     final newNameController = TextEditingController();
 
                     return AlertDialog(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(0), 
+                      ),
                       backgroundColor: Colors.white,
                       title: const Text(
                         'Change Username',
@@ -166,6 +173,9 @@ class _EditProfileState extends State<EditProfile> {
                           },
                           child: const Text(
                             'Cancel',
+                            style: TextStyle(
+                              color: Colors.black,
+                            ),
                           ),
                         ),
                         // save button
@@ -205,6 +215,9 @@ class _EditProfileState extends State<EditProfile> {
                           },
                           child: const Text(
                             'Save',
+                            style: TextStyle(
+                              color: Colors.black,
+                            ),
                           ),
                         ),
                       ]
@@ -237,6 +250,9 @@ class _EditProfileState extends State<EditProfile> {
                     final oldPasswordController = TextEditingController();
 
                     return AlertDialog(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(0), 
+                      ),
                       backgroundColor: Colors.white,
                       title: const Text(
                         'Change Password',
@@ -286,6 +302,9 @@ class _EditProfileState extends State<EditProfile> {
                           },
                           child: const Text(
                             'Cancel',
+                            style: TextStyle(
+                              color: Colors.black,
+                            ),
                           ),
                         ),
                         // save button
@@ -335,6 +354,9 @@ class _EditProfileState extends State<EditProfile> {
                           },
                           child: const Text(
                             'Save',
+                            style: TextStyle(
+                              color: Colors.black,
+                            ),
                           ),
                         ),
                       ],

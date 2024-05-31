@@ -95,20 +95,17 @@ class _MyWidgetState extends State<EditingIncome> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [                
-                Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.blue, width: 2),
-                  ),
-                  child: SizedBox(
-                    width: 175,
-                    height: 35,
-                    child: MaterialButton(
-                      color: Colors.grey[100],
-                      onPressed: () {},
-                      minWidth: 175,
-                      child: const Text('Income'),
+                MaterialButton(
+                  shape: const RoundedRectangleBorder(
+                    side: BorderSide(
+                      color: Colors.blue,
+                      width: 2,
                     ),
                   ),
+                  color: Colors.grey[100],
+                  onPressed: () {},
+                  minWidth: 175,
+                  child: const Text('Income'),
                 ),
                 MaterialButton(
                   color: Colors.grey[100],

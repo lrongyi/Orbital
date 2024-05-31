@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:ss/services/database.dart';
 import 'package:ss/services/models/budget.dart';
+import 'package:ss/shared/home_deco.dart';
 import 'package:ss/shared/main_screens_deco.dart';
 
 class Home extends StatefulWidget {
@@ -33,8 +34,7 @@ class _HomeState extends State<Home> {
             backgroundColor: Colors.white,
             body: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                
+              children: [     
                 const Divider(
                   color: Colors.grey,
                   height: 1,
@@ -86,153 +86,160 @@ class _HomeState extends State<Home> {
                 const SizedBox(height: 20),
 
                 // Pie chart with total spending in its center                
-                Stack(
-                  children: [
-                    
-                    // Piechart
-                    SizedBox(
-                      width: 300,
-                      height: 300,
-                      child: StreamBuilder(
-                        stream: DatabaseMethods().getBudgetsByMonth(monthNotifier._currentMonth),
-
-                        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                          
-                          if (!snapshot.hasData) {
-                            return const Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          }
-
-                          final budgets = snapshot.data!.docs;
-
-                          if (snapshot.hasError) {
-                            return const Center(
-                              child: Text('Error fetching data'),
-                            );
-                          }
-
-                          if (budgets.isEmpty) {
-                            return const Center(
-                              child: Text(''),
-                            );
-                          }
-
-                          List<Future<PieChartSectionData?>> futureSections = [];
-                          List<Color> colors = [Colors.blue, Colors.green, Colors.orange, Colors.purple, Colors.red];
-                          Random random = Random();
-                          
-                          for (var budgetDoc in budgets) {
-                            Budget budget = budgetDoc.data() as Budget;
-                            budget.categories.forEach((category, spending) {
-                              futureSections.add(
-                                DatabaseMethods().getMonthlySpendingCategorized(monthNotifier._currentMonth, category)
-                                .then(
-                                  (spending) {
-                                    if (spending > 0) {
-                                      Color color = colorManager.getColorForCategory(category);
-                                      return PieChartSectionData(
-                                      color: color,
-                                      value: spending,
-                                      title: category,
-                                      titleStyle: const TextStyle(color: Colors.black),
-                                      );
-                                    } else {
-                                      return null;
-                                    }
-                                  }
-                                )
-                              );
-                            });
-                          }
-
-                          return FutureBuilder<List<PieChartSectionData>>(
-                            future: Future.wait(futureSections).then((sections) =>
-                              sections.where((section) => section != null).cast<PieChartSectionData>().toList()),
-                            builder: (BuildContext context, AsyncSnapshot<List<PieChartSectionData>> snapshot) {
-                              if (!snapshot.hasData) {
-                                return const Center(
-                                  child: CircularProgressIndicator(),
-                                );
-                              }
-
-                              if (snapshot.hasError) {
-                                return const Center(
-                                  child: Text('Error fetching data'),
-                                );
-                              }
-
-                              return PieChart(
-                                PieChartData(
-                                  sections: snapshot.data!,
-                                  centerSpaceRadius: 100,
-                                ),
+                Expanded(
+                  child: Stack(
+                    children: [
+                      
+                      // Piechart
+                      SizedBox(
+                        // width: 300,
+                        // height: 300,
+                        child: StreamBuilder(
+                          stream: DatabaseMethods().getBudgetsByMonth(monthNotifier._currentMonth),
+                  
+                          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                            
+                            if (!snapshot.hasData) {
+                              return const Center(
+                                child: CircularProgressIndicator(),
                               );
                             }
-                          );
-                        }
-                      ),
-                    ),
-
-                    // Centre of the piechart
-                    Positioned.fill(
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            StreamBuilder<double>(
-                              
-                              stream: DatabaseMethods().getMonthlyBudgetStream(monthNotifier._currentMonth),
-                              
-                              builder: (BuildContext context, snapshot) {
-                                if (snapshot.hasError) {
-                                  return Text('Error: ${snapshot.error}'); // Display error message if any
-                                } else {
-                                  double budget = snapshot.data?.toDouble() ?? 0.0; // Default to 0.0 if no data
-                                  return StreamBuilder(
-                                    
-                                    stream: DatabaseMethods().getMonthlySpendingStream(monthNotifier._currentMonth), 
-                                    
-                                    builder: (BuildContext context, spendingSnapshot) {
-                                      if (snapshot.hasError) {
-                                        return Text('Error: ${snapshot.error}'); // Display error message if any
-                                      } else {
-                                        double totalSpending = spendingSnapshot.data?.toDouble() ?? 0.0;
-                                        return Text(
-                                          '\$${totalSpending.toStringAsFixed(2)}',
-                                          style: TextStyle(
-                                            fontSize: 40,
-                                            fontWeight: FontWeight.bold,
-                                            color: totalSpending > budget ? Colors.red : totalSpending < 0 ? Colors.green : Colors.black,
-                                          ),
+                  
+                            final budgets = snapshot.data!.docs;
+                  
+                            if (snapshot.hasError) {
+                              return const Center(
+                                child: Text('Error fetching data'),
+                              );
+                            }
+                  
+                            if (budgets.isEmpty) {
+                              return const Center(
+                                child: Text(''),
+                              );
+                            }
+                  
+                            List<Future<PieChartSectionData?>> futureSections = [];
+                            for (var budgetDoc in budgets) {
+                              Budget budget = budgetDoc.data() as Budget;
+                              budget.categories.forEach((category, spending) {
+                                futureSections.add(
+                                  DatabaseMethods().getMonthlySpendingCategorized(monthNotifier._currentMonth, category)
+                                  .then(
+                                    (spending) {
+                                      if (spending > 0) {
+                                        Color color = colorManager.getColorForCategory(category);
+                                        return PieChartSectionData(
+                                        color: color,
+                                        value: spending,
+                                        title: '',
+                                        titleStyle: const TextStyle(color: Colors.black),
+                                        badgeWidget: HomeDeco.pieChartTitleWidget(
+                                          category,
+                                        ),
+                                        badgePositionPercentageOffset: 1,
                                         );
+                                      } else {
+                                        return null;
                                       }
                                     }
-                                  );   
+                                  )
+                                );
+                              });
+                            }
+                  
+                            return FutureBuilder<List<PieChartSectionData>>(
+                              future: Future.wait(futureSections).then((sections) =>
+                                sections.where((section) => section != null).cast<PieChartSectionData>().toList()),
+                              builder: (BuildContext context, AsyncSnapshot<List<PieChartSectionData>> snapshot) {
+                                if (!snapshot.hasData) {
+                                  return const Center(
+                                    child: CircularProgressIndicator(),
+                                  );
                                 }
+                  
+                                if (snapshot.hasError) {
+                                  return const Center(
+                                    child: Text('Error fetching data'),
+                                  );
+                                }
+                  
+                                return PieChart(
+                                  PieChartData(
+                                    sections: snapshot.data!,
+                                    centerSpaceRadius: 100,
+                                  ),
+                                );
                               }
-                            ),
-
-                            const Text(
-                              'Total monthly spending',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ],
+                            );
+                          }
                         ),
                       ),
-                    ),
-                  ],
+                  
+                      // Centre of the piechart
+                      Positioned.fill(
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              StreamBuilder<double>(
+                                
+                                stream: DatabaseMethods().getMonthlyBudgetStream(monthNotifier._currentMonth),
+                                
+                                builder: (BuildContext context, snapshot) {
+                                  if (snapshot.hasError) {
+                                    return Text('Error: ${snapshot.error}'); // Display error message if any
+                                  } else {
+                                    double budget = snapshot.data?.toDouble() ?? 0.0; // Default to 0.0 if no data
+                                    return StreamBuilder(
+                                      
+                                      stream: DatabaseMethods().getMonthlySpendingStream(monthNotifier._currentMonth), 
+                                      
+                                      builder: (BuildContext context, spendingSnapshot) {
+                                        if (snapshot.hasError) {
+                                          return Text('Error: ${snapshot.error}'); // Display error message if any
+                                        } else {
+                                          double totalSpending = spendingSnapshot.data?.toDouble() ?? 0.0;
+                                          return Text(
+                                            '\$${totalSpending.toStringAsFixed(2)}',
+                                            style: TextStyle(
+                                              fontSize: 40,
+                                              fontWeight: FontWeight.bold,
+                                              color: totalSpending > budget ? Colors.red : totalSpending < 0 ? Colors.green : Colors.black,
+                                            ),
+                                          );
+                                        }
+                                      }
+                                    );   
+                                  }
+                                }
+                              ),
+                  
+                              const Text(
+                                'Total monthly spending',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-
-                const SizedBox(height: 30),
-                // Categories label + View All button
-                // For some reason the outer padding doesn't work
-                // So the row needs its own padding
-
+                // Net change display (WIP)
+                // Container(
+                //   padding: EdgeInsets.only(top: 10),
+                //   // color: Colors.red,
+                //   height: 20,
+                //   child: Text(
+                //     'Net Change: ',                 
+                //     textAlign: TextAlign.start,
+                //   )
+                // ),
                 // Header for Categories and Amount
                 const Padding(
                   padding: EdgeInsets.only(top: 0, bottom: 16, right: 16, left: 16),
@@ -320,12 +327,27 @@ class _HomeState extends State<Home> {
 
                                 double spending = snapshot.data ?? 0.0;
 
-                                return Text(
+                                // return Text(
+                                //   '\$${spending.toStringAsFixed(2)}',
+                                //   style: const TextStyle(
+                                //     fontSize: 17,
+                                //   ),
+                                // );
+                                if (spending < 0) {
+                                  return Text(
+                                  '-\$${spending.abs().toStringAsFixed(2)}',
+                                  style: const TextStyle(
+                                    fontSize: 17,
+                                    ),       
+                                  );
+                                } else {
+                                  return Text(
                                   '\$${spending.toStringAsFixed(2)}',
                                   style: const TextStyle(
                                     fontSize: 17,
-                                  ),
-                                );
+                                    ),       
+                                  );
+                                }
                               }
                             ),
                           );

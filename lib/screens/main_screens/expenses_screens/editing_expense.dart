@@ -117,20 +117,17 @@ class _MyWidgetState extends State<EditingExpense> {
                   minWidth: 175,
                   child: const Text('Income'),
                 ),
-                Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.red, width: 2),
-                  ),
-                  child: SizedBox(
-                    width: 175,
-                    height: 35,
-                    child: MaterialButton(
-                      color: Colors.grey[100],
-                      onPressed: () {},
-                      minWidth: 175,
-                      child: const Text('Expense'),
+                MaterialButton(
+                  shape: const RoundedRectangleBorder(
+                    side: BorderSide(
+                      color: Colors.red,
+                      width: 2,
                     ),
                   ),
+                  color: Colors.grey[100],
+                  onPressed: () {},
+                  minWidth: 175,
+                  child: const Text('Expense'),
                 ),
               ],
             ),

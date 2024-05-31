@@ -22,6 +22,12 @@ class _MyWidgetState extends State<AddingIncome> {
   TextEditingController noteController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   DateTime selectDate = DateTime.now();
+  final List<DropdownMenuItem<String>> dropdownItems = [
+    DropdownMenuItem(value: 'Food', child: Text('Food')),
+    DropdownMenuItem(value: 'Transport', child: Text('Transport')),
+    DropdownMenuItem(value: 'Entertainment', child: Text('Entertainment')),
+  ];
+  String? selectedItem; // Variable to store the selected item
 
   @override
   void initState() {
@@ -148,7 +154,83 @@ class _MyWidgetState extends State<AddingIncome> {
 
                   // TextFormFields
                   AddingDeco().buildRow('Amount', amountController),
-                  AddingDeco().buildRow('Category', categoryController),
+                  Row(
+                    children: [
+                      const SizedBox(
+                        width: 100,
+                        child: Text(
+                          'Category',
+                          textAlign: TextAlign.start,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: TextFormField(
+                          textAlignVertical: TextAlignVertical.center,
+                          controller: categoryController,
+                          readOnly: true, // Make the text form field read-only to prevent manual editing
+                          decoration: InputDecoration(
+                            hintText: 'Select category',
+                            suffixIcon: IconButton(
+                              icon: const Icon(
+                                Icons.arrow_drop_down,
+                                size: 25,
+                              ),
+                              onPressed: () async {
+                                // Open a dialog to show the dropdown items
+                                selectedItem = await showDialog<String>(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return SimpleDialog(
+                                      backgroundColor: Colors.white,
+                                      shape: const RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.zero,
+                                      ),
+                                      title: const Text(
+                                        'Select a category',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 20,
+                                        )
+                                      ),
+                                      // TODO: need to change this to the dynamic list of categories in firebase
+                                      children: dropdownItems.map((category) {
+                                        return SimpleDialogOption(
+                                          onPressed: () {
+                                            // Return the selected item when an option is tapped
+                                            Navigator.pop(context, category.value);
+                                          },
+                                          child: Text(
+                                            category.value ?? '',
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                            )
+                                          ),
+                                        );
+                                      }).toList(),
+                                    );
+                                  },
+                                );
+                                // Update the text form field with the selected item
+                                if (selectedItem != null) {
+                                  categoryController.text = selectedItem!;
+                                }
+                              },
+                            ),
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(
+                          Icons.add,
+                          size: 25,
+                        ),
+                        onPressed: () {
+
+                        },
+                      ),
+                    ],
+                  ),
                   AddingDeco().buildRow('Note', noteController),
                   const SizedBox(height: 40),
                   AddingDeco().buildRow('Description', descriptionController),
