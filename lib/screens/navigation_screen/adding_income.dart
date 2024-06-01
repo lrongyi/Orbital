@@ -167,7 +167,7 @@ class _MyWidgetState extends State<AddingIncome> {
                       const SizedBox(width: 10),
 
                       StreamBuilder(
-                        stream: DatabaseMethods().getCategoriesByMonth(DateTime.now()), 
+                        stream: DatabaseMethods().getCategoriesByMonth(selectDate), 
                         
                         builder: (context, snapshot) {
                           if (!snapshot.hasData) {
