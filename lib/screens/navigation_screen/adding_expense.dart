@@ -21,6 +21,7 @@ class _MyWidgetState extends State<AddingExpense> {
   TextEditingController dateController = TextEditingController();
   TextEditingController amountController = TextEditingController();
   TextEditingController categoryController = TextEditingController();
+  TextEditingController addCategoryController = TextEditingController();
   TextEditingController noteController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   DateTime selectDate = DateTime.now();
@@ -264,7 +265,7 @@ class _MyWidgetState extends State<AddingExpense> {
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       TextFormField(
-                                        controller: categoryController,
+                                        controller: addCategoryController,
                                         decoration: const InputDecoration(
                                             labelText: 'Category'),
                                       ),
@@ -283,7 +284,7 @@ class _MyWidgetState extends State<AddingExpense> {
                                   actions: [
                                     TextButton(
                                       onPressed: () {
-                                        categoryController.clear();
+                                        addCategoryController.clear();
                                         Navigator.of(context).pop();
                                       },
                                       child: const Text('Cancel',
@@ -295,11 +296,15 @@ class _MyWidgetState extends State<AddingExpense> {
                                     TextButton(
                                       onPressed: () {
                                         String category =
-                                            categoryController.text;
+                                            addCategoryController.text;
                                         double amount = 0;
                                         DatabaseMethods()
                                             .addBudget(category, amount);
-                                        categoryController.clear();
+                                        // categoryController.clear();
+                                        setState(() {
+                                          categoryController.text = category;
+                                          addCategoryController.clear();
+                                        });
                                         Navigator.of(context).pop();
                                       },
                                       child: const Text('Save',

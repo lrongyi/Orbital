@@ -19,6 +19,7 @@ class _MyWidgetState extends State<AddingIncome> {
   TextEditingController dateController = TextEditingController();
   TextEditingController amountController = TextEditingController();
   TextEditingController categoryController = TextEditingController();
+  TextEditingController addCategoryController = TextEditingController();
   TextEditingController noteController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   DateTime selectDate = DateTime.now();
@@ -27,7 +28,7 @@ class _MyWidgetState extends State<AddingIncome> {
     DropdownMenuItem(value: 'Transport', child: Text('Transport')),
     DropdownMenuItem(value: 'Entertainment', child: Text('Entertainment')),
   ];
-  String? selectedItem; // Variable to store the selected item
+  String? selectedItem; 
 
   @override
   void initState() {
@@ -47,7 +48,7 @@ class _MyWidgetState extends State<AddingIncome> {
           icon: const Icon(
             Icons.arrow_back,
             color: Colors.white,
-            ),
+          ),
           onPressed: () {
             Navigator.pushAndRemoveUntil(
                 context,
@@ -56,23 +57,20 @@ class _MyWidgetState extends State<AddingIncome> {
           },
         ),
         centerTitle: true,
-        title: const Text(
-          'Income',
-          style: TextStyle(
-            color: Colors.white,
-            )
-          ),
+        title: const Text('Income',
+            style: TextStyle(
+              color: Colors.white,
+            )),
       ),
 
       body: Padding(
         padding: const EdgeInsets.only(
-          left: 20, right: 20,
+          left: 20,
+          right: 20,
           top: 30,
         ),
-
         child: Column(
           children: [
-
             // Select between adding income or expense
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -163,87 +161,154 @@ class _MyWidgetState extends State<AddingIncome> {
                           textAlign: TextAlign.start,
                         ),
                       ),
-
                       const SizedBox(width: 10),
-
                       StreamBuilder(
-                        stream: DatabaseMethods().getCategoriesByMonth(selectDate), 
-                        
-                        builder: (context, snapshot) {
-                          if (!snapshot.hasData) {
-                            print('no data');
-                            return const Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          }
-                        
-                          List<String> categories = snapshot.data!;
+                          stream: DatabaseMethods()
+                              .getCategoriesByMonth(selectDate),
+                          builder: (context, snapshot) {
+                            if (!snapshot.hasData) {
+                              print('no data');
+                              return const Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            }
 
-                          return Expanded(
-                            child: TextFormField(
-                              textAlignVertical: TextAlignVertical.center,
-                              controller: categoryController,
-                              readOnly: true, 
-                              decoration: InputDecoration(
-                                hintText: 'Select category',
-                                suffixIcon: IconButton(
-                                  icon: const Icon(
-                                    Icons.arrow_drop_down,
-                                    size: 25,
-                                  ),
+                            List<String> categories = snapshot.data!;
 
-                                  onPressed: () async {
-                                     // open a dialog to show the dropdown items
-                                    selectedItem = await showDialog<String> (
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return SimpleDialog(
-                                          backgroundColor: Colors.white,
-                                          shape: const RoundedRectangleBorder (
-                                            borderRadius: BorderRadius.zero,
+                            return Expanded(
+                                child: TextFormField(
+                                    textAlignVertical: TextAlignVertical.center,
+                                    controller: categoryController,
+                                    readOnly: true,
+                                    decoration: InputDecoration(
+                                      hintText: 'Select category',
+                                      suffixIcon: IconButton(
+                                          icon: const Icon(
+                                            Icons.arrow_drop_down,
+                                            size: 25,
                                           ),
-                                          title: const Text(
-                                            'Select a category',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 20,
-                                            )
-                                          ),
-                                          children: categories.map((category) {
-                                            return SimpleDialogOption(
-                                              onPressed: () {
-                                                // return the selected item when an option is tapped
-                                                Navigator.pop(context, category);
+                                          onPressed: () async {
+                                            // open a dialog to show the dropdown items
+                                            selectedItem =
+                                                await showDialog<String>(
+                                              context: context,
+                                              builder: (BuildContext context) {
+                                                return SimpleDialog(
+                                                    backgroundColor:
+                                                        Colors.white,
+                                                    shape:
+                                                        const RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.zero,
+                                                    ),
+                                                    title: const Text(
+                                                        'Select a category',
+                                                        style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 20,
+                                                        )),
+                                                    children: categories
+                                                        .map((category) {
+                                                      return SimpleDialogOption(
+                                                        onPressed: () {
+                                                          // return the selected item when an option is tapped
+                                                          Navigator.pop(context,
+                                                              category);
+                                                        },
+                                                        child: Text(category,
+                                                            style:
+                                                                const TextStyle(
+                                                              fontSize: 16,
+                                                            )),
+                                                      );
+                                                    }).toList());
                                               },
-                                              child: Text(
-                                                category,
-                                                style: const TextStyle(
-                                                  fontSize: 16,
-                                                )
-                                              ),
                                             );
-                                          }).toList()
-                                        );
-                                      },
-                                    );
-                                    if (selectedItem != null) {
-                                      categoryController.text = selectedItem!;
-                                    }
-                                  }
-                                ),
-                              )
-                            )
-                          );
-                        }
-                      ),
-
+                                            if (selectedItem != null) {
+                                              categoryController.text =
+                                                  selectedItem!;
+                                            }
+                                          }),
+                                    )));
+                          }),
                       IconButton(
                         icon: const Icon(
                           Icons.add,
                           size: 25,
                         ),
                         onPressed: () {
-
+                          showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(0), 
+                                  ),
+                                  backgroundColor: Colors.white,
+                                  title: const Text(
+                                    'New Category',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                  content: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      TextFormField(
+                                        controller: addCategoryController,
+                                        decoration: const InputDecoration(
+                                            labelText: 'Category'),
+                                      ),
+                                      // TextFormField(
+                                      //   controller: budgetController,
+                                      //   decoration: const InputDecoration(
+                                      //     labelText: 'Budget Allocated',
+                                      //   ),
+                                      //   keyboardType: const TextInputType
+                                      //       .numberWithOptions(
+                                      //     decimal: true,
+                                      //   ),
+                                      // ),
+                                    ],
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        addCategoryController.clear();
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: const Text('Cancel',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                        )
+                                      ),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        String category =
+                                            addCategoryController.text;
+                                        double amount = 0;
+                                        DatabaseMethods()
+                                            .addBudget(category, amount);
+                                        // categoryController.clear();
+                                        setState(() {
+                                          categoryController.text = category;
+                                          addCategoryController.clear();
+                                        });
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: const Text('Save',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                        )
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              }
+                            );
                         },
                       ),
                     ],
