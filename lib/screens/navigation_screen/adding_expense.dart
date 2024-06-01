@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -162,65 +164,80 @@ class _MyWidgetState extends State<AddingExpense> {
                           textAlign: TextAlign.start,
                         ),
                       ),
+
                       const SizedBox(width: 10),
-                      Expanded(
-                        child: TextFormField(
-                          textAlignVertical: TextAlignVertical.center,
-                          controller: categoryController,
-                          readOnly: true, 
-                          decoration: InputDecoration(
-                            hintText: 'Select category',
-                            suffixIcon: IconButton(
-                              icon: const Icon(
-                                Icons.arrow_drop_down,
-                                size: 25,
-                              ),
-                              onPressed: () async {
-                                // open a dialog to show the dropdown items
-                                selectedItem = await showDialog<String>(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return SimpleDialog(
-                                      backgroundColor: Colors.white,
-                                      shape: const RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.zero,
-                                      ),
-                                      title: const Text(
-                                        'Select a category',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 20,
-                                        )
-                                      ),
-                                      // TODO: need to change this to the dynamic list of categories in firebase
-                                      children: dropdownItems.map((category) {
-                                        return SimpleDialogOption(
-                                          onPressed: () {
-                                            // return the selected item when an option is tapped
-                                            Navigator.pop(context, category.value);
-                                          },
-                                          child: Text(
-                                            category.value ?? '',
-                                            style: const TextStyle(
-                                              fontSize: 16,
+
+                      StreamBuilder(
+                        stream: DatabaseMethods().getCategoriesByMonth(DateTime.now()), 
+                        
+                        builder: (context, snapshot) {
+                          if (!snapshot.hasData) {
+                            print('no data');
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+                        
+                          List<String> categories = snapshot.data!;
+
+                          return Expanded(
+                            child: TextFormField(
+                              textAlignVertical: TextAlignVertical.center,
+                              controller: categoryController,
+                              readOnly: true, 
+                              decoration: InputDecoration(
+                                hintText: 'Select category',
+                                suffixIcon: IconButton(
+                                  icon: const Icon(
+                                    Icons.arrow_drop_down,
+                                    size: 25,
+                                  ),
+
+                                  onPressed: () async {
+                                     // open a dialog to show the dropdown items
+                                    selectedItem = await showDialog<String> (
+                                      context: context,
+                                      builder: (BuildContext context) {
+                                        return SimpleDialog(
+                                          backgroundColor: Colors.white,
+                                          shape: const RoundedRectangleBorder (
+                                            borderRadius: BorderRadius.zero,
+                                          ),
+                                          title: const Text(
+                                            'Select a category',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 20,
                                             )
                                           ),
+                                          children: categories.map((category) {
+                                            return SimpleDialogOption(
+                                              onPressed: () {
+                                                // return the selected item when an option is tapped
+                                                Navigator.pop(context, category);
+                                              },
+                                              child: Text(
+                                                category,
+                                                style: const TextStyle(
+                                                  fontSize: 16,
+                                                )
+                                              ),
+                                            );
+                                          }).toList()
                                         );
-                                      }).toList(),
+                                      },
                                     );
-                                  },
-                                );
-                                // i already made it such that the categoryController
-                                // will change to become the selectedItem
-                                // so upon saving, it works
-                                if (selectedItem != null) {
-                                  categoryController.text = selectedItem!;
-                                }
-                              },
-                            ),
-                          ),
-                        ),
+                                    if (selectedItem != null) {
+                                      categoryController.text = selectedItem!;
+                                    }
+                                  }
+                                ),
+                              )
+                            )
+                          );
+                        }
                       ),
+
                       // + button to add category
                       IconButton(
                         icon: const Icon(

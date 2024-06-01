@@ -95,7 +95,29 @@ class DatabaseMethods {
   Stream<QuerySnapshot> getBudgetsByMonth(DateTime time) {
     DateTime startOfMonth = DateTime(time.year, time.month);
     DateTime endOfMonth = time.month != 12 ? DateTime(time.year, time.month + 1) : DateTime(time.year + 1, 1); 
+    print('Query range: $startOfMonth - $endOfMonth');
     return getBudgetRef(getCurrentUserId()).where('month', isGreaterThanOrEqualTo: startOfMonth).where('month', isLessThan: endOfMonth).snapshots();
+  }
+
+  Stream<List<String>> getCategoriesByMonth(DateTime time) async* {
+    yield await getCategoriesList(time);
+  }
+
+  Future<List<String>> getCategoriesList(DateTime time) async {
+    DateTime firstOfMonth = DateTime(time.year, time.month, 1);
+    DateTime nextMonth = time.month != 12 ? DateTime(time.year, time.month + 1, 1) : DateTime(time.year + 1, 1, 1);
+    Timestamp firstOfMonthTS = Timestamp.fromDate(firstOfMonth);
+    Timestamp nextMonthTS = Timestamp.fromDate(nextMonth);
+
+    QuerySnapshot<Budget> query = await getBudgetRef(getCurrentUserId()).where('month', isGreaterThanOrEqualTo: firstOfMonthTS).where('month', isLessThan: nextMonthTS).get();
+
+    if (query.docs.isNotEmpty) {
+      DocumentSnapshot<Budget> budgetDoc = query.docs.first;
+      Budget existingBudget = budgetDoc.data()!;
+      return existingBudget.categories.keys.toList();
+    } else {
+      return List.empty();
+    }
   }
 
   Future<double> getMonthlyBudgetAsync(DateTime time) async {
