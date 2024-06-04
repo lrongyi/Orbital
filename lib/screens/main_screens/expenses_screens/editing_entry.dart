@@ -3,7 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:ss/screens/navigation_screen/navigation.dart';
-import 'package:ss/services/database.dart';
+import 'package:ss/services/budget_methods.dart';
+import 'package:ss/services/expense_methods.dart';
 import 'package:ss/services/models/expense.dart';
 import 'package:ss/shared/adding_deco.dart';
 import 'package:ss/shared/main_screens_deco.dart';
@@ -26,6 +27,7 @@ class EditingEntry extends StatefulWidget {
 
 class _EditingEntryState extends State<EditingEntry> {
   
+  final _formKey = GlobalKey<FormState>();
   TextEditingController dateController = TextEditingController();
   TextEditingController amountController = TextEditingController();
   TextEditingController categoryController = TextEditingController();
@@ -35,6 +37,8 @@ class _EditingEntryState extends State<EditingEntry> {
   TextEditingController descriptionController = TextEditingController();
   DateTime selectDate = DateTime.now();
   String? selectedItem;
+  String category = '';
+  double amount = 0.0;
 
  @override
   void initState() {
@@ -82,8 +86,51 @@ class _EditingEntryState extends State<EditingEntry> {
               color: Colors.white,
             ),
             onPressed: () {
-              DatabaseMethods().deleteExpense(widget.expenseId);
-              Navigator.pop(context);
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(0), 
+                    ),
+                    backgroundColor: Colors.white,
+                    title: Text(
+                      widget.isExpense ? 'Delete Expense' : 'Delete Income'
+                    ),
+                    content: const Text(
+                      'Are you sure you want to delete this entry?'
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text(
+                          'Cancel',
+                          style: TextStyle(
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          ExpenseMethods().deleteExpense(widget.expenseId);
+                          Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (context) => Navigation(state: 1,)),
+                          (route) => false);
+                        },
+                        child: const Text(
+                          'Delete',
+                          style: TextStyle(
+                            color: Colors.red,
+                          ),
+                        ),
+                      ),
+                    ]
+                  );
+                }
+              );
             },
           ),
         ]
@@ -143,7 +190,7 @@ class _EditingEntryState extends State<EditingEntry> {
     return Container(
       decoration: BoxDecoration(
         border: Border.all(
-          color: isExpense ? mainColor : incomeColor,
+          color: widget.isExpense == isExpense ? isExpense ? mainColor : incomeColor : Colors.white,
           width: 1.30,
         ),
       ),
@@ -230,7 +277,7 @@ class _EditingEntryState extends State<EditingEntry> {
         Expanded(
           child: StreamBuilder(
             
-            stream: DatabaseMethods().getCategoriesByMonth(selectDate),
+            stream: BudgetMethods().getCategoriesByMonth(selectDate),
           
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
@@ -286,19 +333,34 @@ class _EditingEntryState extends State<EditingEntry> {
                     ),
                   ),
 
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      TextFormField(
-                        controller: addCategoryController,
-                        decoration: const InputDecoration(labelText: 'Category'),
-                      ),
-                      TextFormField(
-                        controller: budgetAmountController,
-                        keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(labelText: 'Budget Allocation'),
-                      )
-                    ],
+                  content: Form(
+                    key: _formKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TextFormField(
+                          validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Enter Category';
+                                } 
+                                return null;
+                              },
+                          controller: addCategoryController,
+                          decoration: const InputDecoration(labelText: 'Category'),
+                        ),
+                        TextFormField(
+                          validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Enter Amount';
+                                } 
+                                return null;
+                              },
+                          controller: budgetAmountController,
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(labelText: 'Budget Allocation'),
+                        )
+                      ],
+                    ),
                   ),
                   actions: [
                     TextButton(
@@ -313,14 +375,19 @@ class _EditingEntryState extends State<EditingEntry> {
 
                     TextButton(
                       onPressed: () {
-                        String category = addCategoryController.text;
-                        double amount = double.parse(budgetAmountController.text).abs();
-                        DatabaseMethods().addBudget(category, amount);        
+                        if (_formKey.currentState!.validate()) {
+                                setState(() {
+                                  category = addCategoryController.text;
+                                  amount = double.parse(budgetAmountController.text).abs();
+                                });
+                                BudgetMethods().addBudget(category, amount);
+                                Navigator.of(context).pop();
+                              }
+       
                         setState(() {
                           addCategoryController.clear();
                           budgetAmountController.clear();
                         });
-                        Navigator.of(context).pop();
                       }, 
                       child: const Text(
                         'Save',
@@ -350,7 +417,7 @@ class _EditingEntryState extends State<EditingEntry> {
             note: noteController.text,
             description: descriptionController.text,
           );
-        DatabaseMethods().addExpense(expense);
+        ExpenseMethods().addExpense(expense);
         Navigator.popUntil(context, (context) => context.isFirst);
       },
       minWidth: 250,

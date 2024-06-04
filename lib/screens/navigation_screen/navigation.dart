@@ -8,7 +8,7 @@ import 'package:ss/screens/main_screens/budgeting_screens/budgeting.dart';
 import 'package:ss/screens/main_screens/settings_screeens/settings.dart';
 import 'package:ss/screens/navigation_screen/edit_profile.dart';
 import 'package:ss/services/auth.dart';
-import 'package:ss/services/database.dart';
+import 'package:ss/services/user_methods.dart';
 import 'package:ss/shared/main_screens_deco.dart';
 
 class Navigation extends StatefulWidget {
@@ -57,7 +57,7 @@ class _NavigationState extends State<Navigation> {
               
               // username
               accountName: FutureBuilder<String>(
-                future: DatabaseMethods().getUserNameAsync(),
+                future: UserMethods().getUserNameAsync(),
                 builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
                   if (snapshot.hasError) {
                     return Text('Error: ${snapshot.error}'); // Display error message if any
@@ -69,7 +69,7 @@ class _NavigationState extends State<Navigation> {
 
               // email
               accountEmail: FutureBuilder<String>(
-                future: DatabaseMethods().getEmailAsync(),
+                future: UserMethods().getEmailAsync(),
                 builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
                   if (snapshot.hasError) {
                     return Text('Error: ${snapshot.error}'); // Display error message if any

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ss/services/auth.dart';
-import 'package:ss/services/database.dart';
+import 'package:ss/services/user_methods.dart';
 import 'package:ss/shared/main_screens_deco.dart';
 
 class EditProfile extends StatefulWidget {
@@ -73,7 +73,7 @@ class _EditProfileState extends State<EditProfile> {
             // Username
             FutureBuilder(
               
-              future: DatabaseMethods().getUserNameAsync(), 
+              future: UserMethods().getUserNameAsync(), 
               
               builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
                 if (snapshot.hasError) {
@@ -97,7 +97,7 @@ class _EditProfileState extends State<EditProfile> {
             // Email
             FutureBuilder(
               
-              future: DatabaseMethods().getEmailAsync(), 
+              future: UserMethods().getEmailAsync(), 
               
               builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
                 if (snapshot.hasError) {

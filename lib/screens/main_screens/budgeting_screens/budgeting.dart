@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:ss/services/database.dart';
+import 'package:ss/services/budget_methods.dart';
+import 'package:ss/services/expense_methods.dart';
 import 'package:ss/services/models/budget.dart';
 import 'package:ss/shared/main_screens_deco.dart';
 
@@ -16,9 +17,13 @@ class Budgeting extends StatefulWidget {
 }
 
 class _BudgetingState extends State<Budgeting> {
+
+  final _formKey = GlobalKey<FormState>();
   DateTime _currentMonth = DateTime.now();
   final categoryController = TextEditingController();
   final budgetController = TextEditingController();
+  String category = '';
+  double amount = 0.0;
 
   @override
   void initState() {
@@ -91,7 +96,7 @@ class _BudgetingState extends State<Budgeting> {
                 child: Column(
                   children: [
                     FutureBuilder<double>(
-                      future: DatabaseMethods().getMonthlyBudgetAsync(
+                      future: BudgetMethods().getMonthlyBudgetAsync(
                           monthNotifier._currentMonth),
                       builder: (BuildContext context,
                           AsyncSnapshot<double> snapshot) {
@@ -113,7 +118,7 @@ class _BudgetingState extends State<Budgeting> {
                     ),
                     //money left to spend
                     FutureBuilder<double>(
-                        future: DatabaseMethods()
+                        future: ExpenseMethods()
                             .getRemainingMonthly(monthNotifier._currentMonth),
                         builder: (BuildContext context,
                             AsyncSnapshot<double> snapshot) {
@@ -209,25 +214,40 @@ class _BudgetingState extends State<Budgeting> {
                                       fontSize: 18,
                                     ),
                                   ),
-                                  content: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      TextFormField(
-                                        controller: categoryController,
-                                        decoration: const InputDecoration(
-                                            labelText: 'Category'),
-                                      ),
-                                      TextFormField(
-                                        controller: budgetController,
-                                        decoration: const InputDecoration(
-                                          labelText: 'Budget Allocated',
+                                  content: Form(
+                                    key: _formKey,
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        TextFormField(
+                                          validator: (value) {
+                                            if (value == null || value.isEmpty) {
+                                              return 'Enter Category';
+                                            } 
+                                            return null;
+                                          },
+                                          controller: categoryController,
+                                          decoration: const InputDecoration(
+                                              labelText: 'Category'),
                                         ),
-                                        keyboardType: const TextInputType
-                                            .numberWithOptions(
-                                          decimal: true,
+                                        TextFormField(
+                                          validator: (value) {
+                                            if (value == null || value.isEmpty) {
+                                              return 'Enter Amount';
+                                            } 
+                                            return null;
+                                          },
+                                          controller: budgetController,
+                                          decoration: const InputDecoration(
+                                            labelText: 'Budget Allocated',
+                                          ),
+                                          keyboardType: const TextInputType
+                                              .numberWithOptions(
+                                            decimal: true,
+                                          ),
                                         ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
                                   actions: [
                                     TextButton(
@@ -244,15 +264,19 @@ class _BudgetingState extends State<Budgeting> {
                                     ),
                                     TextButton(
                                       onPressed: () {
-                                        String category =
-                                            categoryController.text;
-                                        double amount =
-                                            double.parse(budgetController.text);
-                                        DatabaseMethods()
-                                            .addBudget(category, amount);
-                                        categoryController.clear();
-                                        budgetController.clear();
-                                        Navigator.of(context).pop();
+                                        if (_formKey.currentState!.validate()) {
+                                          setState(() {
+                                            category = categoryController.text;
+                                            amount = double.parse(budgetController.text).abs();
+                                          });
+                                          BudgetMethods().addBudget(category, amount);
+                                          Navigator.of(context).pop();
+                                        }
+                    
+                                        setState(() {
+                                          categoryController.clear();
+                                          budgetController.clear();
+                                        });
                                       },
                                       child: const Text('Save',
                                         style: TextStyle(
@@ -300,7 +324,7 @@ class _BudgetingState extends State<Budgeting> {
               //List view of the categories itself
               Expanded(
                   child: StreamBuilder<QuerySnapshot>(
-                stream: DatabaseMethods()
+                stream: BudgetMethods()
                     .getBudgetsByMonth(monthNotifier._currentMonth),
                 builder: (BuildContext context,
                     AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -369,7 +393,7 @@ class _BudgetingState extends State<Budgeting> {
                                     onChanged: (value) {
                                       newAmount =
                                           double.tryParse(value) ?? amount;
-                                      DatabaseMethods().updateBudget(category, newAmount);
+                                      BudgetMethods().updateBudget(category, newAmount);
                                     },
                                   ),
                                   actions: [
@@ -419,7 +443,7 @@ class _BudgetingState extends State<Budgeting> {
                                   ),
                                   TextButton(
                                     onPressed: () {
-                                      DatabaseMethods().deleteBudget(category);
+                                      BudgetMethods().deleteBudget(category);
                                       Navigator.of(context).pop();
                                     },
                                     child: const Text(
@@ -439,7 +463,7 @@ class _BudgetingState extends State<Budgeting> {
                           children: [
                             Text(category),
                             FutureBuilder<double>(
-                                future: DatabaseMethods()
+                                future: ExpenseMethods()
                                     .getMonthlySpendingCategorized(
                                         monthNotifier._currentMonth, category),
                                 builder: (BuildContext context,

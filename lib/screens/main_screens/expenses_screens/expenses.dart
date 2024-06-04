@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:ss/screens/main_screens/expenses_screens/editing_entry.dart';
-import 'package:ss/services/database.dart';
+import 'package:ss/services/expense_methods.dart';
 import 'package:ss/services/models/expense.dart';
 import 'package:ss/shared/main_screens_deco.dart';
 
@@ -111,7 +111,7 @@ class _ExpensesState extends State<Expenses> {
                 Expanded(
                   child: StreamBuilder<QuerySnapshot>(
                     
-                    stream: DatabaseMethods().getExpensesByMonth(monthNotifier.currentMonth),
+                    stream: ExpenseMethods().getExpensesByMonth(monthNotifier.currentMonth),
                     
                     builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
                       if (!snapshot.hasData) {

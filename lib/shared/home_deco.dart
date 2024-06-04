@@ -1,10 +1,10 @@
 // import 'dart:js';
 
 import 'package:flutter/material.dart';
-import 'package:ss/services/database.dart';
+import 'package:ss/services/expense_methods.dart';
 
 class HomeDeco {
-  static Widget pieChartTitleWidget(String title, double spendingCat) {
+  static Widget pieChartTitleWidget(String title, double spendingCat, DateTime time) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
@@ -14,7 +14,7 @@ class HomeDeco {
       ),
       child: FutureBuilder(
         
-        future: DatabaseMethods().getNetSpendAsync(),
+        future: ExpenseMethods().getMonthlySpending(time),
 
         builder: (context, snapshot) {
 
@@ -30,7 +30,7 @@ class HomeDeco {
             );
           } else {
             double netSpend = snapshot.data ?? 0.0;
-            String percentage = (spendingCat / netSpend * 100).toStringAsFixed(1);
+            String percentage = ((spendingCat / netSpend) * -100).toStringAsFixed(1);
 
             return Text(
               '$title ($percentage%)',

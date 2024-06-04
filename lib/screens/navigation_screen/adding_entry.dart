@@ -3,7 +3,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:ss/screens/navigation_screen/navigation.dart';
-import 'package:ss/services/database.dart';
+import 'package:ss/services/budget_methods.dart';
+import 'package:ss/services/expense_methods.dart';
 import 'package:ss/services/models/expense.dart';
 import 'package:ss/shared/adding_deco.dart';
 import 'package:ss/shared/main_screens_deco.dart';
@@ -19,6 +20,7 @@ class AddingEntry extends StatefulWidget {
 
 class _AddingEntryState extends State<AddingEntry> {
   
+  final _formKey = GlobalKey<FormState>();
   TextEditingController dateController = TextEditingController();
   TextEditingController amountController = TextEditingController();
   TextEditingController categoryController = TextEditingController();
@@ -28,6 +30,8 @@ class _AddingEntryState extends State<AddingEntry> {
   TextEditingController descriptionController = TextEditingController();
   DateTime selectDate = DateTime.now();
   String? selectedItem;
+  String category = '';
+  double amount = 0.0;
 
   @override
   void initState() {
@@ -118,7 +122,7 @@ class _AddingEntryState extends State<AddingEntry> {
     return Container(
       decoration: BoxDecoration(
         border: Border.all(
-          color: isExpense ? mainColor : incomeColor,
+          color: widget.isExpense == isExpense ? isExpense ? mainColor : incomeColor : Colors.white,
           width: 1.30,
         ),
       ),
@@ -128,7 +132,7 @@ class _AddingEntryState extends State<AddingEntry> {
         height: 35,
         child: MaterialButton(
           color: Colors.grey[100],
-
+          
           onPressed: () {
             if (widget.isExpense != isExpense) {
               Navigator.pushReplacement(context, MaterialPageRoute(builder: (builder) => AddingEntry(isExpense: isExpense)));
@@ -182,7 +186,7 @@ class _AddingEntryState extends State<AddingEntry> {
     );
   }
 
-  Widget _buildCategoryField() {
+   Widget _buildCategoryField() {
     return Row(
       children: [
         const SizedBox(
@@ -198,7 +202,7 @@ class _AddingEntryState extends State<AddingEntry> {
         Expanded(
           child: StreamBuilder(
             
-            stream: DatabaseMethods().getCategoriesByMonth(selectDate),
+            stream: BudgetMethods().getCategoriesByMonth(selectDate),
           
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
@@ -225,7 +229,9 @@ class _AddingEntryState extends State<AddingEntry> {
                       value: category,
                       child: Text(
                         category,
-                        style: const TextStyle(fontWeight: FontWeight.normal),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.normal,
+                        ),
                       ),
                     );
                   }).toList(),
@@ -252,19 +258,34 @@ class _AddingEntryState extends State<AddingEntry> {
                     ),
                   ),
 
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      TextFormField(
-                        controller: addCategoryController,
-                        decoration: const InputDecoration(labelText: 'Category'),
-                      ),
-                      TextFormField(
-                        controller: budgetAmountController,
-                        keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(labelText: 'Budget Allocation'),
-                      )
-                    ],
+                  content: Form(
+                    key: _formKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TextFormField(
+                          validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Enter Category';
+                                } 
+                                return null;
+                              },
+                          controller: addCategoryController,
+                          decoration: const InputDecoration(labelText: 'Category'),
+                        ),
+                        TextFormField(
+                          validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Enter Amount';
+                                } 
+                                return null;
+                              },
+                          controller: budgetAmountController,
+                          keyboardType: TextInputType.number,
+                          decoration: const InputDecoration(labelText: 'Budget Allocation'),
+                        )
+                      ],
+                    ),
                   ),
                   actions: [
                     TextButton(
@@ -279,14 +300,20 @@ class _AddingEntryState extends State<AddingEntry> {
 
                     TextButton(
                       onPressed: () {
-                        String category = addCategoryController.text;
-                        double amount = double.parse(budgetAmountController.text).abs();
-                        DatabaseMethods().addBudget(category, amount);        
+                        if (_formKey.currentState!.validate()) {
+                                setState(() {
+                                  category = addCategoryController.text;
+                                  amount = double.parse(budgetAmountController.text).abs();
+                                });
+                                BudgetMethods().addBudget(category, amount);
+                                Navigator.of(context).pop();
+                              }
+       
                         setState(() {
                           addCategoryController.clear();
                           budgetAmountController.clear();
                         });
-                        Navigator.of(context).pop();
+                        
                       }, 
                       child: const Text(
                         'Save',
@@ -316,7 +343,7 @@ class _AddingEntryState extends State<AddingEntry> {
             note: noteController.text,
             description: descriptionController.text,
           );
-        DatabaseMethods().addExpense(expense);
+        ExpenseMethods().addExpense(expense);
         Navigator.popUntil(context, (context) => context.isFirst);
       },
       minWidth: 250,

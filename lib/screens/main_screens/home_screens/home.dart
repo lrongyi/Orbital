@@ -6,7 +6,8 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:ss/services/database.dart';
+import 'package:ss/services/budget_methods.dart';
+import 'package:ss/services/expense_methods.dart';
 import 'package:ss/services/models/budget.dart';
 import 'package:ss/shared/home_deco.dart';
 import 'package:ss/shared/main_screens_deco.dart';
@@ -95,7 +96,7 @@ class _HomeState extends State<Home> {
                         // width: 300,
                         // height: 300,
                         child: StreamBuilder(
-                          stream: DatabaseMethods().getBudgetsByMonth(monthNotifier._currentMonth),
+                          stream: BudgetMethods().getBudgetsByMonth(monthNotifier._currentMonth),
                   
                           builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
                             
@@ -124,7 +125,7 @@ class _HomeState extends State<Home> {
                               Budget budget = budgetDoc.data() as Budget;
                               budget.categories.forEach((category, spending) {
                                 futureSections.add(
-                                  DatabaseMethods().getMonthlySpendingCategorized(monthNotifier._currentMonth, category)
+                                  ExpenseMethods().getMonthlySpendingCategorized(monthNotifier._currentMonth, category)
                                   .then(
                                     (spending) {
                                       if (spending > 0) {
@@ -135,7 +136,7 @@ class _HomeState extends State<Home> {
                                         title: '',
                                         titleStyle: const TextStyle(color: Colors.black),
                                         badgeWidget: HomeDeco.pieChartTitleWidget(
-                                          category, (-1 * spending)
+                                          category, (-1 * spending), monthNotifier._currentMonth
                                         ),
                                         badgePositionPercentageOffset: 1,
                                         );
@@ -184,7 +185,7 @@ class _HomeState extends State<Home> {
                             children: [
                               StreamBuilder<double>(
                                 
-                                stream: DatabaseMethods().getMonthlyBudgetStream(monthNotifier._currentMonth),
+                                stream: BudgetMethods().getMonthlyBudgetStream(monthNotifier._currentMonth),
                                 
                                 builder: (BuildContext context, snapshot) {
                                   if (snapshot.hasError) {
@@ -193,7 +194,7 @@ class _HomeState extends State<Home> {
                                     double budget = snapshot.data?.toDouble() ?? 0.0; // Default to 0.0 if no data
                                     return StreamBuilder(
                                       
-                                      stream: DatabaseMethods().getMonthlySpendingStream(monthNotifier._currentMonth), 
+                                      stream: ExpenseMethods().getMonthlySpendingStream(monthNotifier._currentMonth), 
                                       
                                       builder: (BuildContext context, spendingSnapshot) {
                                         if (snapshot.hasError) {
@@ -264,7 +265,7 @@ class _HomeState extends State<Home> {
 
                   child: StreamBuilder(
                     
-                    stream: DatabaseMethods().getBudgetsByMonth(monthNotifier._currentMonth),
+                    stream: BudgetMethods().getBudgetsByMonth(monthNotifier._currentMonth),
 
                     builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
                       
@@ -317,7 +318,7 @@ class _HomeState extends State<Home> {
                             // Spending
                             trailing: FutureBuilder<double>(
 
-                              future: DatabaseMethods().getMonthlySpendingCategorized(monthNotifier._currentMonth, category),
+                              future: ExpenseMethods().getMonthlySpendingCategorized(monthNotifier._currentMonth, category),
 
                               builder: (BuildContext context, AsyncSnapshot<double> snapshot) {
                                 

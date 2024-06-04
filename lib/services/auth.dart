@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:ss/screens/main_screens/expenses_screens/stats.dart';
 import 'package:ss/screens/navigation_screen/navigation.dart';
-import 'package:ss/services/database.dart';
+import 'package:ss/services/user_methods.dart';
 
 class AuthMethods {
   final FirebaseAuth auth = FirebaseAuth.instance;
@@ -42,7 +42,7 @@ class AuthMethods {
         };
 
         //Database methods
-        await DatabaseMethods()
+        await UserMethods()
             .addUser(userDetails.uid, userInfoMap);
       }
 
@@ -66,6 +66,14 @@ class AuthMethods {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text(
             'Wrong Email or Password',
+            style: TextStyle(fontSize: 18.0),
+          ),
+          backgroundColor: Colors.red,
+        ));
+      } else if (e.code == 'channel-error'){
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text(
+            'Enter Fields',
             style: TextStyle(fontSize: 18.0),
           ),
           backgroundColor: Colors.red,
@@ -105,7 +113,7 @@ class AuthMethods {
         };
 
         //Database methods
-        await DatabaseMethods()
+        await UserMethods()
             .addUser(userDetails.uid, userInfoMap)
             .then((value) {
           Navigator.pushAndRemoveUntil(
@@ -126,6 +134,14 @@ class AuthMethods {
           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
             content: Text(
               'Weak Password',
+              style: TextStyle(fontSize: 18.0),
+            ),
+            backgroundColor: Colors.red,
+          ));
+        } else if (e.code == 'channel-error'){
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text(
+              'Enter Fields',
               style: TextStyle(fontSize: 18.0),
             ),
             backgroundColor: Colors.red,
@@ -197,7 +213,7 @@ class AuthMethods {
 
     if (user != null) {
       await user.updateDisplayName(newName);
-      await DatabaseMethods().updateUserDisplayName(user.uid, newName);
+      await UserMethods().updateUserDisplayName(user.uid, newName);
     } else {
       throw Exception('No User Signed In');
     }
@@ -208,7 +224,7 @@ class AuthMethods {
 
     if (user != null) {
       await user.verifyBeforeUpdateEmail(newEmail);
-      await DatabaseMethods().updateUserEmail(user.uid, newEmail);
+      await UserMethods().updateUserEmail(user.uid, newEmail);
     } else {
       throw Exception('No User Signed In');
     }
