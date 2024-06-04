@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ss/screens/authentication_screens/log_in.dart';
-import 'package:ss/screens/navigation_screen/adding_expense.dart';
+import 'package:ss/screens/navigation_screen/adding_entry.dart';
 import 'package:ss/screens/main_screens/home_screens/home.dart';
 import 'package:ss/screens/main_screens/expenses_screens/expenses.dart';
 import 'package:ss/screens/main_screens/budgeting_screens/budgeting.dart';
@@ -12,7 +12,8 @@ import 'package:ss/services/database.dart';
 import 'package:ss/shared/main_screens_deco.dart';
 
 class Navigation extends StatefulWidget {
-  const Navigation({Key? key});
+  final int? state;
+  Navigation({Key? key, this.state}) : super(key: key);
 
   @override
   State<Navigation> createState() => _NavigationState();
@@ -21,9 +22,13 @@ class Navigation extends StatefulWidget {
 class _NavigationState extends State<Navigation> {
 
   final currentUser = AuthMethods().getCurrentUser();
-  int _selectedIndex = 0;
+  late int _selectedIndex;
 
-
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = widget.state ?? 0;
+  }
 
   void _onTapped(int index) {
     setState(() {
@@ -234,7 +239,7 @@ class _NavigationState extends State<Navigation> {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const AddingExpense()),
+              MaterialPageRoute(builder: (context) => const AddingEntry(isExpense: true,)),
             );
           },
           shape: RoundedRectangleBorder(

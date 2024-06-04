@@ -10,3 +10,5 @@ Color mainColor = const Color.fromARGB(255, 88, 33, 33);
 //                 fit: BoxFit.scaleDown,
 //                 ),
 //         ),
+
+Color incomeColor = const Color.fromARGB(255, 33, 88, 33);

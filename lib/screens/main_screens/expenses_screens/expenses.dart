@@ -2,8 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:ss/screens/main_screens/expenses_screens/editing_expense.dart';
-import 'package:ss/screens/main_screens/expenses_screens/editing_income.dart';
+import 'package:ss/screens/main_screens/expenses_screens/editing_entry.dart';
 import 'package:ss/services/database.dart';
 import 'package:ss/services/models/expense.dart';
 import 'package:ss/shared/main_screens_deco.dart';
@@ -257,7 +256,8 @@ class _ExpensesState extends State<Expenses> {
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) =>
-                                        EditingExpense(
+                                        EditingEntry(
+                                          isExpense: true,
                                           expenseId: expenseId, 
                                           date: expense.date.toDate(), 
                                           amount: expense.amount, 
@@ -272,7 +272,8 @@ class _ExpensesState extends State<Expenses> {
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) =>
-                                        EditingIncome(
+                                        EditingEntry(
+                                          isExpense: false,
                                           expenseId: expenseId, 
                                           date: expense.date.toDate(), 
                                           amount: expense.amount, 
