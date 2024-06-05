@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:ss/screens/authentication_screens/log_in.dart';
+import 'package:ss/screens/onboarding_screens/select_categories.dart';
 // import 'package:ss/screens/authentication_screens/sign_up.dart';
 
 void main() async {
@@ -25,6 +26,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       home: LogIn(),
+      // home: SelectCategories()
     );
   }
 }

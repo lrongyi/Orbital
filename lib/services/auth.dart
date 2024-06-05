@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:ss/screens/main_screens/expenses_screens/stats.dart';
 import 'package:ss/screens/navigation_screen/navigation.dart';
+import 'package:ss/screens/onboarding_screens/select_categories.dart';
 import 'package:ss/services/user_methods.dart';
 
 class AuthMethods {
@@ -44,6 +45,12 @@ class AuthMethods {
         //Database methods
         await UserMethods()
             .addUser(userDetails.uid, userInfoMap);
+        
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: ((context) => SelectCategories())),
+          (route) => false
+        );
       }
 
       Navigator.pushAndRemoveUntil(
@@ -97,6 +104,7 @@ class AuthMethods {
         UserCredential result = await FirebaseAuth.instance
             .createUserWithEmailAndPassword(email: email, password: password);
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          showCloseIcon: true,
           content: Text(
             'Registered Successfully',
             style: TextStyle(fontSize: 20.0),
@@ -117,9 +125,10 @@ class AuthMethods {
             .addUser(userDetails.uid, userInfoMap)
             .then((value) {
           Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (context) => Navigation()),
-              (route) => false);
+            context,
+            MaterialPageRoute(builder: ((context) => SelectCategories())),
+            (route) => false
+          );
         });
       } on FirebaseAuthException catch (e) {
         if (e.code == 'email-already-in-use') {

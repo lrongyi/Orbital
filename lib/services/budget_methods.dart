@@ -71,7 +71,7 @@ class BudgetMethods {
     yield await getMonthlyBudgetAsync(time);
   }
 
-  void addBudget(String category, double amount, bool isRecurring) async {
+  Future<void> addBudget(String category, double amount, bool isRecurring) async {
     DateTime now = DateTime.now();
     DateTime firstOfMonth = DateTime(now.year, now.month, 1);
     DateTime nextMonth = DateTime(now.year, now.month + 1, 1);
