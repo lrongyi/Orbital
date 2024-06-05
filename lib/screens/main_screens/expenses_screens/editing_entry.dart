@@ -39,6 +39,7 @@ class _EditingEntryState extends State<EditingEntry> {
   String? selectedItem;
   String category = '';
   double amount = 0.0;
+  bool isRecurring = true;
 
  @override
   void initState() {
@@ -322,79 +323,101 @@ class _EditingEntryState extends State<EditingEntry> {
             showDialog(
               context: context, 
               builder: (context) {
-                return AlertDialog(
-                  shape: const BeveledRectangleBorder(borderRadius: BorderRadius.zero),
-                  backgroundColor: Colors.white,
-                  title: const Text(
-                    'New Category',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-
-                  content: Form(
-                    key: _formKey,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        TextFormField(
-                          validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Enter Category';
-                                } 
-                                return null;
-                              },
-                          controller: addCategoryController,
-                          decoration: const InputDecoration(labelText: 'Category'),
+                return StatefulBuilder(
+                  builder: (context, setState) {
+                    return AlertDialog(
+                      shape: const BeveledRectangleBorder(borderRadius: BorderRadius.zero),
+                      backgroundColor: Colors.white,
+                      title: const Text(
+                        'New Category',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
                         ),
-                        TextFormField(
-                          validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Enter Amount';
-                                } 
-                                return null;
-                              },
-                          controller: budgetAmountController,
-                          keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(labelText: 'Budget Allocation'),
+                      ),
+                    
+                      content: Form(
+                        key: _formKey,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            TextFormField(
+                              validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Enter Category';
+                                    } 
+                                    return null;
+                                  },
+                              controller: addCategoryController,
+                              decoration: const InputDecoration(labelText: 'Category'),
+                            ),
+                            TextFormField(
+                              validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Enter Amount';
+                                    } 
+                                    return null;
+                                  },
+                              controller: budgetAmountController,
+                              keyboardType: TextInputType.number,
+                              decoration: const InputDecoration(labelText: 'Budget Allocation'),
+                            ),
+                            const SizedBox(height: 15.0,),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                const Text(
+                                  'Recurring',
+                                ),
+                                Switch(
+                                  activeColor: mainColor,
+                                  value: isRecurring,
+                                  onChanged: (bool value) {
+                                    setState(() {
+                                      isRecurring = value;
+                                    });
+                                  },
+                                ),
+                              ],
+                            )
+                          ],
+                        ),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () {
+                            addCategoryController.clear();
+                            budgetAmountController.clear();
+                            Navigator.of(context).pop();
+                          },
+                    
+                          child: const Text('Cancel', style: TextStyle(color: Colors.black),)
+                        ),
+                    
+                        TextButton(
+                          onPressed: () {
+                            if (_formKey.currentState!.validate()) {
+                                    setState(() {
+                                      category = addCategoryController.text;
+                                      amount = double.parse(budgetAmountController.text).abs();
+                                    });
+                                    BudgetMethods().addBudget(category, amount, isRecurring);
+                                    Navigator.of(context).pop();
+                                  }
+                           
+                            setState(() {
+                              addCategoryController.clear();
+                              budgetAmountController.clear();
+                            });
+                          }, 
+                          child: const Text(
+                            'Save',
+                            style: TextStyle(color: Colors.black),
+                          )
                         )
                       ],
-                    ),
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        addCategoryController.clear();
-                        budgetAmountController.clear();
-                        Navigator.of(context).pop();
-                      },
-
-                      child: const Text('Cancel', style: TextStyle(color: Colors.black),)
-                    ),
-
-                    TextButton(
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                                setState(() {
-                                  category = addCategoryController.text;
-                                  amount = double.parse(budgetAmountController.text).abs();
-                                });
-                                BudgetMethods().addBudget(category, amount);
-                                Navigator.of(context).pop();
-                              }
-       
-                        setState(() {
-                          addCategoryController.clear();
-                          budgetAmountController.clear();
-                        });
-                      }, 
-                      child: const Text(
-                        'Save',
-                        style: TextStyle(color: Colors.black),
-                      )
-                    )
-                  ],
+                    );
+                  }
                 );
               }
             );

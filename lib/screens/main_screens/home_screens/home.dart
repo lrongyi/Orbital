@@ -292,7 +292,9 @@ class _HomeState extends State<Home> {
                       List<MapEntry<String, double>> allCategories = [];
                       for (var budgetDoc in budgets) {
                         Budget budget = budgetDoc.data() as Budget;
-                        allCategories.addAll(budget.categories.entries);
+                        budget.categories.forEach((category, details) { 
+                          allCategories.add(MapEntry(category, details[0] as double));
+                        });
                       }
 
                       return ListView.separated(

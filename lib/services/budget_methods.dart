@@ -71,7 +71,7 @@ class BudgetMethods {
     yield await getMonthlyBudgetAsync(time);
   }
 
-  void addBudget(String category, double amount) async {
+  void addBudget(String category, double amount, bool isRecurring) async {
     DateTime now = DateTime.now();
     DateTime firstOfMonth = DateTime(now.year, now.month, 1);
     DateTime nextMonth = DateTime(now.year, now.month + 1, 1);
@@ -83,16 +83,16 @@ class BudgetMethods {
     if (query.docs.isNotEmpty) {
       DocumentSnapshot<Budget> budgetDoc = query.docs.first;
       Budget existingBudget = budgetDoc.data()!;
-      existingBudget.categories.update(category, (value) => value + amount, ifAbsent: () => amount,);
+      existingBudget.categories.update(category, (value) => [value[0] + amount, value[1]], ifAbsent: () => [amount, isRecurring]);
       existingBudget.monthlyBudget += amount;
       await budgetDoc.reference.set(existingBudget);
     } else {
-      Budget newBudget = Budget(categories: {category: amount}, month: firstOfMonthTS, monthlyBudget: amount);
+      Budget newBudget = Budget(categories: {category: [amount, isRecurring]}, month: firstOfMonthTS, monthlyBudget: amount);
       await getBudgetRef(UserMethods().getCurrentUserId()).add(newBudget);
     }
   }
 
-  void updateBudget(String category, double amount) async {
+  void updateBudget(String category, double amount, bool isRecurring) async {
     DateTime now = DateTime.now();
     DateTime firstOfMonth = DateTime(now.year, now.month, 1);
     DateTime nextMonth = DateTime(now.year, now.month + 1, 1);
@@ -104,8 +104,12 @@ class BudgetMethods {
     if (query.docs.isNotEmpty) {
       DocumentSnapshot<Budget> budgetDoc = query.docs.first;
       Budget existingBudget = budgetDoc.data()!;
-      existingBudget.categories[category] = amount;
-      existingBudget.monthlyBudget = existingBudget.categories.values.fold(0, (sum, value) => sum + value);
+      if (existingBudget.categories.containsKey(category)) {
+        existingBudget.categories[category] = [amount, isRecurring];
+      } else {
+        throw Exception('Category does not exist');
+      }
+      existingBudget.monthlyBudget = existingBudget.categories.values.fold(0.0, (sum, value) => sum + value[0]);
       await budgetDoc.reference.set(existingBudget);
     } else {
       throw Exception('No budget document exists for the current month');
@@ -124,7 +128,7 @@ class BudgetMethods {
     if (query.docs.isNotEmpty) {
       DocumentSnapshot<Budget> budgetDoc = query.docs.first;
       Budget existingBudget = budgetDoc.data()!;
-      existingBudget.monthlyBudget = existingBudget.monthlyBudget - existingBudget.categories[category]!;
+      existingBudget.monthlyBudget = existingBudget.monthlyBudget - existingBudget.categories[category]![0];
       existingBudget.categories.remove(category);
       await budgetDoc.reference.set(existingBudget);
     } else {

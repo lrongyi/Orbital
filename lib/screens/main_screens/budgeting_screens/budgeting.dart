@@ -24,6 +24,7 @@ class _BudgetingState extends State<Budgeting> {
   final budgetController = TextEditingController();
   String category = '';
   double amount = 0.0;
+  bool isRecurring = true;
 
   @override
   void initState() {
@@ -202,89 +203,112 @@ class _BudgetingState extends State<Budgeting> {
                           showDialog(
                               context: context,
                               builder: (context) {
-                                return AlertDialog(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(0), 
-                                  ),
-                                  backgroundColor: Colors.white,
-                                  title: const Text(
-                                    'Add Budget',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 18,
-                                    ),
-                                  ),
-                                  content: Form(
-                                    key: _formKey,
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        TextFormField(
-                                          validator: (value) {
-                                            if (value == null || value.isEmpty) {
-                                              return 'Enter Category';
-                                            } 
-                                            return null;
-                                          },
-                                          controller: categoryController,
-                                          decoration: const InputDecoration(
-                                              labelText: 'Category'),
+                                return StatefulBuilder(
+                                  builder: (context, setState) {
+                                    return AlertDialog(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(0), 
+                                      ),
+                                      backgroundColor: Colors.white,
+                                      title: const Text(
+                                        'Add Budget',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 18,
                                         ),
-                                        TextFormField(
-                                          validator: (value) {
-                                            if (value == null || value.isEmpty) {
-                                              return 'Enter Amount';
-                                            } 
-                                            return null;
+                                      ),
+                                      content: Form(
+                                        key: _formKey,
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            TextFormField(
+                                              validator: (value) {
+                                                if (value == null || value.isEmpty) {
+                                                  return 'Enter Category';
+                                                } 
+                                                return null;
+                                              },
+                                              controller: categoryController,
+                                              decoration: const InputDecoration(
+                                                  labelText: 'Category'),
+                                            ),
+                                            TextFormField(
+                                              validator: (value) {
+                                                if (value == null || value.isEmpty) {
+                                                  return 'Enter Amount';
+                                                } 
+                                                return null;
+                                              },
+                                              controller: budgetController,
+                                              decoration: const InputDecoration(
+                                                labelText: 'Budget Allocated',
+                                              ),
+                                              keyboardType: const TextInputType
+                                                  .numberWithOptions(
+                                                decimal: true,
+                                              ),
+                                            ),
+                                    
+                                            const SizedBox(height: 15.0,),
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                const Text(
+                                                  'Recurring',
+                                                ),
+                                                Switch(
+                                                  activeColor: mainColor,
+                                                  value: isRecurring,
+                                                  onChanged: (bool value) {
+                                                    setState(() {
+                                                      isRecurring = value;
+                                                    });
+                                                  },
+                                                ),
+                                              ],
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            categoryController.clear();
+                                            budgetController.clear();
+                                            Navigator.of(context).pop();
                                           },
-                                          controller: budgetController,
-                                          decoration: const InputDecoration(
-                                            labelText: 'Budget Allocated',
+                                          child: const Text('Cancel',
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                            )
                                           ),
-                                          keyboardType: const TextInputType
-                                              .numberWithOptions(
-                                            decimal: true,
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            if (_formKey.currentState!.validate()) {
+                                              setState(() {
+                                                category = categoryController.text;
+                                                amount = double.parse(budgetController.text).abs();
+                                              });
+                                              BudgetMethods().addBudget(category, amount, isRecurring);
+                                              Navigator.of(context).pop();
+                                            }
+                                                        
+                                            setState(() {
+                                              categoryController.clear();
+                                              budgetController.clear();
+                                            });
+                                          },
+                                          child: const Text('Save',
+                                            style: TextStyle(
+                                              color: Colors.black,
+                                            )
                                           ),
                                         ),
                                       ],
-                                    ),
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () {
-                                        categoryController.clear();
-                                        budgetController.clear();
-                                        Navigator.of(context).pop();
-                                      },
-                                      child: const Text('Cancel',
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                        )
-                                      ),
-                                    ),
-                                    TextButton(
-                                      onPressed: () {
-                                        if (_formKey.currentState!.validate()) {
-                                          setState(() {
-                                            category = categoryController.text;
-                                            amount = double.parse(budgetController.text).abs();
-                                          });
-                                          BudgetMethods().addBudget(category, amount);
-                                          Navigator.of(context).pop();
-                                        }
-                    
-                                        setState(() {
-                                          categoryController.clear();
-                                          budgetController.clear();
-                                        });
-                                      },
-                                      child: const Text('Save',
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                        )
-                                      ),
-                                    ),
-                                  ],
+                                    );
+                                  }
                                 );
                               });
                         },
@@ -348,9 +372,12 @@ class _BudgetingState extends State<Budgeting> {
                     );
                   }
 
-                  List<MapEntry<String, double>> allCategories = [];
+                  List<MapEntry<String, dynamic>> allCategories = [];
                   for (var budgetDoc in budgets) {
                     Budget budget = budgetDoc.data() as Budget;
+                    // budget.categories.forEach((category, details) { 
+                    //   allCategories.add(MapEntry(category, details[0] as double));
+                    // });
                     allCategories.addAll(budget.categories.entries);
                   }
 
@@ -364,7 +391,8 @@ class _BudgetingState extends State<Budgeting> {
 
                       var entry = allCategories[index];
                       String category = entry.key;
-                      double amount = entry.value;
+                      double amount = entry.value[0];
+                      bool isBudgetRecurring = entry.value[1];
 
                       return ListTile(
                         // Update the budget
@@ -373,42 +401,70 @@ class _BudgetingState extends State<Budgeting> {
                               context: context,
                               builder: (context) {
                                 double newAmount = amount;
-                                return AlertDialog(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(0), 
-                                  ),
-                                  backgroundColor:Colors.white,
-                                  title: const Text('Change Budget',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18,
-                                      )),
-                                  content: TextFormField(
-                                    initialValue: amount.toStringAsFixed(2),
-                                    keyboardType:
-                                        const TextInputType.numberWithOptions(
-                                            decimal: true),
-
-                                    // Update budget as value is changed
-                                    onChanged: (value) {
-                                      newAmount =
-                                          double.tryParse(value) ?? amount;
-                                      BudgetMethods().updateBudget(category, newAmount);
-                                    },
-                                  ),
-                                  actions: [
-                                    // save button
-                                    TextButton(
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                        },
-                                        child: const Text(
-                                          'Save',
+                                return StatefulBuilder(
+                                  builder: (context, setState) {
+                                    return AlertDialog(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(0), 
+                                      ),
+                                      backgroundColor:Colors.white,
+                                      title: const Text('Change Budget',
                                           style: TextStyle(
-                                            color: Colors.black,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 18,
+                                          )),
+                                      content: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          TextFormField(
+                                            initialValue: amount.toStringAsFixed(2),
+                                            keyboardType:
+                                                const TextInputType.numberWithOptions(
+                                                    decimal: true),
+                                          
+                                            // Update budget as value is changed
+                                            onChanged: (value) {
+                                              newAmount =
+                                                  double.tryParse(value) ?? amount;
+                                              // BudgetMethods().updateBudget(category, newAmount);
+                                            },
                                           ),
-                                        )),
-                                  ],
+                                          const SizedBox(height: 15.0,),
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              const Text(
+                                                'Recurring',
+                                              ),
+                                              Switch(
+                                                activeColor: mainColor,
+                                                value: isBudgetRecurring,
+                                                onChanged: (bool value) {
+                                                  setState(() {
+                                                    isBudgetRecurring = value;
+                                                  });
+                                                },
+                                              ),
+                                            ],
+                                          ),
+                                        ]
+                                      ),
+                                      actions: [
+                                        // save button
+                                        TextButton(
+                                            onPressed: () {
+                                              BudgetMethods().updateBudget(category, amount, isBudgetRecurring);
+                                              Navigator.of(context).pop();
+                                            },
+                                            child: const Text(
+                                              'Save',
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                              ),
+                                            )),
+                                      ],
+                                    );
+                                  }
                                 );
                               });
                         },

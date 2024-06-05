@@ -4,7 +4,7 @@ class Budget {
 
   Timestamp month;
   double monthlyBudget;
-  Map<String, double> categories;
+  Map<String, List<dynamic>> categories;
 
   Budget({
     required this.month, 
@@ -15,7 +15,14 @@ class Budget {
     : this (
       month: json['month']! as Timestamp,
       monthlyBudget: (json['monthlyBudget'] as num)!.toDouble() as double,
-      categories: (json['categories']! as Map<String, dynamic>).map((key, value) => MapEntry(key, (value as num).toDouble()))
+      // categories: (json['categories']! as Map<String, dynamic>).map((key, value) => MapEntry(key, (value as num).toDouble()))
+      categories: (json['categories']! as Map<String, dynamic>).map((key, value) {
+        final categoryList = value as List<dynamic>;
+        return MapEntry(key, [
+          (categoryList[0] as num).toDouble(),
+          categoryList[1] as bool,
+        ]);
+      }),
     );
 
   Map<String, Object?> toJson() {

@@ -195,6 +195,7 @@ class _ExpensesState extends State<Expenses> {
                                     : Colors.red,
                                   ),
                               ),
+
                               // See description
                               onTap: () {
                                 String? description = expense.description;
@@ -202,8 +203,10 @@ class _ExpensesState extends State<Expenses> {
                                   context: context,
                                   builder: (context) {
                                     return AlertDialog(
+                                      shape: const BeveledRectangleBorder(borderRadius: BorderRadius.zero),
+
                                       backgroundColor: expense.amount > 0
-                                      ? Colors.blue[50]
+                                      ? Colors.green[100]
                                       : Colors.red[50],
                                       
                                       title: Text(expense.amount > 0 
@@ -214,15 +217,17 @@ class _ExpensesState extends State<Expenses> {
                                           fontWeight: FontWeight.bold,
                                           fontSize: 20,
                                         ),
+                                        textAlign: TextAlign.center,
                                       ),
 
                                       content: Container(
+                                        height: 100,
                                         color: Colors.white,                                 
                                         constraints: BoxConstraints(
                                           // size of description box, can change minHeight
                                           // according to what looks best
-                                          minHeight: 200, 
-                                          maxWidth: MediaQuery.of(context).size.width * 0.8,
+                                          minHeight: 150, 
+                                          maxWidth: MediaQuery.of(context).size.width * 0.5,
                                         ),
                                         child: Text(
                                           description == '' ? 'No description provided' : description ?? '',
