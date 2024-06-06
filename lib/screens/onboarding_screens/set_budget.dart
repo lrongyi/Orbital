@@ -110,7 +110,11 @@ class _SetBudgetState extends State<SetBudget> {
               ),
             ),
             onPressed: () {
-              
+              Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: ((context) => Navigation(state: 0))),
+                    (route) => false
+                  );
             },
           ),
           SizedBox(

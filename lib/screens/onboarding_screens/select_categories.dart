@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:ss/screens/navigation_screen/navigation.dart';
 import 'package:ss/screens/onboarding_screens/set_budget.dart';
 import 'package:ss/shared/main_screens_deco.dart';
 
@@ -189,7 +190,11 @@ class _SelectCategoriesState extends State<SelectCategories> {
               ),
             ),
             onPressed: () {
-              
+              Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: ((context) => Navigation(state: 0))),
+                    (route) => false
+                  );
             },
           ),
           SizedBox(

@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:ss/screens/authentication_screens/log_in.dart';
+import 'package:ss/screens/onboarding_screens/select_bills.dart';
 import 'package:ss/screens/onboarding_screens/select_categories.dart';
 import 'package:ss/services/budget_methods.dart';
 // import 'package:ss/screens/authentication_screens/sign_up.dart';
@@ -29,8 +30,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      home: LogIn(),
-      // home: SelectCategories()
+      // home: LogIn(),
+      home: SelectBills()
     );
   }
 }

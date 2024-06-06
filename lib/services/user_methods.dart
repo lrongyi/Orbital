@@ -5,6 +5,7 @@ import 'package:ss/services/models/user_model.dart';
 const String EXPENSE_COLLECTION = 'Expenses';
 const String USER_COLLECTION = 'User';
 const String BUDGET_COLLECTION = 'Budgets';
+const String BILL_COLLECTION = 'Bills';
 
 class UserMethods {
    final _firestore = FirebaseFirestore.instance;
