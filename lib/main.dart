@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:ss/screens/authentication_screens/log_in.dart';
 import 'package:ss/screens/onboarding_screens/select_categories.dart';
+import 'package:ss/services/budget_methods.dart';
 // import 'package:ss/screens/authentication_screens/sign_up.dart';
 
 void main() async {

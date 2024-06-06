@@ -135,4 +135,52 @@ class BudgetMethods {
       throw Exception('No budget document exists for the current month');
     }
   }
+
+  Future<void> checkAndCreateRecurringBudgets() async {
+    DateTime now = DateTime.now();
+    DateTime firstOfMonth = DateTime(now.year, now.month, 1);
+    DateTime nextMonth = DateTime(now.year, now.month + 1, 1);
+    Timestamp firstOfMonthTS = Timestamp.fromDate(firstOfMonth);
+    Timestamp nextMonthTS = Timestamp.fromDate(nextMonth);
+
+    String userId = UserMethods().getCurrentUserId();
+
+    QuerySnapshot<Budget> query = await getBudgetRef(userId)
+    .where('month', isGreaterThanOrEqualTo: firstOfMonthTS).where('month', isLessThan: nextMonthTS).get();
+
+    if(query.docs.isEmpty) {
+      await createRecurringBudget(userId, firstOfMonthTS);
+    }
+  }
+
+  Future<void> createRecurringBudget(String userId, Timestamp firstOfMonthTS) async {
+    DateTime previousMonth = DateTime(firstOfMonthTS.toDate().year, firstOfMonthTS.toDate().month - 1, 1);
+    Timestamp previousMonthTS = Timestamp.fromDate(previousMonth);
+
+    QuerySnapshot<Budget> query = await getBudgetRef(userId).where('month', isEqualTo: previousMonthTS).get();
+
+    Map<String, List<dynamic>> recurringCategories = {};
+
+    if (query.docs.isNotEmpty) {
+      Budget previousBudget = query.docs.first.data()!;
+      previousBudget.categories.forEach(
+        (key, value) { 
+          if (value[1] as bool) {
+            recurringCategories[key] = value[0];
+          }
+        }
+      );
+    }
+
+    double newMonthlyBudget = recurringCategories.values.fold(0.0, (previousValue, element) => previousValue + (element[0] as double));
+
+    Budget newBudget = Budget(
+      categories: recurringCategories,
+      month: firstOfMonthTS,
+      monthlyBudget: newMonthlyBudget
+    );
+
+    await getBudgetRef(userId).add(newBudget);
+  }
+
 }

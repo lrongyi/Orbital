@@ -5,6 +5,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:ss/screens/main_screens/expenses_screens/stats.dart';
 import 'package:ss/screens/navigation_screen/navigation.dart';
 import 'package:ss/screens/onboarding_screens/select_categories.dart';
+import 'package:ss/services/budget_methods.dart';
 import 'package:ss/services/user_methods.dart';
 
 class AuthMethods {
@@ -64,6 +65,7 @@ class AuthMethods {
     try {
       await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: email, password: password);
+      await BudgetMethods().checkAndCreateRecurringBudgets();
       Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => Navigation()),
