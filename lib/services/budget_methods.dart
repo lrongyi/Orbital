@@ -25,8 +25,7 @@ class BudgetMethods {
   Stream<QuerySnapshot> getBudgetsByMonth(DateTime time) {
     DateTime startOfMonth = DateTime(time.year, time.month);
     DateTime endOfMonth = time.month != 12 ? DateTime(time.year, time.month + 1) : DateTime(time.year + 1, 1); 
-    print('Query range: $startOfMonth - $endOfMonth');
-    return getBudgetRef(UserMethods().getCurrentUserId()).where('month', isGreaterThanOrEqualTo: startOfMonth).where('month', isLessThan: endOfMonth).snapshots();
+    return getBudgetRef(UserMethods().getCurrentUserId()).where('month', isGreaterThanOrEqualTo: startOfMonth).where('month', isLessThan: endOfMonth).snapshots().asBroadcastStream();
   }
 
   Stream<List<String>> getCategoriesByMonth(DateTime time) async* {
@@ -67,8 +66,12 @@ class BudgetMethods {
     }
   }
 
-  Stream<double> getMonthlyBudgetStream(DateTime time) async* {
-    yield await getMonthlyBudgetAsync(time);
+  Stream<double> getMonthlyBudgetStream(DateTime time) {
+    Stream<double> singleSubStream() async* {
+      yield await getMonthlyBudgetAsync(time);
+    }
+
+    return singleSubStream().asBroadcastStream();
   }
 
   Future<void> addBudget(String category, double amount, bool isRecurring) async {

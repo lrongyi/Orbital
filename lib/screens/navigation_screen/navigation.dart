@@ -47,6 +47,7 @@ class _NavigationState extends State<Navigation> {
       backgroundColor: Colors.white,
       drawerEnableOpenDragGesture: false,
       drawer: Drawer(
+        width: 250,
         backgroundColor: mainColor,
         child: ListView(
           padding: EdgeInsets.zero,

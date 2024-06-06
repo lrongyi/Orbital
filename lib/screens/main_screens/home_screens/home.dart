@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/widgets.dart';
@@ -41,7 +42,7 @@ class _HomeState extends State<Home> {
                   height: 1,
                   thickness: 1,
                 ),
-
+          
                 // date picker
                 Container(
                   color: mainColor,
@@ -83,154 +84,178 @@ class _HomeState extends State<Home> {
                     ],
                   ),
                 ),
-
+          
                 const SizedBox(height: 20),
-
+          
                 // Pie chart with total spending in its center                
                 Expanded(
                   child: Stack(
                     children: [
                       
                       // Piechart
-                      SizedBox(
-                        // width: 300,
-                        // height: 300,
-                        child: StreamBuilder(
-                          stream: BudgetMethods().getBudgetsByMonth(monthNotifier._currentMonth),
-                  
-                          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                            
-                            if (!snapshot.hasData) {
-                              return const Center(
-                                child: CircularProgressIndicator(),
-                              );
-                            }
-                  
-                            final budgets = snapshot.data!.docs;
-                  
-                            if (snapshot.hasError) {
-                              return const Center(
-                                child: Text('Error fetching data'),
-                              );
-                            }
-                  
-                            if (budgets.isEmpty) {
-                              return const Center(
-                                child: Text(''),
-                              );
-                            }
-                  
-                            List<Future<PieChartSectionData?>> futureSections = [];
-                            for (var budgetDoc in budgets) {
-                              Budget budget = budgetDoc.data() as Budget;
-                              budget.categories.forEach((category, spending) {
-                                futureSections.add(
-                                  ExpenseMethods().getMonthlySpendingCategorized(monthNotifier._currentMonth, category)
-                                  .then(
-                                    (spending) {
-                                      if (spending > 0) {
-                                        Color color = colorManager.getColorForCategory(category);
-                                        return PieChartSectionData(
-                                        color: color,
-                                        value: spending,
-                                        title: '',
-                                        titleStyle: const TextStyle(color: Colors.black),
-                                        badgeWidget: HomeDeco.pieChartTitleWidget(
-                                          category, (-1 * spending), monthNotifier._currentMonth
-                                        ),
-                                        badgePositionPercentageOffset: 1,
-                                        );
-                                      } else {
-                                        return null;
-                                      }
-                                    }
-                                  )
-                                );
-                              });
-                            }
-                  
-                            return FutureBuilder<List<PieChartSectionData>>(
-                              future: Future.wait(futureSections).then((sections) =>
-                                sections.where((section) => section != null).cast<PieChartSectionData>().toList()),
-                              builder: (BuildContext context, AsyncSnapshot<List<PieChartSectionData>> snapshot) {
+                      Center(
+                        child: Container(
+                          height: 300,
+                          width: MediaQuery.of(context).size.width,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.5),
+                                spreadRadius: 5,
+                                blurRadius: 7,
+                                offset: Offset(0, 3),
+                              ),
+                            ],
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            // width: 300,
+                            // height: 300,
+                            child: StreamBuilder(
+                              stream: BudgetMethods().getBudgetsByMonth(monthNotifier._currentMonth),
+                                            
+                              builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                                
                                 if (!snapshot.hasData) {
                                   return const Center(
                                     child: CircularProgressIndicator(),
                                   );
                                 }
-                  
+                                            
+                                final budgets = snapshot.data!.docs;
+                                            
                                 if (snapshot.hasError) {
                                   return const Center(
                                     child: Text('Error fetching data'),
                                   );
                                 }
-                  
-                                return PieChart(
-                                  PieChartData(
-                                    sections: snapshot.data!,
-                                    centerSpaceRadius: 100,
-                                  ),
+                                            
+                                if (budgets.isEmpty) {
+                                  return const Center(
+                                    child: Text(''),
+                                  );
+                                }
+                                            
+                                List<Future<PieChartSectionData?>> futureSections = [];
+                                for (var budgetDoc in budgets) {
+                                  Budget budget = budgetDoc.data() as Budget;
+                                  budget.categories.forEach((category, spending) {
+                                    futureSections.add(
+                                      ExpenseMethods().getMonthlySpendingCategorized(monthNotifier._currentMonth, category)
+                                      .then(
+                                        (spending) {
+                                          if (spending > 0) {
+                                            Color color = colorManager.getColorForCategory(category);
+                                            return PieChartSectionData(
+                                            color: color,
+                                            value: spending,
+                                            title: '',
+                                            titleStyle: const TextStyle(color: Colors.black),
+                                            badgeWidget: HomeDeco.pieChartTitleWidget(
+                                              category, (-1 * spending), monthNotifier._currentMonth
+                                            ),
+                                            badgePositionPercentageOffset: 1,
+                                            );
+                                          } else {
+                                            return null;
+                                          }
+                                        }
+                                      )
+                                    );
+                                  });
+                                }
+                                            
+                                return FutureBuilder<List<PieChartSectionData>>(
+                                  future: Future.wait(futureSections).then((sections) =>
+                                    sections.where((section) => section != null).cast<PieChartSectionData>().toList()),
+                                  builder: (BuildContext context, AsyncSnapshot<List<PieChartSectionData>> snapshot) {
+                                    if (!snapshot.hasData) {
+                                      return const Center(
+                                        child: CircularProgressIndicator(),
+                                      );
+                                    }
+                                            
+                                    if (snapshot.hasError) {
+                                      return const Center(
+                                        child: Text('Error fetching data'),
+                                      );
+                                    }
+                                            
+                                    return PieChart(
+                                      PieChartData(
+                                        sections: snapshot.data!,
+                                        centerSpaceRadius: 80,
+                                        sectionsSpace: 2,
+                                      ),
+                                    );
+                                  }
                                 );
                               }
-                            );
-                          }
+                            ),
+                          ),
                         ),
                       ),
                   
                       // Centre of the piechart
                       Positioned.fill(
                         child: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              StreamBuilder<double>(
-                                
-                                stream: BudgetMethods().getMonthlyBudgetStream(monthNotifier._currentMonth),
-                                
-                                builder: (BuildContext context, snapshot) {
-                                  if (snapshot.hasError) {
-                                    return Text('Error: ${snapshot.error}'); // Display error message if any
-                                  } else {
-                                    double budget = snapshot.data?.toDouble() ?? 0.0; // Default to 0.0 if no data
-                                    return StreamBuilder(
-                                      
-                                      stream: ExpenseMethods().getMonthlySpendingStream(monthNotifier._currentMonth), 
-                                      
-                                      builder: (BuildContext context, spendingSnapshot) {
-                                        if (snapshot.hasError) {
-                                          return Text('Error: ${snapshot.error}'); // Display error message if any
-                                        } else {
-                                          double totalSpending = spendingSnapshot.data?.toDouble() ?? 0.0;
-                                          return Text(
-                                            '\$${totalSpending.toStringAsFixed(2)}',
-                                            style: TextStyle(
-                                              fontSize: 40,
-                                              fontWeight: FontWeight.bold,
-                                              color: totalSpending > budget ? Colors.red : totalSpending < 0 ? Colors.green : Colors.black,
-                                            ),
-                                          );
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                StreamBuilder<double>(
+                                  
+                                  stream: BudgetMethods().getMonthlyBudgetStream(monthNotifier._currentMonth),
+                                  
+                                  builder: (BuildContext context, snapshot) {
+                                    if (snapshot.hasError) {
+                                      return Text('Error: ${snapshot.error}'); // Display error message if any
+                                    } else {
+                                      double budget = snapshot.data?.toDouble() ?? 0.0; // Default to 0.0 if no data
+                                      return StreamBuilder(
+                                        
+                                        stream: ExpenseMethods().getMonthlySpendingStream(monthNotifier._currentMonth), 
+                                        
+                                        builder: (BuildContext context, spendingSnapshot) {
+                                          if (snapshot.hasError) {
+                                            return Text('Error: ${snapshot.error}'); // Display error message if any
+                                          } else {
+                                            double totalSpending = spendingSnapshot.data?.toDouble() ?? 0.0;
+                                            return Text(
+                                              '\$${totalSpending.toStringAsFixed(2)}',
+                                              style: TextStyle(
+                                                fontSize: 32,
+                                                fontWeight: FontWeight.bold,
+                                                color: totalSpending > budget ? Colors.red : totalSpending < 0 ? Colors.green : Colors.black,
+                                              ),
+                                            );
+                                          }
                                         }
-                                      }
-                                    );   
+                                      );   
+                                    }
                                   }
-                                }
-                              ),
-                  
-                              const Text(
-                                'Total monthly spending',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.grey,
                                 ),
-                              ),
-                            ],
+                                              
+                                const Text(
+                                  'Monthly spending',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
                     ],
                   ),
                 ),
+          
                 // Net change display (WIP)
                 // Container(
                 //   padding: EdgeInsets.only(top: 10),
@@ -241,9 +266,10 @@ class _HomeState extends State<Home> {
                 //     textAlign: TextAlign.start,
                 //   )
                 // ),
+          
                 // Header for Categories and Amount
                 const Padding(
-                  padding: EdgeInsets.only(top: 0, bottom: 16, right: 16, left: 16),
+                  padding: EdgeInsets.only(top: 16, bottom: 16, right: 16, left: 16),
                   child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -259,14 +285,14 @@ class _HomeState extends State<Home> {
                             )),
                       ]),
                 ),
-
+          
                 // List of user's categories and spending
                 Expanded(
-
+          
                   child: StreamBuilder(
                     
                     stream: BudgetMethods().getBudgetsByMonth(monthNotifier._currentMonth),
-
+          
                     builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
                       
                       if (!snapshot.hasData) {
@@ -274,21 +300,21 @@ class _HomeState extends State<Home> {
                           child: CircularProgressIndicator(),
                         );
                       }
-
+          
                       final budgets = snapshot.data!.docs;
-
+          
                       if (snapshot.hasError) {
                         return const Center(
                           child: Text('Error fetching data'),
                         );
                       }
-
+          
                       if (budgets.isEmpty) {
                         return const Center(
                           child: Text('No Spending Found'),
                         );
                       }
-
+          
                       List<MapEntry<String, double>> allCategories = [];
                       for (var budgetDoc in budgets) {
                         Budget budget = budgetDoc.data() as Budget;
@@ -296,7 +322,7 @@ class _HomeState extends State<Home> {
                           allCategories.add(MapEntry(category, details[0] as double));
                         });
                       }
-
+          
                       return ListView.separated(
                         itemCount: allCategories.length,
                         separatorBuilder: (context, index) => const Divider(),
@@ -316,20 +342,20 @@ class _HomeState extends State<Home> {
                             
                             // Category 
                             title: Text(category),
-
+          
                             // Spending
                             trailing: FutureBuilder<double>(
-
+          
                               future: ExpenseMethods().getMonthlySpendingCategorized(monthNotifier._currentMonth, category),
-
+          
                               builder: (BuildContext context, AsyncSnapshot<double> snapshot) {
                                 
                                 if (snapshot.hasError) {
                                     return Text('${snapshot.error}'); 
                                 }
-
+          
                                 double spending = snapshot.data ?? 0.0;
-
+          
                                 // return Text(
                                 //   '\$${spending.toStringAsFixed(2)}',
                                 //   style: const TextStyle(

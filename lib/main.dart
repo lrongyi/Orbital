@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:ss/screens/authentication_screens/log_in.dart';
 import 'package:ss/screens/onboarding_screens/select_categories.dart';
 import 'package:ss/services/budget_methods.dart';
@@ -8,12 +9,14 @@ import 'package:ss/services/budget_methods.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
   await Firebase.initializeApp(
-    options: const FirebaseOptions(
-      apiKey: 'AIzaSyAdvRXRDaZPAL1mNeu7sj3nwfODP9z9WfM ',
-      appId: '1:471080678953:android:7d5d7db99d6b3f90cf4e38', 
-      messagingSenderId: '471080678953', 
-      projectId: 'savings-squad-72b1a')
+    options: FirebaseOptions(
+      apiKey: dotenv.env['API_KEY']!,
+      appId: dotenv.env['APP_ID']!, 
+      messagingSenderId: dotenv.env['MESSAGING_SENDER_ID']!, 
+      projectId: dotenv.env['PROJECT_ID']!,
+    )
   );
   FirebaseFirestore.instance.settings = const Settings(persistenceEnabled: true);
   runApp(const MyApp());

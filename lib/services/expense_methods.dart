@@ -95,8 +95,12 @@ class ExpenseMethods {
     return totalSpending;    
   }
 
-  Stream<double> getMonthlySpendingStream(DateTime time) async* {
-    yield await getMonthlySpending(time);
+  Stream<double> getMonthlySpendingStream(DateTime time) {
+    Stream<double> singleSubStream() async* {
+      yield await getMonthlySpending(time);
+    }
+
+    return singleSubStream().asBroadcastStream();
   }
 
   Future<double> getRemainingMonthly(DateTime time) async {
