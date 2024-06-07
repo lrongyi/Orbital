@@ -34,4 +34,11 @@ class BillMethods {
   void deleteBill(String billId) async {
     await getBillsRef(UserMethods().getCurrentUserId()).doc(billId).delete();
   }
+
+  Future<List<Bill>> getBillsForDay(DateTime day) async {
+    QuerySnapshot query = await getBillsRef(UserMethods().getCurrentUserId())
+      .where('due', isEqualTo: Timestamp.fromDate(day)).get();
+
+    return query.docs.map((doc) => doc.data() as Bill).toList();
+  }
 }

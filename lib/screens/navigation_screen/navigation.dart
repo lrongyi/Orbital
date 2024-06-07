@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ss/screens/authentication_screens/log_in.dart';
+import 'package:ss/screens/main_screens/expenses_screens/billing.dart';
 import 'package:ss/screens/navigation_screen/adding_entry.dart';
 import 'package:ss/screens/main_screens/home_screens/home.dart';
 import 'package:ss/screens/main_screens/expenses_screens/expenses.dart';
@@ -161,6 +162,18 @@ class _NavigationState extends State<Navigation> {
               onTap: () {
                 Navigator.pop(context);
                 _onTapped(3);
+              },
+            ),
+
+            ListTile(
+              leading: const Icon(Icons.settings, color: Colors.white),
+              title: const Text(
+                'Bills',
+                style: TextStyle(color: Colors.white),
+              ),
+              onTap: () {
+                Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => Billing()), (route) => false);
+
               },
             ),
 

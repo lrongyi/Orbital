@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:ss/screens/authentication_screens/log_in.dart';
+import 'package:ss/screens/main_screens/expenses_screens/billing.dart';
 import 'package:ss/screens/onboarding_screens/select_bills.dart';
 import 'package:ss/screens/onboarding_screens/select_categories.dart';
 import 'package:ss/services/budget_methods.dart';
@@ -31,7 +32,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: LogIn(),
-      // home: SelectBills(bills: [],)
+      // home: Billing()
     );
   }
 }
