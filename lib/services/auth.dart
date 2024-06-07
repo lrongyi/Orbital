@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:ss/screens/main_screens/expenses_screens/stats.dart';
 import 'package:ss/screens/navigation_screen/navigation.dart';
+import 'package:ss/screens/onboarding_screens/select_bills.dart';
 import 'package:ss/screens/onboarding_screens/select_categories.dart';
 import 'package:ss/services/budget_methods.dart';
 import 'package:ss/services/user_methods.dart';
@@ -48,10 +49,10 @@ class AuthMethods {
             .addUser(userDetails.uid, userInfoMap);
         
         Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: ((context) => SelectCategories())),
-          (route) => false
-        );
+            context,
+            MaterialPageRoute(builder: ((context) => SelectBills(bills: [],))),
+            (route) => false
+          );
       }
 
       Navigator.pushAndRemoveUntil(
@@ -128,7 +129,7 @@ class AuthMethods {
             .then((value) {
           Navigator.pushAndRemoveUntil(
             context,
-            MaterialPageRoute(builder: ((context) => SelectCategories())),
+            MaterialPageRoute(builder: ((context) => SelectBills(bills: [],))),
             (route) => false
           );
         });
