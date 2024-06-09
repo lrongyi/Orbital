@@ -26,7 +26,7 @@ class _SetBudgetState extends State<SetBudget> {
   void initState() {
     super.initState();
     for (var category in widget.selectedCategories) {
-      _budgetControllers[category] = TextEditingController();
+      _budgetControllers[category] = TextEditingController(text: "0");
     }
   }
 
@@ -52,7 +52,8 @@ class _SetBudgetState extends State<SetBudget> {
         ),
         backgroundColor: Colors.white,
       ),
-      body: Padding(
+      body: Container(
+        color: Colors.white,
         padding: const EdgeInsets.all(20.0),
         child: Form(
           key: _formKey,
@@ -74,7 +75,7 @@ class _SetBudgetState extends State<SetBudget> {
                       child: TextFormField(
                         validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Enter amount';
+                                return 'Empty';
                               }
                               return null;
                             },

@@ -59,7 +59,6 @@ class _BillingState extends State<Billing> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-
       appBar: AppBar(
         backgroundColor: mainColor,
         centerTitle: true,
@@ -72,21 +71,29 @@ class _BillingState extends State<Billing> {
             fontWeight: FontWeight.w500
           ),
         ),
-
-        leading: Center(
-          child: Builder(
-            builder: (context) => GestureDetector(
-              onTap: () {
-                Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => Navigation(state: 0,)), (route) => false);
-              },
-              child: const Icon(
-                Icons.arrow_back,
-                color: Colors.white,
-                weight: 1000,
-              ),
-            ),
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back,
+            color: Colors.white,
           ),
+          onPressed: () {
+            Navigator.pop(context);
+          }
         ),
+        // leading: Center(
+        //   child: Builder(
+        //     builder: (context) => GestureDetector(
+        //       onTap: () {
+        //         Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => Navigation(state: 0,)), (route) => false);
+        //       },
+        //       child: const Icon(
+        //         Icons.arrow_back,
+        //         color: Colors.white,
+        //         weight: 1000,
+        //       ),
+        //     ),
+        //   ),
+        // ),
         
         actions: [
           IconButton(

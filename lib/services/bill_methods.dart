@@ -6,6 +6,7 @@ const String EXPENSE_COLLECTION = 'Expenses';
 const String USER_COLLECTION = 'User';
 const String BUDGET_COLLECTION = 'Budgets';
 const String BILL_COLLECTION = 'Bills';
+const String GOAL_COLLECTION = 'Goals';
 
 class BillMethods {
   

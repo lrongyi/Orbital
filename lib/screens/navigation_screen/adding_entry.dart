@@ -32,7 +32,7 @@ class _AddingEntryState extends State<AddingEntry> {
   String? selectedItem;
   String category = '';
   double amount = 0.0;
-  bool isRecurring = true;
+  bool isRecurring = false;
 
   @override
   void initState() {
@@ -56,7 +56,8 @@ class _AddingEntryState extends State<AddingEntry> {
 
           onPressed: () {
             // Sends back to Expenses page
-            Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => Navigation(state: 1,)), (route) => false);
+            // Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => Navigation(state: 1,)), (route) => false);
+            Navigator.pop(context);
           },
         ),
 
@@ -93,11 +94,16 @@ class _AddingEntryState extends State<AddingEntry> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // date form field
                   _buildDateField(),
+                  // amount form field
                   AddingDeco().buildRow('Amount', amountController),
+                  // category form field
                   _buildCategoryField(),
+                  // note form field
                   AddingDeco().buildRow('Note', noteController),
                   const SizedBox(height: 40),
+                  // description form field
                   AddingDeco().buildRow('Description', descriptionController),
                 ],
               ),
@@ -213,29 +219,30 @@ class _AddingEntryState extends State<AddingEntry> {
               List<String> categories = snapshot.data!;
           
               return DropdownButtonFormField(
-                  decoration: const InputDecoration(
-                    hintText: 'Select Category',
-                    
-                  ),
-                
-                  value: categoryController.text.isEmpty ? null : categoryController.text,
-                  onChanged: (newValue) {
-                    setState(() {
-                      categoryController.text = newValue!;
-                    });
-                  },
-                
-                  items: categories.map<DropdownMenuItem<String>>((String category) {
-                    return DropdownMenuItem(
-                      value: category,
-                      child: Text(
-                        category,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.normal,
-                        ),
+                dropdownColor: Colors.white,
+                decoration: const InputDecoration(
+                  hintText: 'Select Category',
+                  
+                ),
+              
+                value: categoryController.text.isEmpty ? null : categoryController.text,
+                onChanged: (newValue) {
+                  setState(() {
+                    categoryController.text = newValue!;
+                  });
+                },
+              
+                items: categories.map<DropdownMenuItem<String>>((String category) {
+                  return DropdownMenuItem(
+                    value: category,
+                    child: Text(
+                      category,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.normal,
                       ),
-                    );
-                  }).toList(),
+                    ),
+                  );
+                }).toList(),
               );
             }
           ),
@@ -268,21 +275,21 @@ class _AddingEntryState extends State<AddingEntry> {
                           children: [
                             TextFormField(
                               validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Enter Category';
-                                    } 
-                                    return null;
-                                  },
+                                if (value == null || value.isEmpty) {
+                                  return 'Enter Category';
+                                } 
+                                return null;
+                              },
                               controller: addCategoryController,
                               decoration: const InputDecoration(labelText: 'Category'),
                             ),
                             TextFormField(
                               validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Enter Amount';
-                                    } 
-                                    return null;
-                                  },
+                                if (value == null || value.isEmpty) {
+                                  return 'Enter Amount';
+                                } 
+                                return null;
+                              },
                               controller: budgetAmountController,
                               keyboardType: TextInputType.number,
                               decoration: const InputDecoration(labelText: 'Budget Allocation'),
@@ -322,13 +329,13 @@ class _AddingEntryState extends State<AddingEntry> {
                         TextButton(
                           onPressed: () {
                             if (_formKey.currentState!.validate()) {
-                                    setState(() {
-                                      category = addCategoryController.text;
-                                      amount = double.parse(budgetAmountController.text).abs();
-                                    });
-                                    BudgetMethods().addBudget(category, amount, isRecurring);
-                                    Navigator.of(context).pop();
-                                  }
+                              setState(() {
+                                category = addCategoryController.text;
+                                amount = double.parse(budgetAmountController.text).abs();
+                              });
+                              BudgetMethods().addBudget(category, amount, isRecurring);
+                              Navigator.of(context).pop();
+                            }
                            
                             setState(() {
                               addCategoryController.clear();
@@ -374,7 +381,7 @@ class _AddingEntryState extends State<AddingEntry> {
         style: TextStyle(
           color: Colors.white,
         ),
-        ),
+      ),
     );
   }
 

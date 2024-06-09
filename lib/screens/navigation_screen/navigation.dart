@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ss/screens/authentication_screens/log_in.dart';
 import 'package:ss/screens/main_screens/expenses_screens/billing.dart';
+import 'package:ss/screens/main_screens/insights_screens/insights.dart';
 import 'package:ss/screens/navigation_screen/adding_entry.dart';
 import 'package:ss/screens/main_screens/home_screens/home.dart';
 import 'package:ss/screens/main_screens/expenses_screens/expenses.dart';
@@ -165,18 +166,31 @@ class _NavigationState extends State<Navigation> {
               },
             ),
 
+            // Bills
             ListTile(
-              leading: const Icon(Icons.settings, color: Colors.white),
+              leading: const Icon(Icons.monetization_on, color: Colors.white),
               title: const Text(
                 'Bills',
                 style: TextStyle(color: Colors.white),
               ),
               onTap: () {
-                Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => Billing()), (route) => false);
+                Navigator.push(context, MaterialPageRoute(builder: (context) => Billing()));
 
               },
             ),
 
+            // Bills
+            ListTile(
+              leading: const Icon(Icons.trending_up, color: Colors.white),
+              title: const Text(
+                'Insights',
+                style: TextStyle(color: Colors.white),
+              ),
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => Insights()));
+
+              },
+            ),
             const Divider(color: Colors.white),
 
             // Signout
@@ -235,7 +249,7 @@ class _NavigationState extends State<Navigation> {
             _buildBottomNavigationBarItem(
                 icon: CupertinoIcons.home, label: 'Home', index: 0),
             _buildBottomNavigationBarItem(
-                icon: CupertinoIcons.graph_square, label: 'Expenses', index: 1),
+                icon: Icons.graphic_eq, label: 'Expenses', index: 1),
             const Spacer(), // The dummy child for the notch
             _buildBottomNavigationBarItem(
                 icon: Icons.money, label: 'Budgeting', index: 2),

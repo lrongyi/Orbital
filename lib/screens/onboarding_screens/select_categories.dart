@@ -80,7 +80,7 @@ class _SelectCategoriesState extends State<SelectCategories> {
           
                 // Insert buttons here
                 Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
                   child: Wrap(
                     spacing: 10.0,
                     runSpacing: 10.0,

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:ss/screens/main_screens/expenses_screens/editing_entry.dart';
+import 'package:ss/screens/main_screens/home_screens/home.dart';
 import 'package:ss/services/expense_methods.dart';
 import 'package:ss/services/models/expense.dart';
 import 'package:ss/shared/main_screens_deco.dart';

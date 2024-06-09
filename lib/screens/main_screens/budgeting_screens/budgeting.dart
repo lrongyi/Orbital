@@ -482,8 +482,21 @@ class _BudgetingState extends State<Budgeting> {
                                 title: const Text(
                                   'Delete Budget'
                                 ),
-                                content: const Text(
-                                  'Are you sure you want to delete this budget?'
+                                // content: const Text(
+                                //   'Are you sure you want to delete this budget?'
+                                // ),
+                                content: const Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Are you sure you want to delete this budget?'),
+                                    Text(
+                                      'You cannot undo this action!',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      )
+                                    ),
+                                  ]
                                 ),
                                 actions: [
                                   TextButton(
