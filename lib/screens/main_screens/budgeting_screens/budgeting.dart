@@ -426,7 +426,7 @@ class _BudgetingState extends State<Budgeting> {
                                             onChanged: (value) {
                                               newAmount =
                                                   double.tryParse(value) ?? amount;
-                                              // BudgetMethods().updateBudget(category, newAmount);
+                                              BudgetMethods().updateBudget(category, newAmount, isBudgetRecurring);
                                             },
                                           ),
                                           const SizedBox(height: 15.0,),
@@ -453,7 +453,6 @@ class _BudgetingState extends State<Budgeting> {
                                         // save button
                                         TextButton(
                                             onPressed: () {
-                                              BudgetMethods().updateBudget(category, amount, isBudgetRecurring);
                                               Navigator.of(context).pop();
                                             },
                                             child: const Text(

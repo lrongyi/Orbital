@@ -394,6 +394,7 @@ class _EditingEntryState extends State<EditingEntry> {
                           child: const Text('Cancel', style: TextStyle(color: Colors.black),)
                         ),
                     
+                        // Bug here
                         TextButton(
                           onPressed: () {
                             if (_formKey.currentState!.validate()) {

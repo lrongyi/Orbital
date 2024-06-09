@@ -251,7 +251,7 @@ class _AddingEntryState extends State<AddingEntry> {
         IconButton(
           icon: const Icon(Icons.add, size: 25),
 
-                    onPressed: () {
+          onPressed: () {
             showDialog(
               context: context, 
               builder: (context) {
@@ -325,7 +325,9 @@ class _AddingEntryState extends State<AddingEntry> {
                     
                           child: const Text('Cancel', style: TextStyle(color: Colors.black),)
                         ),
-                    
+
+
+                        // Bug here
                         TextButton(
                           onPressed: () {
                             if (_formKey.currentState!.validate()) {
