@@ -18,6 +18,15 @@ class Bill {
       isPaid: json['isPaid']! as bool,
     ); 
 
+  Bill copyWith({String? name, double? amount, Timestamp? due, bool? isPaid}) {
+    return Bill(
+      name: name ?? this.name,
+      amount: amount ?? this.amount,
+      due: due ?? this.due,
+      isPaid: isPaid ?? this.isPaid,
+    );
+  }
+
   Map<String, Object?> toJson() {
     return {
       'name': name,

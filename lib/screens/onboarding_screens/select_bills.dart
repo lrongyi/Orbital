@@ -133,6 +133,10 @@ class _SelectBillsState extends State<SelectBills> {
                 itemCount: widget.bills.length,
                 itemBuilder: (context, index) {
                   final bill = widget.bills[index];
+
+
+                  // cannot view last tile if it is with the bottom sheet
+
                   return Column(
                     children: [
                       ListTile(
@@ -142,9 +146,9 @@ class _SelectBillsState extends State<SelectBills> {
                         ),
                         title: Text(bill.name),
                         subtitle: Text(DateFormat('dd/MM/yyyy').format(bill.due.toDate().toLocal()),),
-                        trailing: Text('\$${bill.amount.toStringAsFixed(2)}'),
+                        trailing: Text('\$${bill.amount.toStringAsFixed(2)}', style: TextStyle(fontSize: 14),),
                         onTap: () {
-
+                  
                         },
                       ),
                       Divider(
@@ -182,7 +186,7 @@ class _SelectBillsState extends State<SelectBills> {
             onPressed: () {
               Navigator.pushAndRemoveUntil(
                     context,
-                    MaterialPageRoute(builder: ((context) => Navigation(state: 0))),
+                    MaterialPageRoute(builder: ((context) => SelectCategories())),
                     (route) => false
                   );
             },

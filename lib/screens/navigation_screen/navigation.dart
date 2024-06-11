@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ss/screens/authentication_screens/log_in.dart';
-import 'package:ss/screens/main_screens/expenses_screens/billing.dart';
+import 'package:ss/screens/main_screens/bill_screens/billing.dart';
 import 'package:ss/screens/main_screens/insights_screens/insights.dart';
 import 'package:ss/screens/navigation_screen/adding_entry.dart';
 import 'package:ss/screens/main_screens/home_screens/home.dart';
@@ -271,15 +271,15 @@ class _NavigationState extends State<Navigation> {
             );
           },
           shape: RoundedRectangleBorder(
-            side: const BorderSide(
+            side:  BorderSide(
               width: 3,
-              color: Color.fromARGB(255, 88, 33, 33),
+              color: mainColor,
             ),
             borderRadius: BorderRadius.circular(30),
           ),
-          child: const Icon(
+          child: Icon(
             CupertinoIcons.add,
-            color: Color.fromARGB(255, 88, 33, 33),
+            color: mainColor,
           ),
         )
       : null,

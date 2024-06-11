@@ -442,6 +442,7 @@ class _BudgetingState extends State<Budgeting> {
                                                 onChanged: (bool value) {
                                                   setState(() {
                                                     isBudgetRecurring = value;
+                                                    BudgetMethods().updateBudget(category, newAmount, isBudgetRecurring);
                                                   });
                                                 },
                                               ),

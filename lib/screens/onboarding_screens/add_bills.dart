@@ -121,16 +121,24 @@ class _AddBillState extends State<AddBill> {
                         itemCount: billsForSelectedDate.length,
                         itemBuilder: (context, index) {
                           final bill = billsForSelectedDate[index];
-                          return ListTile(
-                            title: Text(bill.name),
-                            subtitle: Text(DateFormat('dd/MM/yyyy').format(bill.due.toDate().toLocal())),
-                            trailing: Text('\$${bill.amount.toStringAsFixed(2)}'),
-                            onTap: () {
-                              _showEditDialog(bill);
-                            },
-                            onLongPress: () {
-                              _showDeleteConfirmation(bill);
-                            },
+                          return Column(
+                            children: [
+                              ListTile(
+                                title: Text(bill.name),
+                                subtitle: Text(DateFormat('dd/MM/yyyy').format(bill.due.toDate().toLocal())),
+                                trailing: Text('\$${bill.amount.toStringAsFixed(2)}'),
+                                onTap: () {
+                                  _showEditDialog(bill);
+                                },
+                                onLongPress: () {
+                                  _showDeleteConfirmation(bill);
+                                },
+                              ),
+                              Divider(
+                                color: bill.isPaid ? incomeColor : mainColor,
+                                thickness: 1.0,
+                              )
+                            ],
                           );
                         },
                       )

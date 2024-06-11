@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:ss/services/models/bill.dart';
 import 'package:ss/services/user_methods.dart';
 
@@ -41,5 +42,11 @@ class BillMethods {
       .where('due', isEqualTo: Timestamp.fromDate(day)).get();
 
     return query.docs.map((doc) => doc.data() as Bill).toList();
+  }
+
+  Stream<QuerySnapshot> getBillsForDayStream(DateTime selectedDay) {
+    return getBillsRef(UserMethods().getCurrentUserId())
+        .where('due', isEqualTo: selectedDay)
+        .snapshots();
   }
 }
