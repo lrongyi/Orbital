@@ -3,14 +3,14 @@ class UserModel {
   String name;
   String id;
   // double monthlyBudget;
-  double netSpend;
+  // double netSpend;
 
   UserModel({
     required this.email, 
     required this.name,
     required this.id, 
     // required this.monthlyBudget,
-    required this.netSpend,  
+    // required this.netSpend,  
     });
 
   UserModel.fromjson(Map<String, Object?> json) 
@@ -19,7 +19,7 @@ class UserModel {
       name: json['name']! as String,
       id: json['id'] as String,
       // monthlyBudget: json['monthlyBudget'] as double,
-      netSpend: json['netSpend'] as double,
+      // netSpend: json['netSpend'] as double,
     ); 
 
   Map<String, Object?> toJson() {
@@ -28,7 +28,7 @@ class UserModel {
       'name': name,
       'id': id,
       // 'monthlyBudget': monthlyBudget,
-      'netSpend': netSpend,
+      // 'netSpend': netSpend,
     };
   }
 }

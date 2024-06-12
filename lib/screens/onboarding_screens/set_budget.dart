@@ -3,7 +3,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ss/screens/navigation_screen/navigation.dart';
 import 'package:ss/services/budget_methods.dart';
 import 'package:ss/services/category_methods.dart';
+import 'package:ss/services/models/budget.dart';
 import 'package:ss/services/models/category.dart';
+import 'package:ss/services/user_methods.dart';
 import 'package:ss/shared/main_screens_deco.dart';
 
 class SetBudget extends StatefulWidget {
@@ -46,11 +48,13 @@ class _SetBudgetState extends State<SetBudget> {
         ),
         backgroundColor: Colors.white,
       ),
+
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: StreamBuilder<QuerySnapshot<Category>>(
           stream: CategoryMethods().getCategories(),
           builder: (context, snapshot) {
+            
             if (snapshot.connectionState == ConnectionState.waiting) {
               return Center(child: CircularProgressIndicator());
             } else if (snapshot.hasError) {
@@ -58,46 +62,50 @@ class _SetBudgetState extends State<SetBudget> {
             } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
               return Center(child: Text('No categories found. Press Skip'));
             } else {
+
               categories = snapshot.data!.docs.map((doc) => doc.data()).toList();
               _initialiseBudgetControllers(); // See Helper 1
         
-              return ListView.builder(
-                itemCount: categories.length,
-                itemBuilder: (context, index) {
-                  final category = categories[index];
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: CategoryMethods().getCategoryColor(category.color),
-                      ),
-                      title: Text(category.name),
-                      trailing: SizedBox(
-                        width: 75,
-                        child: TextFormField(
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Empty';
-                            }
-                            return null;
-                          },
-                          controller: budgetControllers[category.name],
-                          decoration: InputDecoration(
-                            labelText: 'Amount',
-                            labelStyle:
-                                TextStyle(color: mainColor, fontSize: 12),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: mainColor),
-                            ),
-                            border: const OutlineInputBorder(),
-                          ),
-                          keyboardType: TextInputType.number,
+              return Form(
+                key: _formKey,
+                child: ListView.builder(
+                  itemCount: categories.length,
+                  itemBuilder: (context, index) {
+                    final category = categories[index];
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: CategoryMethods().getCategoryColor(category.color),
                         ),
+                        title: Text(category.name),
+                        trailing: SizedBox(
+                          width: 75,
+                          child: TextFormField(
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Empty';
+                              }
+                              return null;
+                            },
+                            controller: budgetControllers[category.name],
+                            decoration: InputDecoration(
+                              labelText: 'Amount',
+                              labelStyle:
+                                  TextStyle(color: mainColor, fontSize: 12),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: mainColor),
+                              ),
+                              border: const OutlineInputBorder(),
+                            ),
+                            keyboardType: TextInputType.number,
+                          ),
+                        ),
+                              
                       ),
-                            
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               );
             }
           },
@@ -106,6 +114,7 @@ class _SetBudgetState extends State<SetBudget> {
       bottomSheet: _buildBottomSheet(context), // See Helper 2
     );
   }
+
   // Helper 1: Initialise budget controllers
   void _initialiseBudgetControllers() {
     for (Category category in categories) {
@@ -115,74 +124,79 @@ class _SetBudgetState extends State<SetBudget> {
 
 
   // Helper 2: Bottom Sheet
-Widget _buildBottomSheet(BuildContext context) {
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: [
-      TextButton(
-        child: const Text(
-          'Skip',
-          style: TextStyle(
-            color: Colors.blue,
-            fontSize: 16,
+  Widget _buildBottomSheet(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        TextButton(
+          child: const Text(
+            'Skip',
+            style: TextStyle(
+              color: Colors.blue,
+              fontSize: 16,
+            ),
           ),
-        ),
-        onPressed: () {
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: ((context) => Navigation(state: 0))),
-            (route) => false,
-          );
-        },
-      ),
-      SizedBox(
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            foregroundColor: Colors.white,
-            backgroundColor: mainColor,
-            elevation: 10.0,
-          ),
-          child: const Text('Submit'),
-          onPressed: () async {
-            // Check if any field is empty
-            if (budgetControllers.values.any((controller) => controller.text.isEmpty)) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Fill in all fields'),
-                  backgroundColor: Colors.red,
-                  showCloseIcon: true,
-                ),
-              );
-              return; // Terminate early
-            }
-
-            // Continue with validation if fields are not empty
-            if (_formKey.currentState!.validate()) {
-              final Map<String, double> budgetAllocations = {};
-              budgetControllers.forEach(
-                (categoryName, controller) {
-                  budgetAllocations[categoryName] = double.parse(controller.text.trim());
-                },
-              );
-
-              BuildContext currentContext = context;
-
-              for (var entry in budgetAllocations.entries) {
-                await BudgetMethods().addBudget(entry.key, entry.value, false);
-              }
-
-              Navigator.pushAndRemoveUntil(
-                currentContext,
-                MaterialPageRoute(builder: ((context) => Navigation(state: 0))),
-                (route) => false,
-              );
-            }
+          onPressed: () {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: ((context) => Navigation(state: 0))),
+              (route) => false,
+            );
           },
         ),
-      ),
-    ],
-  );
-}
+        SizedBox(
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              foregroundColor: Colors.white,
+              backgroundColor: mainColor,
+              elevation: 10.0,
+            ),
+            child: const Text('Submit'),
+            onPressed: () async {
+              
+              if (_formKey.currentState!.validate()) {
+                  final Map<String, double> budgetAllocations = {};
+                  budgetControllers.forEach(
+                    (category, controller) {
+                      budgetAllocations[category] = double.parse(controller.text.trim());
+                    }
+                  );
+
+                  QuerySnapshot<Budget> querySnapshot = await BudgetMethods().getBudgetRef(UserMethods().getCurrentUserId()).get();
+                  final existingBudget = querySnapshot.docs;
+                  
+                  for (var entry in budgetAllocations.entries) {
+                    final category = categories.firstWhere((cat) => cat.name == entry.key);
+                    final amount = entry.value;
+
+                    final budgetDoc = existingBudget.firstWhere((doc) => doc.data().categoryId == category.id);
+
+                    BudgetMethods().updateBudget(budgetDoc.id, Budget(month: Timestamp.fromDate(DateTime.now()), amount: amount, categoryId: category.id));
+
+                  }
+
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: ((context) => Navigation(state: 0))),
+                    (route) => false
+                  );
+
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Fill in all fields'),
+                      backgroundColor: Colors.red,
+                      showCloseIcon: true,
+                    )
+                  );
+                }
+                
+            },
+          ),
+        ),
+      ],
+    );
+  }
 
 }
 

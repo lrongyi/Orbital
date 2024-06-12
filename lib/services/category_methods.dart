@@ -27,6 +27,10 @@ class CategoryMethods {
     return getCategoriesRef(UserMethods().getCurrentUserId()).snapshots();
   }
 
+  Future<QuerySnapshot> getAllCategories() {
+    return getCategoriesRef(UserMethods().getCurrentUserId()).get();
+  }
+
   void addCategory(Category category) async {
     await getCategoriesRef(UserMethods().getCurrentUserId()).add(category);
   }
@@ -49,5 +53,25 @@ class CategoryMethods {
 
     return Color(int.parse(hexColor, radix: 16)); // Parse the hexadecimal color value to Color
   }
+
+  Future<List<String>> getCategoryNames() async {
+    try {
+      QuerySnapshot snapshot = await getCategoriesRef(UserMethods().getCurrentUserId()).get();
+      List<String> categoryNames = snapshot.docs.map((doc) {
+        Category category = doc.data() as Category;
+        return category.name;
+      }).toList();
+      return categoryNames;
+    } catch (e) {
+      print('Error fetching category names: $e');
+      return [];
+    }
+  }
+
+  Stream<List<String>> getCategoryNamesStream() async* {
+    yield await getCategoryNames();
+  }
+
+  
 
 }

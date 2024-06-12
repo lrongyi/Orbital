@@ -4,10 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:ss/screens/navigation_screen/navigation.dart';
 import 'package:ss/services/budget_methods.dart';
+import 'package:ss/services/category_methods.dart';
 import 'package:ss/services/expense_methods.dart';
+import 'package:ss/services/models/budget.dart';
+import 'package:ss/services/models/category.dart';
 import 'package:ss/services/models/expense.dart';
 import 'package:ss/shared/adding_deco.dart';
 import 'package:ss/shared/main_screens_deco.dart';
+import 'package:uuid/uuid.dart';
 
 class AddingEntry extends StatefulWidget {
   
@@ -209,7 +213,7 @@ class _AddingEntryState extends State<AddingEntry> {
         Expanded(
           child: StreamBuilder(
             
-            stream: BudgetMethods().getCategoriesByMonth(selectDate),
+            stream: CategoryMethods().getCategoryNamesStream(),
           
             builder: (context, snapshot) {
               if (!snapshot.hasData) {
@@ -327,7 +331,7 @@ class _AddingEntryState extends State<AddingEntry> {
                         ),
 
 
-                        // Bug here
+                        // Bug here isRecurring not updating 
                         TextButton(
                           onPressed: () {
                             if (_formKey.currentState!.validate()) {
@@ -335,7 +339,12 @@ class _AddingEntryState extends State<AddingEntry> {
                                 category = addCategoryController.text;
                                 amount = double.parse(budgetAmountController.text).abs();
                               });
-                              BudgetMethods().addBudget(category, amount, isRecurring);
+                              String newCategoryId = Uuid().v1();
+
+                              CategoryMethods().addCategory(Category(id: newCategoryId, name: category, isRecurring: isRecurring, color: Colors.black.toString(), icon: 'empty'));
+
+                              BudgetMethods().addBudget(Budget(month: Timestamp.fromDate(DateTime.now()), amount: amount, categoryId: newCategoryId));
+
                               Navigator.of(context).pop();
                             }
                            

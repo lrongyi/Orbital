@@ -1,8 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:ss/screens/navigation_screen/navigation.dart';
 import 'package:ss/screens/onboarding_screens/set_budget.dart';
+import 'package:ss/services/budget_methods.dart';
 import 'package:ss/services/category_methods.dart';
+import 'package:ss/services/models/budget.dart';
 import 'package:ss/shared/main_screens_deco.dart';
 import 'package:uuid/uuid.dart'; 
 // special syntax to deal with conflicting class names
@@ -25,29 +28,29 @@ class _EditCategoriesState extends State<EditCategories> {
 
   // List of predefined colors for the Block Picker
   final List<Color> predefinedColors = [
-  Colors.red,
-  Colors.green,
-  Colors.blue,
-  Colors.yellow,
-  Colors.orange,
-  Colors.purple,
-  Colors.pink,
-  Colors.teal,
-  Colors.cyan,
-  Colors.lime,
-  Colors.indigo,
-  Colors.brown,
-  Colors.amber,
-  Colors.deepOrange,
-  Colors.deepPurple,
-  Colors.lightGreen,
-  Colors.lightBlue,
-  Colors.limeAccent,
-  Colors.lightBlueAccent, 
-  Colors.amberAccent,     
-  Colors.lightGreenAccent, 
-  Colors.cyanAccent,       
-];
+    Colors.red,
+    Colors.green,
+    Colors.blue,
+    Colors.yellow,
+    Colors.orange,
+    Colors.purple,
+    Colors.pink,
+    Colors.teal,
+    Colors.cyan,
+    Colors.lime,
+    Colors.indigo,
+    Colors.brown,
+    Colors.amber,
+    Colors.deepOrange,
+    Colors.deepPurple,
+    Colors.lightGreen,
+    Colors.lightBlue,
+    Colors.limeAccent,
+    Colors.lightBlueAccent, 
+    Colors.amberAccent,     
+    Colors.lightGreenAccent, 
+    Colors.cyanAccent,       
+  ];
 
   @override
   void initState() {
@@ -122,16 +125,27 @@ class _EditCategoriesState extends State<EditCategories> {
               child: const Text('Next'),
               onPressed: () {  
                 widget.selectedCategories.forEach((selectedCategory) {
-                  // Create a new Category instance
+                  // Create a new Category instance and budget 
+
+                  String categoryId = Uuid().v1();
+
                   Category newCategory = Category(
-                    id: Uuid().v1(), 
+                    id: categoryId, 
                     name: selectedCategory, 
                     color: categoryColors[selectedCategory].toString(), 
-                    type: 'Expenses', 
+                    isRecurring: true, 
                     icon: 'Empty', 
                   );
 
                   CategoryMethods().addCategory(newCategory);
+
+                  Budget newBudget = Budget(
+                    categoryId: categoryId,
+                    amount: 0.0,
+                    month: Timestamp.fromDate(DateTime.now())
+                  );
+
+                  BudgetMethods().addBudget(newBudget);
                 });
                 
                 // This one we should use Navigator.pushAndRemoveUntil because they already added the categories

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ss/services/budget_methods.dart';
+import 'package:ss/services/category_methods.dart';
 import 'package:ss/services/models/expense.dart';
 import 'package:ss/services/user_methods.dart';
 
@@ -107,7 +108,7 @@ class ExpenseMethods {
 
   Future<double> getRemainingMonthly(DateTime time) async {
     double monthlyBudget = await BudgetMethods().getMonthlyBudgetAsync(time);
-    List<String> categories = await BudgetMethods().getCategoriesList(time);
+    List<String> categories = await CategoryMethods().getCategoryNames();
     double monthlyExpense = 0.0;
     for (String cat in categories) {
       monthlyExpense += await getMonthlySpendingCategorized(time, cat);

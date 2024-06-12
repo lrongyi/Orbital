@@ -66,7 +66,7 @@ class AuthMethods {
     try {
       await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: email, password: password);
-      await BudgetMethods().checkAndCreateRecurringBudgets();
+      // await BudgetMethods().checkAndCreateRecurringBudgets();
       Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => Navigation()),
