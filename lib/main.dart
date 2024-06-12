@@ -33,6 +33,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       home: LogIn(),
       // home: Billing()
+      // home: SelectCategories(),
     );
   }
 }
