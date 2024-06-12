@@ -22,12 +22,12 @@ class CategoryMethods {
         toFirestore: (category, _) => category.toJson());
   }
 
-  // The building block of every StreamBuilder that needs to access Categories
+  // StreamBuilder building block
   Stream<QuerySnapshot<Category>> getCategories() {
     return getCategoriesRef(UserMethods().getCurrentUserId()).snapshots();
   }
 
-  Future<QuerySnapshot> getAllCategories() {
+  Future<QuerySnapshot> getAllCategoriesAsDocs() {
     return getCategoriesRef(UserMethods().getCurrentUserId()).get();
   }
 
@@ -72,6 +72,59 @@ class CategoryMethods {
     yield await getCategoryNames();
   }
 
+  //FutureBuilder building block
+  Future<List<Category>> getAllCategoriesAsList() async {
+    try {
+      QuerySnapshot<Category> snapshot = await getCategoriesRef(UserMethods().getCurrentUserId()).get();
+      List<Category> categories = snapshot.docs.map((doc) => doc.data()).toList();
+      return categories;
+    } catch (e) {
+      print('Error fetching categories: $e');
+      return [];
+    }
+  }
+
+  Future<DocumentReference> getDocRefFromCategory(Category category) async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('Categories')
+        .where('id', isEqualTo: category.id)
+        .get();
+
+    // Check if any documents were found
+    if (querySnapshot.docs.isNotEmpty) {
+      // Return the ID of the first matching document
+      return querySnapshot.docs.first.reference;
+    } else {
+      throw Exception('Category not found');
+    }
+  }
+
+  DocumentReference getDocRefFromDocId(String docId) {
+    DocumentReference docRef = FirebaseFirestore.instance
+        .collection('Categories')
+        .doc(docId);
+    
+    return docRef;
+  }
+
+  Future<Category> getCategoryFromDocRef(DocumentReference docRef) async {
+    DocumentSnapshot docSnapshot = await docRef.get();
+
+    if (docSnapshot.exists) {
+      // Convert document data into a Category object
+      Map<String, dynamic> data = docSnapshot.data() as Map<String, dynamic>;
+      return Category(
+        id: docSnapshot.id,
+        name: data['name'],
+        isRecurring: data['isRecurring'],
+        color: data['color'],
+        icon: data['icon'],
+      );
+    } else {
+      throw Exception('Category document does not exist');
+    }
+  }
+}
+
   
 
-}

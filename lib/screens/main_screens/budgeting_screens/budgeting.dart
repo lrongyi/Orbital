@@ -288,18 +288,24 @@ class _BudgetingState extends State<Budgeting> {
                                           ),
                                         ),
                                         TextButton(
-                                          onPressed: () {
+                                          onPressed: () async {
                                             if (_formKey.currentState!.validate()) {
                                               setState(() {
                                                 category = categoryController.text;
                                                 amount = double.parse(budgetController.text).abs();
                                               });
                                               
-                                              String newCategoryId = Uuid().v1();
+                                              Category newCategory = Category(
+                                                id: const Uuid().v1(), 
+                                                name: category, 
+                                                isRecurring: isRecurring, 
+                                                color: Colors.black.toString(), 
+                                                icon: 'empty'
+                                              );
 
-                                              CategoryMethods().addCategory(Category(id: newCategoryId, name: category, isRecurring: isRecurring, color: Colors.black.toString(), icon: 'empty'));
-
-                                              BudgetMethods().addBudget(Budget(month: Timestamp.fromDate(DateTime.now()), amount: amount, categoryId: newCategoryId));
+                                              CategoryMethods().addCategory(newCategory);
+                                              DocumentReference newCategoryDocRef = await CategoryMethods().getDocRef(newCategory);
+                                              BudgetMethods().addBudget(Budget(month: Timestamp.fromDate(DateTime.now()), amount: amount, categoryId: newCategoryDocRef.id));
 
                                               Navigator.of(context).pop();
                                             }
@@ -356,125 +362,133 @@ class _BudgetingState extends State<Budgeting> {
 
               //List view of the categories itself
               Expanded(
-                  child: StreamBuilder<QuerySnapshot>(
-                stream: BudgetMethods()
-                    .getBudgetsByMonth(monthNotifier._currentMonth),
-                builder: (BuildContext context,
-                    AsyncSnapshot<QuerySnapshot> snapshot) {
-                  if (!snapshot.hasData) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: BudgetMethods().getBudgetsByMonth(monthNotifier._currentMonth),
+                  builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                    if (!snapshot.hasData) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
 
-                  final budgets = snapshot.data!.docs;
+                    if (snapshot.hasError) {
+                      return const Center(
+                        child: Text('Error fetching data'),
+                      );
+                    }
 
-                  if (snapshot.hasError) {
-                    return const Center(
-                      child: Text('Error fetching data'),
-                    );
-                  }
+                    final budgets = snapshot.data!.docs;
 
-                  if (budgets.isEmpty) {
-                    return const Center(
-                      child: Text('No Budget Found'),
-                    );
-                  }
+                    if (budgets.isEmpty) {
+                      return const Center(
+                        child: Text('No Budget Found'),
+                      );
+                    }
 
-                  List<Budget> budgetList = budgets.map((doc) {
-                    return doc.data() as Budget;
-                  }).toList();
+                    // Create a list of pairs of document ID and budget
+                    List<MapEntry<String, Budget>> budgetList = budgets.map((doc) {
+                      return MapEntry(doc.id, Budget.fromJson(doc.data() as Map<String, dynamic>));
+                    }).toList();
 
-                  return FutureBuilder<List<Category>>(
-                    future: CategoryMethods().getAllCategoriesList(),
-                    builder: (context, categorySnapshot) {
+                    return FutureBuilder<List<Category>>(
+                      future: CategoryMethods().getAllCategoriesAsList(),
+                      builder: (context, categorySnapshot) {
+                        if (!categorySnapshot.hasData) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
 
-                      if (!categorySnapshot.hasData) {
-                        return const Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      }
+                        if (categorySnapshot.hasError) {
+                          return const Center(
+                            child: Text('Error fetching categories'),
+                          );
+                        }
 
-                      if (categorySnapshot.hasError) {
-                        return const Center(
-                          child: Text('Error fetching categories'),
-                        );
-                      }
+                        final List<Category> categories = categorySnapshot.data!;
+                        
+                        // Bug to fix: this assumes the categoryId for entry.value.categoryId to be the same as the cat.id but no it is not
+                        // since cat.id is Uuid but budget.categoryId is docRef 
+                        // I think can still work we just change this docRef into a category again then get the id
+                        // The reason i'm doing this roundabout way is because the UpdateCategory button will not work if it was Uuid
+                        // since updateCategory assumes the id 
+                        List<MapEntry<Budget, Category>> budgetCategory/Entries = budgetList.map((entry) {
+                          final category = categories.firstWhere((cat) => cat.id == entry.value.categoryId);
+                          return MapEntry(entry.value, category); 
+                        }).toList();
 
-                      final categories = categorySnapshot.data!;
+                       
 
-                      List<MapEntry<Budget, Category>> budgetCategoryEntries = budgetList.map((budget){
-                        final category = categories.firstWhere((cat) => cat.id == budget.categoryId);
-                        return MapEntry(budget, category);
-                      }).toList();
+                        return ListView.separated(
+                          itemCount: budgetCategoryEntries.length,
+                          separatorBuilder: (context, index) => const Divider(),
+                          itemBuilder: (context, index) {
+                            var entry = budgetCategoryEntries[index];
+                            Budget budget = entry.key;
+                            double amount = budget.amount;
+                            Category category = entry.value;
+                            bool isRecurring = category.isRecurring;
+                            String budgetId = budgetList[index].key; // Get the document ID
 
-                      return ListView.separated(
-                        itemCount: budgetCategoryEntries.length,
-                        separatorBuilder: (context, index) => const Divider(),
-                        itemBuilder: (context, index) {
-                      
-                          var entry = budgetCategoryEntries[index];
-                          Budget budget = entry.key;
-                          double amount = budget.amount;
-                          Category category = entry.value;
-                          bool isRecurring = category.isRecurring;
-                      
-                          return ListTile(
-
-                            // Update the budget
-                            onTap: () {
-                              showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    double newAmount = amount;
-                                    return StatefulBuilder(
-                                      builder: (context, setState) {
+                            return ListTile(
+                              // Update the budget
+                              onTap: () {
+                                showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      double newAmount = amount;
+                                      return StatefulBuilder(builder: (context, setState) {
                                         return AlertDialog(
                                           shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(0), 
+                                            borderRadius: BorderRadius.circular(0),
                                           ),
-                                          backgroundColor:Colors.white,
+                                          backgroundColor: Colors.white,
                                           title: const Text('Change Budget',
                                               style: TextStyle(
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: 18,
                                               )),
                                           content: Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              TextFormField(
-                                                initialValue: amount.toStringAsFixed(2),
-                                                keyboardType:
-                                                    const TextInputType.numberWithOptions(
-                                                        decimal: true),
-                                              
-                                                // Update budget as value is changed
-                                                onChanged: (value) {
-                                                  newAmount =
-                                                      double.tryParse(value) ?? amount;
-                                                },
-                                              ),
-                                              const SizedBox(height: 15.0,),
-                                              Row(
-                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                children: [
-                                                  const Text(
-                                                    'Recurring',
-                                                  ),
-                                                  Switch(
-                                                    activeColor: mainColor,
-                                                    value: isRecurring,
-                                                    onChanged: (bool value) {
-                                                      setState(() {
-                                                        isRecurring = value;
-                                                        CategoryMethods().updateCategory(, category.copyWith(isRecurring: value));
-                                                      });
-                                                    },
-                                                  ),
-                                                ],
-                                              ),
-                                            ]
-                                          ),
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                TextFormField(
+                                                  initialValue: amount.toStringAsFixed(2),
+                                                  keyboardType:
+                                                      const TextInputType.numberWithOptions(
+                                                          decimal: true),
+
+                                                  // Update budget as value is changed
+                                                  onChanged: (value) {
+                                                    newAmount =
+                                                        double.tryParse(value) ?? amount;
+                                                  },
+                                                ),
+                                                const SizedBox(
+                                                  height: 15.0,
+                                                ),
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.spaceBetween,
+                                                  children: [
+                                                    const Text(
+                                                      'Recurring',
+                                                    ),
+                                                    Switch(
+                                                      activeColor: mainColor,
+                                                      value: isRecurring,
+                                                      onChanged: (bool value) {
+                                                        setState(() {
+                                                          isRecurring = value;
+                                                          CategoryMethods().updateCategory(
+                                                              budget.categoryId,
+                                                              category.copyWith(
+                                                                  isRecurring: value));
+                                                        });
+                                                      },
+                                                    ),
+                                                  ],
+                                                ),
+                                              ]),
                                           actions: [
                                             // save button
                                             TextButton(
@@ -489,133 +503,120 @@ class _BudgetingState extends State<Budgeting> {
                                                 )),
                                           ],
                                         );
-                                      }
-                                    );
-                                  });
-                            },
-                      
-                            // Delete budget
-                            onLongPress: () {
-                              showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return AlertDialog(
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(0), 
-                                    ),
-                                    backgroundColor: Colors.white,
-                                    title: const Text(
-                                      'Delete Budget'
-                                    ),
-                                    // content: const Text(
-                                    //   'Are you sure you want to delete this budget?'
-                                    // ),
-                                    content: const Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text('Are you sure you want to delete this budget?'),
-                                        Text(
-                                          'You cannot undo this action!',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                          )
-                                        ),
-                                      ]
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                        },
-                                        child: const Text(
-                                          'Cancel',
-                                          style: TextStyle(
-                                            color: Colors.black,
-                                          ),
-                                        ),
-                                      ),
-                      
-                                      // Edit here
-                      
-                                      TextButton(
-                                        onPressed: () {
-                                          BudgetMethods().deleteBudget(budgetId);
-                                          Navigator.of(context).pop();
-                                        },
-                                        child: const Text(
-                                          'Delete',
-                                          style: TextStyle(
-                                            color: Colors.red,
-                                          ),
-                                        ),
-                                      ),
-                                    ]
-                                  );
-                                }
-                              );
-                            },
+                                      });
+                                    });
+                              },
 
-                            title: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(category.name),
-                                FutureBuilder<double>(
-                                    future: ExpenseMethods()
-                                        .getMonthlySpendingCategorized(
-                                            monthNotifier._currentMonth, category.name),
-                                    builder: (BuildContext context,
-                                        AsyncSnapshot<double> snapshot) {
-                                      if (snapshot.hasError) {
-                                        return Text(
-                                            '${snapshot.error}'); // Display error message if any
-                                      } else {
-                                        double catSpending = snapshot.data ?? 0.0;
-                      
-                                        return Text.rich(
-                                          TextSpan(
-                                            text: catSpending < 0
-                                            ? '-\$'
-                                            : '\$',
-                                            style: TextStyle(
-                                              color: catSpending <= amount
-                                                  ? Colors.green
-                                                  : Colors.red,
-                                            ),
-                                            children: [
-                                              TextSpan(
-                                                text: catSpending < 0
-                                                ? catSpending.abs().toStringAsFixed(2)
-                                                : catSpending.toStringAsFixed(2),
-                                                style: TextStyle(
-                                                  color: catSpending <= amount
-                                                      ? Colors.green
-                                                      : Colors.red,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                              TextSpan(
-                                                text:
-                                                    ' / \$${amount.toStringAsFixed(2)}',
-                                                style: const TextStyle(
-                                                  color:
-                                                      Colors.black, // Default color
-                                                ),
-                                              ),
-                                            ],
+                              // Delete budget
+                              onLongPress: () {
+                                showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return AlertDialog(
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(0),
                                           ),
-                                        );
-                                      }
-                                    }),
-                              ],
-                            ),
-                          );
-                        },
-                      );
-                    }
-                  );
-                },
-              ))
+                                          backgroundColor: Colors.white,
+                                          title: const Text('Delete Budget'),
+                                          content: const Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                    'Are you sure you want to delete this budget?'),
+                                                Text('You cannot undo this action!',
+                                                    style: TextStyle(
+                                                      fontWeight: FontWeight.bold,
+                                                    )),
+                                              ]),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () {
+                                                Navigator.of(context).pop();
+                                              },
+                                              child: const Text('Cancel',
+                                                  style: TextStyle(
+                                                    color: Colors.black,
+                                                  )),
+                                            ),
+
+                                            // Delete here
+
+                                            TextButton(
+                                              onPressed: () {
+                                                BudgetMethods().deleteBudget(budgetId);
+                                                Navigator.of(context).pop();
+                                              },
+                                              child: const Text('Delete',
+                                                  style: TextStyle(
+                                                    color: Colors.red,
+                                                  )),
+                                            ),
+                                          ]);
+                                    });
+                              },
+
+                              title: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(category.name),
+                                  FutureBuilder<double>(
+                                      future: ExpenseMethods()
+                                          .getMonthlySpendingCategorized(
+                                              monthNotifier._currentMonth, category.name),
+                                      builder: (BuildContext context,
+                                          AsyncSnapshot<double> snapshot) {
+                                        if (snapshot.hasError) {
+                                          return Text(
+                                              '${snapshot.error}'); // Display error message if any
+                                        } else {
+                                          double catSpending = snapshot.data ?? 0.0;
+
+                                          return Text.rich(
+                                            TextSpan(
+                                              text: catSpending < 0 ? '-\$' : '\$',
+                                              style: TextStyle(
+                                                color: catSpending <= amount
+                                                    ? Colors.green
+                                                    : Colors.red,
+                                              ),
+                                              children: [
+                                                TextSpan(
+                                                  text: catSpending < 0
+                                                      ? catSpending
+                                                          .abs()
+                                                          .toStringAsFixed(2)
+                                                      : catSpending.toStringAsFixed(2),
+                                                  style: TextStyle(
+                                                    color: catSpending <= amount
+                                                        ? Colors.green
+                                                        : Colors.red,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                                TextSpan(
+                                                  text:
+                                                      ' / \$${amount.toStringAsFixed(2)}',
+                                                  style: const TextStyle(
+                                                    color: Colors.black, // Default color
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        }
+                                      }),
+                                ],
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    );
+                  },
+                ),
+              )
+
             ],
           );
         },

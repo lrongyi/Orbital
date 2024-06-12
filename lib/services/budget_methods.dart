@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:ss/screens/onboarding_screens/old%20set%20budget';
 import 'package:ss/services/models/budget.dart';
+import 'package:ss/services/models/category.dart';
 import 'package:ss/services/user_methods.dart';
 
 const String EXPENSE_COLLECTION = 'Expenses';
@@ -17,7 +18,7 @@ class BudgetMethods {
     return _firestore.collection(USER_COLLECTION)
       .doc(userId)
       .collection(BUDGET_COLLECTION)
-      .withConverter<Budget>(fromFirestore: (snapshots, _) => Budget.fromjson(snapshots.data() as Map<String, dynamic>), 
+      .withConverter<Budget>(fromFirestore: (snapshots, _) => Budget.fromJson(snapshots.data() as Map<String, dynamic>), 
         toFirestore: (budget, _) => budget.toJson());
   }
 
@@ -88,6 +89,11 @@ class BudgetMethods {
 
   void deleteBudget(String budgetId) async {
     await getBudgetRef(UserMethods().getCurrentUserId()).doc(budgetId).delete();
+  }
+
+  Category getCategory(Category category) {
+    // hmmm do we actually need to? maybe we can save time if can figure out how to store Category (special type) as a field for the document.
+    // then we can just straight away use the methods
   }
 
   // Future<void> checkAndCreateRecurringBudgets() async {
