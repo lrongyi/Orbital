@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:ss/screens/main_screens/home_screens/home.dart';
@@ -8,24 +7,22 @@ import 'package:ss/services/budget_methods.dart';
 import 'package:ss/shared/main_screens_deco.dart';
 
 class SetBudget extends StatefulWidget {
+  final Map<String, Color> categoryColors;
 
-  final Set<String> selectedCategories;
-
-  const SetBudget({super.key, required this.selectedCategories});
+  const SetBudget({super.key, required this.categoryColors});
 
   @override
   State<SetBudget> createState() => _SetBudgetState();
 }
 
 class _SetBudgetState extends State<SetBudget> {
-
   final Map<String, TextEditingController> _budgetControllers = {};
   final _formKey = GlobalKey<FormState>();
 
-  @override 
+  @override
   void initState() {
     super.initState();
-    for (var category in widget.selectedCategories) {
+    for (var category in widget.categoryColors.keys) {
       _budgetControllers[category] = TextEditingController(text: "0");
     }
   }
@@ -34,8 +31,8 @@ class _SetBudgetState extends State<SetBudget> {
   void dispose() {
     _budgetControllers.forEach((_, controller) {
       controller.dispose();
-     });
-     super.dispose();
+    });
+    super.dispose();
   }
 
   @override
@@ -47,7 +44,7 @@ class _SetBudgetState extends State<SetBudget> {
           style: TextStyle(
             color: mainColor,
             fontWeight: FontWeight.bold,
-            fontSize: 18
+            fontSize: 18,
           ),
         ),
         backgroundColor: Colors.white,
@@ -58,41 +55,15 @@ class _SetBudgetState extends State<SetBudget> {
         child: Form(
           key: _formKey,
           child: ListView(
-            children: widget.selectedCategories.map((category) {
+            children: widget.categoryColors.keys.map((category) {
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 10.0),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        category,
-                        style: TextStyle(fontSize: 18.0),
-                      ),
-                    ),
-
-                    SizedBox(
-                      width: 75,
-                      child: TextFormField(
-                        validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Empty';
-                              }
-                              return null;
-                            },
-                        controller: _budgetControllers[category],
-                        decoration: InputDecoration(
-                          labelText: 'Amount',
-                          labelStyle: TextStyle(color: mainColor, fontSize: 12),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: mainColor),
-                          ),
-                          border: const OutlineInputBorder(),
-                        ),
-                        keyboardType: TextInputType.number,
-                      ),
-                    ),
-                    const Divider(),
-                  ],
+                child: ListTile(
+                  title: Text(category),
+                  leading: CircleAvatar(
+                    backgroundColor: widget.categoryColors[category],
+                  ),
+                  trailing: _amountWidget(category), // See Helper 1
                 ),
               );
             }).toList(),
@@ -112,10 +83,10 @@ class _SetBudgetState extends State<SetBudget> {
             ),
             onPressed: () {
               Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: ((context) => Navigation(state: 0))),
-                    (route) => false
-                  );
+                context,
+                MaterialPageRoute(builder: ((context) => Navigation(state: 0))),
+                (route) => false,
+              );
             },
           ),
           SizedBox(
@@ -128,37 +99,64 @@ class _SetBudgetState extends State<SetBudget> {
               child: const Text('Submit'),
               onPressed: () async {
                 if (_formKey.currentState!.validate()) {
-                  final Map<String, double> budgetAllocations = {};
+                  final Map<String, List<dynamic>> budgetAllocations = {};
                   _budgetControllers.forEach(
                     (category, controller) {
-                      budgetAllocations[category] = double.parse(controller.text.trim());
-                    }
+                      budgetAllocations[category] = [
+                        double.parse(controller.text.trim()), // amount
+                        true, // isRecurring
+                        widget.categoryColors[category]!.value.toString(), // color
+                      ];
+                    },
                   );
-                  
+
                   for (var entry in budgetAllocations.entries) {
-                    await BudgetMethods().addBudget(entry.key, entry.value, true);
+                    await BudgetMethods().addBudget(entry.key, entry.value[0], entry.value[1], entry.value[2]);
                   }
 
                   Navigator.pushAndRemoveUntil(
                     context,
                     MaterialPageRoute(builder: ((context) => Navigation(state: 0))),
-                    (route) => false
+                    (route) => false,
                   );
-
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                       content: Text('Fill in all fields'),
                       backgroundColor: Colors.red,
                       showCloseIcon: true,
-                    )
+                    ),
                   );
                 }
-                
               },
             ),
           )
         ],
+      ),
+    );
+  }
+
+  // Helper 1: Amount Field
+  Widget _amountWidget(String category) {
+    return SizedBox(
+      width: 75,
+      child: TextFormField(
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Empty';
+          }
+          return null;
+        },
+        controller: _budgetControllers[category],
+        decoration: InputDecoration(
+          labelText: 'Amount',
+          labelStyle: TextStyle(color: mainColor, fontSize: 12),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: mainColor),
+          ),
+          border: const OutlineInputBorder(),
+        ),
+        keyboardType: TextInputType.number,
       ),
     );
   }

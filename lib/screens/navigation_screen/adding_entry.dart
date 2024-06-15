@@ -335,7 +335,7 @@ class _AddingEntryState extends State<AddingEntry> {
                                 category = addCategoryController.text;
                                 amount = double.parse(budgetAmountController.text).abs();
                               });
-                              BudgetMethods().addBudget(category, amount, isRecurring);
+                              // BudgetMethods().addBudget(category, amount, isRecurring);
                               Navigator.of(context).pop();
                             }
                            

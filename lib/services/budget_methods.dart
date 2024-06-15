@@ -16,7 +16,7 @@ class BudgetMethods {
     return _firestore.collection(USER_COLLECTION)
       .doc(userId)
       .collection(BUDGET_COLLECTION)
-      .withConverter<Budget>(fromFirestore: (snapshots, _) => Budget.fromjson(snapshots.data() as Map<String, dynamic>), 
+      .withConverter<Budget>(fromFirestore: (snapshots, _) => Budget.fromJson(snapshots.data() as Map<String, dynamic>), 
         toFirestore: (budget, _) => budget.toJson());
   }
 
@@ -76,28 +76,39 @@ class BudgetMethods {
     return singleSubStream().asBroadcastStream();
   }
 
-  Future<void> addBudget(String category, double amount, bool isRecurring) async {
+  Future<void> addBudget(String category, double amount, bool isRecurring, String color) async {
     DateTime now = DateTime.now();
     DateTime firstOfMonth = DateTime(now.year, now.month, 1);
     DateTime nextMonth = DateTime(now.year, now.month + 1, 1);
     Timestamp firstOfMonthTS = Timestamp.fromDate(firstOfMonth);
     Timestamp nextMonthTS = Timestamp.fromDate(nextMonth);
 
-    QuerySnapshot<Budget> query = await getBudgetRef(UserMethods().getCurrentUserId()).where('month', isGreaterThanOrEqualTo: firstOfMonthTS).where('month', isLessThan: nextMonthTS).get();
+    QuerySnapshot<Budget> query = await getBudgetRef(UserMethods().getCurrentUserId())
+        .where('month', isGreaterThanOrEqualTo: firstOfMonthTS)
+        .where('month', isLessThan: nextMonthTS)
+        .get();
 
     if (query.docs.isNotEmpty) {
       DocumentSnapshot<Budget> budgetDoc = query.docs.first;
       Budget existingBudget = budgetDoc.data()!;
-      existingBudget.categories.update(category, (value) => [value[0] + amount, value[1]], ifAbsent: () => [amount, isRecurring]);
+      existingBudget.categories.update(category, (value) => [
+        (value[0] as double) + amount, // update amount
+        value[1] as bool, // isRecurring
+        value.length > 2 ? value[2] : color, // update color if present
+      ], ifAbsent: () => [amount, isRecurring, color]);
       existingBudget.monthlyBudget += amount;
       await budgetDoc.reference.set(existingBudget);
     } else {
-      Budget newBudget = Budget(categories: {category: [amount, isRecurring]}, month: firstOfMonthTS, monthlyBudget: amount);
+      Budget newBudget = Budget(
+        categories: {category: [amount, isRecurring, color]},
+        month: firstOfMonthTS,
+        monthlyBudget: amount,
+      );
       await getBudgetRef(UserMethods().getCurrentUserId()).add(newBudget);
     }
   }
 
-  void updateBudget(String category, double amount, bool isRecurring) async {
+  void updateBudget(String category, double amount, bool isRecurring, String color) async {
     DateTime now = DateTime.now();
     DateTime firstOfMonth = DateTime(now.year, now.month, 1);
     DateTime nextMonth = DateTime(now.year, now.month + 1, 1);
@@ -110,7 +121,7 @@ class BudgetMethods {
       DocumentSnapshot<Budget> budgetDoc = query.docs.first;
       Budget existingBudget = budgetDoc.data()!;
       if (existingBudget.categories.containsKey(category)) {
-        existingBudget.categories[category] = [amount, isRecurring];
+        existingBudget.categories[category] = [amount, isRecurring, color];
       } else {
         throw Exception('Category does not exist');
       }

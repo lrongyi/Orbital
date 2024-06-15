@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:ss/screens/navigation_screen/navigation.dart';
+import 'package:ss/screens/onboarding_screens/edit_categories.dart';
 import 'package:ss/screens/onboarding_screens/set_budget.dart';
 import 'package:ss/shared/main_screens_deco.dart';
 
@@ -207,7 +208,7 @@ class _SelectCategoriesState extends State<SelectCategories> {
               child: const Text('Next'),
               onPressed: () {
                 if (_selectedCategories.isNotEmpty) {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => SetBudget(selectedCategories: _selectedCategories)));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => EditCategories(selectedCategories: _selectedCategories)));
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                     showCloseIcon: true,
