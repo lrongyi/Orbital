@@ -23,7 +23,6 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   DateTime _currentMonth = DateTime.now();
-  final ColorManager colorManager = ColorManager();
 
   @override
   Widget build(BuildContext context) {
@@ -139,31 +138,32 @@ class _HomeState extends State<Home> {
                                 for (var budgetDoc in budgets) {
                                   Budget budget = budgetDoc.data() as Budget;
                                   budget.categories
-                                      .forEach((category, spending) {
-                                    futureSections.add(ExpenseMethods()
-                                        .getMonthlySpendingCategorized(
-                                            monthNotifier._currentMonth,
-                                            category)
-                                        .then((spending) {
-                                      if (spending > 0) {
-                                        Color color = colorManager
-                                            .getColorForCategory(category);
-                                        return PieChartSectionData(
-                                          color: color,
-                                          value: spending,
-                                          title: '',
-                                          titleStyle: const TextStyle(
-                                              color: Colors.black),
-                                          badgeWidget:
-                                              HomeDeco.pieChartTitleWidget(
-                                                  category,
-                                                  (-1 * spending),
-                                                  monthNotifier._currentMonth),
-                                          badgePositionPercentageOffset: 1,
-                                        );
-                                      } else {
-                                        return null;
-                                      }
+                                      .forEach((category, details) {
+                                        Color color = Color(int.parse(details[2]));
+                                        futureSections.add(ExpenseMethods()
+                                          .getMonthlySpendingCategorized(
+                                              monthNotifier._currentMonth,
+                                              category)
+                                          .then((spending) {
+                                        if (spending > 0) {
+                                          // Color color = colorManager
+                                          //     .getColorForCategory(category);
+                                          return PieChartSectionData(
+                                            color: color,
+                                            value: spending,
+                                            title: '',
+                                            titleStyle: const TextStyle(
+                                                color: Colors.black),
+                                            badgeWidget:
+                                                HomeDeco.pieChartTitleWidget(
+                                                    category,
+                                                    (-1 * spending),
+                                                    monthNotifier._currentMonth),
+                                            badgePositionPercentageOffset: 1,
+                                          );
+                                        } else {
+                                          return null;
+                                        }
                                     }));
                                   });
                                 }
@@ -337,12 +337,17 @@ class _HomeState extends State<Home> {
                         );
                       }
 
-                      List<MapEntry<String, double>> allCategories = [];
+                      List<MapEntry<String, List<dynamic>>> allCategories = [];
                       for (var budgetDoc in budgets) {
                         Budget budget = budgetDoc.data() as Budget;
                         budget.categories.forEach((category, details) {
                           allCategories
-                              .add(MapEntry(category, details[0] as double));
+                              .add(MapEntry(category, [
+                                details[0] as double,   // amount
+                                details[1],             // isRecurring
+                                details[2]              // color
+                                ]
+                                ));
                         });
                       }
 
@@ -356,11 +361,11 @@ class _HomeState extends State<Home> {
 
                             var entry = allCategories[index];
                             String category = entry.key;
-                            double amount = entry.value;
+                            Color color = Color(int.parse(entry.value[2]));
                             return ListTile(
                               leading: CircleAvatar(
                                 backgroundColor:
-                                    colorManager.getColorForCategory(category),
+                                    color,
                                 // child: Icon(Icons.category, color: Colors.white),
                               ),
 
@@ -412,41 +417,6 @@ class _HomeState extends State<Home> {
         );
       }),
     );
-  }
-}
-
-class ColorManager {
-  final List<Color> _availableColors = [
-    Colors.blue,
-    Colors.green,
-    Colors.orange,
-    Colors.red,
-    Colors.purple,
-    Colors.brown,
-    Colors.indigo,
-    Colors.pink,
-  ];
-
-  final Map<String, Color> _assignedColors = {};
-
-  Color getColorForCategory(String category) {
-    if (_assignedColors.containsKey(category)) {
-      return _assignedColors[category]!;
-    } else {
-      // Find a color that hasn't been assigned yet
-      for (var color in _availableColors) {
-        if (!_assignedColors.containsValue(color)) {
-          _assignedColors[category] = color;
-          return color;
-        }
-      }
-      // If all colors are assigned, default to a hash-based color (optional)
-      int hash = category.hashCode;
-      int index = hash % _availableColors.length;
-      Color color = _availableColors[index];
-      _assignedColors[category] = color;
-      return color;
-    }
   }
 }
 

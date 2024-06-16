@@ -339,12 +339,16 @@ class _AddingEntryState extends State<AddingEntry> {
                                 category = addCategoryController.text;
                                 amount = double.parse(budgetAmountController.text).abs();
                               });
+<<<<<<< HEAD
                               String newCategoryId = Uuid().v1();
 
                               CategoryMethods().addCategory(Category(id: newCategoryId, name: category, isRecurring: isRecurring, color: Colors.black.toString(), icon: 'empty'));
 
                               BudgetMethods().addBudget(Budget(month: Timestamp.fromDate(DateTime.now()), amount: amount, categoryId: newCategoryId));
 
+=======
+                              // BudgetMethods().addBudget(category, amount, isRecurring);
+>>>>>>> origin/old-backend-muhd
                               Navigator.of(context).pop();
                             }
                            

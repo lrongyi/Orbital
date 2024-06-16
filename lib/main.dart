@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:ss/screens/authentication_screens/log_in.dart';
 import 'package:ss/screens/main_screens/bill_screens/billing.dart';
+import 'package:ss/screens/main_screens/home_screens/home.dart';
+import 'package:ss/screens/navigation_screen/navigation.dart';
 import 'package:ss/screens/onboarding_screens/select_bills.dart';
 import 'package:ss/screens/onboarding_screens/select_categories.dart';
 import 'package:ss/services/budget_methods.dart';
@@ -32,6 +34,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: LogIn(),
+      // home: SelectCategories(),
+      // home: Navigation(),
       // home: Billing()
       // home: SelectCategories(),
     );

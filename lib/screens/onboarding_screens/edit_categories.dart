@@ -4,6 +4,7 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:ss/screens/navigation_screen/navigation.dart';
 import 'package:ss/screens/onboarding_screens/set_budget.dart';
 import 'package:ss/services/budget_methods.dart';
+<<<<<<< HEAD
 import 'package:ss/services/category_methods.dart';
 import 'package:ss/services/models/budget.dart';
 import 'package:ss/shared/main_screens_deco.dart';
@@ -24,6 +25,19 @@ class EditCategories extends StatefulWidget {
 class _EditCategoriesState extends State<EditCategories> {
   TextEditingController categoryNameController = TextEditingController();
   Map<String, Color> categoryColors = {};
+=======
+import 'package:ss/services/models/budget.dart';
+import 'package:ss/shared/main_screens_deco.dart';
+class EditCategories extends StatefulWidget {
+  final Set<String> selectedCategories;
+  const EditCategories({super.key, required this.selectedCategories});
+  @override
+  State<EditCategories> createState() => _EditCategoriesState();
+}
+class _EditCategoriesState extends State<EditCategories> {
+  TextEditingController categoryNameController = TextEditingController();
+  Map<String, Color> _categoryColors = {};
+>>>>>>> origin/old-backend-muhd
   Color _selectedColor = Colors.blue;
 
   // List of predefined colors for the Block Picker
@@ -57,7 +71,10 @@ class _EditCategoriesState extends State<EditCategories> {
     super.initState();
     _initializeCategoryColors();
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/old-backend-muhd
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -80,7 +97,11 @@ class _EditCategoriesState extends State<EditCategories> {
           itemCount: widget.selectedCategories.length,
           itemBuilder: (context, index) {
             final currentCategory = widget.selectedCategories.elementAt(index);
+<<<<<<< HEAD
             final color = categoryColors[currentCategory] ?? Colors.grey; // Use a default color (grey) if null
+=======
+            final color = _categoryColors[currentCategory] ?? Colors.grey; // Use a default color (grey) if null
+>>>>>>> origin/old-backend-muhd
             return ListTile(
               title: Text(currentCategory),
               leading: CircleAvatar(
@@ -124,6 +145,7 @@ class _EditCategoriesState extends State<EditCategories> {
               ),
               child: const Text('Next'),
               onPressed: () {  
+<<<<<<< HEAD
                 widget.selectedCategories.forEach((selectedCategory) {
                   // Create a new Category instance and budget 
 
@@ -154,6 +176,11 @@ class _EditCategoriesState extends State<EditCategories> {
                   context,
                   MaterialPageRoute(builder: ((context) => SetBudget())),
                   (route) => false,
+=======
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: ((context) => SetBudget(categoryColors: _categoryColors,))),
+>>>>>>> origin/old-backend-muhd
                 );
               },
             ),
@@ -169,16 +196,26 @@ class _EditCategoriesState extends State<EditCategories> {
   void _initializeCategoryColors() {
     int index = 0;
     for (var category in widget.selectedCategories) {
+<<<<<<< HEAD
       categoryColors[category] = predefinedColors[index % predefinedColors.length];
       index++;
     }
   }
 
+=======
+      _categoryColors[category] = predefinedColors[index % predefinedColors.length];
+      index++;
+    }
+  }
+>>>>>>> origin/old-backend-muhd
   // Helper 2: Edit Category Dialog Box
   void _showEditCategoryDialog({required String currentCategory, required Color initialColor}) {
     categoryNameController.text = currentCategory;
     _selectedColor = initialColor;
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/old-backend-muhd
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -202,7 +239,11 @@ class _EditCategoriesState extends State<EditCategories> {
                   // Delete the category
                   setState(() {
                     widget.selectedCategories.remove(currentCategory);
+<<<<<<< HEAD
                     categoryColors.remove(currentCategory);
+=======
+                    _categoryColors.remove(currentCategory);
+>>>>>>> origin/old-backend-muhd
                   });
                   Navigator.of(context).pop();
                 },
@@ -270,14 +311,22 @@ class _EditCategoriesState extends State<EditCategories> {
                     widget.selectedCategories.remove(currentCategory);
                     widget.selectedCategories.add(newCategoryName);
                     // Update category color
+<<<<<<< HEAD
                     categoryColors[newCategoryName] = _selectedColor;
+=======
+                    _categoryColors[newCategoryName] = _selectedColor;
+>>>>>>> origin/old-backend-muhd
                   });
                   // Update the ListView item
                   Navigator.of(context).pop();
                 } else {
                   // Only update color if the category name is not changed
                   setState(() {
+<<<<<<< HEAD
                     categoryColors[currentCategory] = _selectedColor;
+=======
+                    _categoryColors[currentCategory] = _selectedColor;
+>>>>>>> origin/old-backend-muhd
                   });
                   Navigator.of(context).pop();
                 }
@@ -307,7 +356,10 @@ class _EditCategoriesState extends State<EditCategories> {
       },
     );
   }
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/old-backend-muhd
   // Helper 3: Color Picker Dialog Box
   void _showColorPickerDialog(Function(Color) onColorSelected) {
     showDialog(
