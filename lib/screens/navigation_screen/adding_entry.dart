@@ -401,4 +401,3 @@ class _AddingEntryState extends State<AddingEntry> {
     );
   }
 }
-

@@ -23,6 +23,12 @@ class AddingDeco {
         const SizedBox(width: 10),
         Expanded(
           child: TextFormField(
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Enter $labelText';
+              }
+              return null;
+            },
             textAlignVertical: TextAlignVertical.center,
             controller: controller,
             keyboardType: keyboardType,

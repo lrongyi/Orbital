@@ -468,4 +468,3 @@ class _EditingEntryState extends State<EditingEntry> {
     );
   }
 }
-

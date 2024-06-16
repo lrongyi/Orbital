@@ -26,6 +26,12 @@ class _SelectBillsState extends State<SelectBills> {
   DateTime now = DateTime.now();
   DateTime _selectedDay = DateTime.now();
 
+  @override
+  void initState() {
+    super.initState();
+    widget.bills.sort((a, b) => a.due.compareTo(b.due));
+  }
+
   void _onDaySelected(DateTime selectedDay, DateTime focusedDay) {
     setState(() {
       _selectedDay = selectedDay;

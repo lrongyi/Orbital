@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:ss/screens/navigation_screen/navigation.dart';
 import 'package:ss/services/bill_methods.dart';
 import 'package:ss/services/models/bill.dart';
+import 'package:ss/shared/adding_deco.dart';
 import 'package:ss/shared/main_screens_deco.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -21,6 +22,7 @@ class _BillingState extends State<Billing> {
 
   DateTime now = DateTime.now();
   DateTime _selectedDay = DateTime.now();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   late Future<Map<DateTime, List<Bill>>> _billsFuture;
 
@@ -114,13 +116,11 @@ class _BillingState extends State<Billing> {
             ),
             borderRadius: BorderRadius.circular(30),
           ),
+        onPressed: _showAddBillDialog,
         child: Icon(
             CupertinoIcons.add,
             color: mainColor,
           ),
-        onPressed: () {
-          
-        }
       ),
 
       body: Column(
@@ -335,6 +335,9 @@ class _BillingState extends State<Billing> {
                                 TextButton(
                                   onPressed: () {
                                     BillMethods().deleteBill(billId);
+                                    setState(() {
+                                      _billsFuture = _fetchBills();
+                                    });
                                     Navigator.of(context).pop();
                                   },
                                   child: const Text(
@@ -360,4 +363,97 @@ class _BillingState extends State<Billing> {
       ),
       );
   }
+
+  void _showAddBillDialog() {
+    TextEditingController nameController = TextEditingController();
+    TextEditingController amountController = TextEditingController();
+    bool isPaid = false;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(0),
+              ),
+              backgroundColor: Colors.white,
+              title: const Text(
+                'Add New Bill',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
+              content: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    AddingDeco().buildRow('Name', nameController),
+                    const SizedBox(height: 15.0),
+                    AddingDeco().buildRow('Amount', amountController),
+                    const SizedBox(height: 15.0),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text('Paid'),
+                        Switch(
+                          activeColor: mainColor,
+                          value: isPaid,
+                          onChanged: (bool value) {
+                            setState(() {
+                              isPaid = value;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text(
+                    'Cancel',
+                    style: TextStyle(
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      Bill newBill = Bill(
+                        name: nameController.text,
+                        amount: double.parse(amountController.text),
+                        due: Timestamp.fromDate(_selectedDay),
+                        isPaid: isPaid,
+                      );
+                      BillMethods().addBill(newBill);
+                      setState(() {
+                        _billsFuture = _fetchBills();
+                      });
+                      Navigator.of(context).pop();
+                    }
+                  },
+                  child: const Text(
+                    'Save',
+                    style: TextStyle(
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
 }
