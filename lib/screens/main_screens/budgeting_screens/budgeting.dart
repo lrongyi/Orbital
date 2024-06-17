@@ -45,16 +45,14 @@ class _BudgetingState extends State<Budgeting> {
                 height: 1,
                 thickness: 1,
               ),
-
-              // date picker
-              Container(
+           
+              Container(  // Month selector
                 color: mainColor,
                 height: 50,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // back arrow
-                    IconButton(
+                    IconButton( // Previous month arrow
                       icon: const Icon(
                         Icons.arrow_left,
                         color: Colors.white,
@@ -64,8 +62,7 @@ class _BudgetingState extends State<Budgeting> {
                       },
                     ),
 
-                    // the date itself
-                    Text(
+                    Text( // Date text
                       DateFormat.yMMMM().format(monthNotifier.currentMonth),
                       style: const TextStyle(
                         fontSize: 18,
@@ -73,8 +70,7 @@ class _BudgetingState extends State<Budgeting> {
                       ),
                     ),
 
-                    // right arrow
-                    IconButton(
+                    IconButton( // Next month arrow
                       icon: const Icon(
                         Icons.arrow_right,
                         color: Colors.white,
@@ -89,9 +85,7 @@ class _BudgetingState extends State<Budgeting> {
 
               const SizedBox(height: 20),
 
-              //Money Left to spend and budget this month
-              Container(
-                // color: Colors.red,
+              Container(  // Money left to spend + budget
                 height: 200,
                 width: MediaQuery.of(context).size.width,
                 child: Column(

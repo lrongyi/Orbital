@@ -82,6 +82,10 @@ class _ExpensesState extends State<Expenses> {
                 ),
 
                 const SizedBox(height: 20),
+                // Card. See helper 1
+                _expensesCard(),
+
+                const SizedBox(height: 20),
 
                 // Header for Transaction History and Amount
                 const Padding(
@@ -192,7 +196,7 @@ class _ExpensesState extends State<Expenses> {
                                           ),
                                         )
                                       : Text(
-                                          '\$${expense.amount.toStringAsFixed(2)}',
+                                          '+\$${expense.amount.toStringAsFixed(2)}',
                                           style: TextStyle(
                                             fontSize: 18.0,
                                             color: expense.amount > 0
@@ -302,6 +306,112 @@ class _ExpensesState extends State<Expenses> {
       ),
     );
   }
+
+  // Helper 1: Expenses Card
+  Widget _expensesCard() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          gradient: LinearGradient(
+            // colors: [Colors.red.shade900, Colors.red.shade700],
+            colors: [mainColor, Color.fromARGB(255, 128, 43, 37)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 10,
+              offset: Offset(0, 5),
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.all(16),
+        child: const Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Net Flow',
+              style: TextStyle(
+                color: Colors.white70,
+                fontSize: 16,
+              ),
+            ),
+            SizedBox(height: 8),
+            Text(
+              '\$1,400.00',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 32,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(
+                      Icons.arrow_upward,
+                      color: Colors.white70,
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      'Income',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 16,
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      '\$2,350.00',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(
+                      Icons.arrow_downward,
+                      color: Colors.white70,
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      'Expenses',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 16,
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      '\$950.00',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
 }
 
 class MonthNotifier extends ChangeNotifier {

@@ -92,22 +92,20 @@ class _HomeState extends State<Home> {
                       child: Container(
                         height: 300,
                         width: MediaQuery.of(context).size.width,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.5),
-                              spreadRadius: 5,
-                              blurRadius: 7,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
-                        ),
+                        // decoration: BoxDecoration(
+                        //   color: Colors.white,
+                        //   borderRadius: BorderRadius.circular(10),
+                        //   boxShadow: [
+                        //     BoxShadow(
+                        //       color: Colors.grey.withOpacity(0.5),
+                        //       spreadRadius: 5,
+                        //       blurRadius: 7,
+                        //       offset: const Offset(0, 3),
+                        //     ),
+                        //   ],
+                        // ),
                         child: Padding(
                           padding: const EdgeInsets.all(16),
-                          // width: 300,
-                          // height: 300,
                           child: StreamBuilder(
                               stream: BudgetMethods().getBudgetsByMonth(
                                   monthNotifier._currentMonth),
@@ -238,14 +236,15 @@ class _HomeState extends State<Home> {
                                                       0.0;
                                               return Text(
                                                 '\$${totalSpending.toStringAsFixed(2)}',
-                                                style: TextStyle(
+                                                style: const TextStyle(
                                                   fontSize: 32,
                                                   fontWeight: FontWeight.bold,
-                                                  color: totalSpending > budget
-                                                      ? Colors.red
-                                                      : totalSpending < 0
-                                                          ? Colors.green
-                                                          : Colors.black,
+                                                  // color: totalSpending > budget
+                                                  //     ? Colors.red
+                                                  //     : totalSpending < 0
+                                                  //         ? Colors.green
+                                                  //         : Colors.black,
+                                                  color: Colors.black,
                                                 ),
                                               );
                                             }
@@ -278,7 +277,7 @@ class _HomeState extends State<Home> {
                           builder: (context) => const Insights()));
                 },
                 child: const Padding(
-                  padding: EdgeInsets.only(left: 40), // needed to hardcode the position 
+                  padding: EdgeInsets.only(left: 30), // needed to hardcode the position 
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

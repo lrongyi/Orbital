@@ -33,7 +33,8 @@ class HomeDeco {
             String percentage = ((spendingCat / netSpend) * -100).toStringAsFixed(1);
 
             return Text(
-              '$title ($percentage%)',
+              // '$title ($percentage%)',
+              '$percentage%',
               style: const TextStyle(
                 color: Colors.black,
                 fontWeight: FontWeight.bold,
