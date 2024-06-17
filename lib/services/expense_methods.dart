@@ -79,6 +79,25 @@ class ExpenseMethods {
     return totalSpending;
   }
 
+  Future<double> getMonthlyIncome(DateTime time) async {
+    DateTime startOfMonth = DateTime(time.year, time.month);
+    DateTime endOfMonth = time.month != 12 ? DateTime(time.year, time.month + 1) : DateTime(time.year + 1, 1); 
+
+    QuerySnapshot<Expense> query = await getExpensesRef(UserMethods().getCurrentUserId()).where('date', isGreaterThanOrEqualTo: startOfMonth).where('date', isLessThan: endOfMonth).get();
+
+    double totalIncome = 0.0;
+
+    if (query.docs.isNotEmpty) {
+      for (var expenses in query.docs) {
+        Expense data = expenses.data();
+        // totalSpending += -1 * data.amount;
+        data.amount > 0 ? totalIncome += data.amount : totalIncome = totalIncome;
+      }
+    }
+
+    return totalIncome;
+  }
+
   Future<double> getMonthlyNetChange(DateTime time) async {
     DateTime startOfMonth = DateTime(time.year, time.month);
     DateTime endOfMonth = time.month != 12 ? DateTime(time.year, time.month + 1) : DateTime(time.year + 1, 1); 
@@ -90,7 +109,7 @@ class ExpenseMethods {
     if (query.docs.isNotEmpty) {
       for (var expenses in query.docs) {
         Expense data = expenses.data();
-        totalSpending += -1 * data.amount;
+        totalSpending += data.amount;
       }
     }
 

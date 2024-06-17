@@ -1,4 +1,7 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -83,7 +86,7 @@ class _ExpensesState extends State<Expenses> {
 
                 const SizedBox(height: 20),
                 // Card. See helper 1
-                _expensesCard(),
+                _expensesCard(monthNotifier._currentMonth),
 
                 const SizedBox(height: 20),
 
@@ -308,15 +311,15 @@ class _ExpensesState extends State<Expenses> {
   }
 
   // Helper 1: Expenses Card
-  Widget _expensesCard() {
+  Widget _expensesCard(DateTime time) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
           gradient: LinearGradient(
-            // colors: [Colors.red.shade900, Colors.red.shade700],
-            colors: [mainColor, Color.fromARGB(255, 128, 43, 37)],
+            // Color.fromARGB(255, 128, 43, 37)
+            colors: [mainColor, Color.fromARGB(255, 146, 45, 53)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -329,26 +332,52 @@ class _ExpensesState extends State<Expenses> {
           ],
         ),
         padding: const EdgeInsets.all(16),
-        child: const Column(
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               'Net Flow',
               style: TextStyle(
                 color: Colors.white70,
                 fontSize: 16,
               ),
             ),
-            SizedBox(height: 8),
-            Text(
-              '\$1,400.00',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            SizedBox(height: 20),
+            const SizedBox(height: 8),
+            FutureBuilder<double>(
+                      future: ExpenseMethods().getMonthlyNetChange(time),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return CircularProgressIndicator(); // Display a loading indicator while waiting
+                        } else if (snapshot.hasError) {
+                          return Text(
+                            'Error: ${snapshot.error}',
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontSize: 20,
+                            ),
+                          );
+                        } else if (snapshot.hasData) {
+                          return Text(
+                            '\$${snapshot.data!.toStringAsFixed(2)}', // Display the amount returned by the method
+                            style: TextStyle(
+                              color: snapshot.data! < 0 ? Colors.red : Colors.green,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          );
+                        } else {
+                          return Text(
+                            '\$0.00',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          );
+                        }
+                      },
+                    ),
+            const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -368,13 +397,39 @@ class _ExpensesState extends State<Expenses> {
                       ),
                     ),
                     SizedBox(height: 4),
-                    Text(
-                      '\$2,350.00',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    FutureBuilder<double>(
+                      future: ExpenseMethods().getMonthlyIncome(time),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return CircularProgressIndicator(); // Display a loading indicator while waiting
+                        } else if (snapshot.hasError) {
+                          return Text(
+                            'Error: ${snapshot.error}',
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontSize: 20,
+                            ),
+                          );
+                        } else if (snapshot.hasData) {
+                          return Text(
+                            '\$${snapshot.data!.toStringAsFixed(2)}', // Display the amount returned by the method
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          );
+                        } else {
+                          return Text(
+                            '\$0.00',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          );
+                        }
+                      },
                     ),
                   ],
                 ),
@@ -394,13 +449,40 @@ class _ExpensesState extends State<Expenses> {
                       ),
                     ),
                     SizedBox(height: 4),
-                    Text(
-                      '\$950.00',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
+
+                    FutureBuilder<double>(
+                      future: ExpenseMethods().getMonthlySpending(time),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return CircularProgressIndicator(); // Display a loading indicator while waiting
+                        } else if (snapshot.hasError) {
+                          return Text(
+                            'Error: ${snapshot.error}',
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontSize: 20,
+                            ),
+                          );
+                        } else if (snapshot.hasData) {
+                          return Text(
+                            '\$${snapshot.data!.toStringAsFixed(2)}', // Display the amount returned by the method
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          );
+                        } else {
+                          return Text(
+                            '\$0.00',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          );
+                        }
+                      },
                     ),
                   ],
                 ),

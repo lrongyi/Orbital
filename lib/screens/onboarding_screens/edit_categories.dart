@@ -7,13 +7,20 @@ import 'package:ss/services/budget_methods.dart';
 import 'package:ss/services/models/budget.dart';
 import 'package:ss/shared/main_screens_deco.dart';
 class EditCategories extends StatefulWidget {
+  
   final Set<String> selectedCategories;
+
   const EditCategories({super.key, required this.selectedCategories});
   @override
   State<EditCategories> createState() => _EditCategoriesState();
 }
 class _EditCategoriesState extends State<EditCategories> {
+  
   TextEditingController categoryNameController = TextEditingController();
+  GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final Map<String, TextEditingController> _budgetControllers = {};
+
+
   Map<String, Color> _categoryColors = {};
   Color _selectedColor = Colors.blue;
 
@@ -47,7 +54,11 @@ class _EditCategoriesState extends State<EditCategories> {
   void initState() {
     super.initState();
     _initializeCategoryColors();
+    for (var category in _categoryColors.keys) {
+      _budgetControllers[category] = TextEditingController(text: "0");
+    }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -66,24 +77,38 @@ class _EditCategoriesState extends State<EditCategories> {
       body: Container(
         color: Colors.white,
         padding: const EdgeInsets.all(20.0),
-        child: ListView.builder(
-          itemCount: widget.selectedCategories.length,
-          itemBuilder: (context, index) {
-            final currentCategory = widget.selectedCategories.elementAt(index);
-            final color = _categoryColors[currentCategory] ?? Colors.grey; // Use a default color (grey) if null
-            return ListTile(
-              title: Text(currentCategory),
-              leading: CircleAvatar(
-                backgroundColor: color,
-              ),
-              trailing: IconButton(
-                icon: const Icon(Icons.info_outline),
-                onPressed: () {
-                  _showEditCategoryDialog(currentCategory: currentCategory, initialColor: color); // Helper 2
-                },
-              ),
-            );
-          },
+        child: Form(
+          key: _formKey,
+          child: ListView.separated(
+            separatorBuilder: (context, index) => const Divider(),
+            itemCount: widget.selectedCategories.length,
+            itemBuilder: (context, index) {
+              final currentCategory = widget.selectedCategories.elementAt(index);
+              final color = _categoryColors[currentCategory] ?? Colors.grey; // Use a default color (grey) if null
+              return ListTile(
+                title: GestureDetector(
+                  onTap: () {
+                    _showEditCategoryDialog(currentCategory: currentCategory);
+                  },
+                  child: Text(currentCategory)
+                ),
+                leading: GestureDetector(
+                  onTap:() {
+                    _showColorPickerDialog((color) {
+                              setState(() {
+                                _selectedColor = color;
+                                _categoryColors[currentCategory] = _selectedColor;
+                              });
+                            });
+                  },
+                  child: CircleAvatar(
+                    backgroundColor: color,
+                  ),
+                ),
+                trailing: _amountWidget(currentCategory),
+              );
+            },
+          ),
         ),
       ),
       bottomSheet: Row(
@@ -112,12 +137,38 @@ class _EditCategoriesState extends State<EditCategories> {
                 backgroundColor: mainColor,
                 elevation: 10.0,
               ),
-              child: const Text('Next'),
-              onPressed: () {  
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: ((context) => SetBudget(categoryColors: _categoryColors,))),
-                );
+              child: const Text('Submit'),
+              onPressed: () async {
+                if (_formKey.currentState!.validate()) {
+                  final Map<String, List<dynamic>> budgetAllocations = {};
+                  _budgetControllers.forEach(
+                    (category, controller) {
+                      budgetAllocations[category] = [
+                        double.parse(controller.text.trim()), // amount
+                        true, // isRecurring
+                        _categoryColors[category]!.value.toString(), // color
+                      ];
+                    },
+                  );
+
+                  for (var entry in budgetAllocations.entries) {
+                    await BudgetMethods().addBudget(entry.key, entry.value[0], entry.value[1], entry.value[2]);
+                  }
+
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: ((context) => Navigation(state: 0))),
+                    (route) => false,
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Fill in all fields'),
+                      backgroundColor: Colors.red,
+                      showCloseIcon: true,
+                    ),
+                  );
+                }
               },
             ),
           )
@@ -137,9 +188,8 @@ class _EditCategoriesState extends State<EditCategories> {
     }
   }
   // Helper 2: Edit Category Dialog Box
-  void _showEditCategoryDialog({required String currentCategory, required Color initialColor}) {
+  void _showEditCategoryDialog({required String currentCategory}) {
     categoryNameController.text = currentCategory;
-    _selectedColor = initialColor;
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -178,44 +228,13 @@ class _EditCategoriesState extends State<EditCategories> {
               return Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  TextField(
+                  TextFormField(
                     controller: categoryNameController,
                     decoration: const InputDecoration(
                       labelText: 'Name',
                     ),
                   ),
                   const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      const Text(
-                        'Color:',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      GestureDetector(
-                        onTap: () {
-                          _showColorPickerDialog((color) {
-                            setState(() {
-                              _selectedColor = color;
-                            });
-                          });
-                        },
-                        child: Container(
-                          width: 30,
-                          height: 30,
-                          decoration: BoxDecoration(
-                            color: _selectedColor,
-                            borderRadius: BorderRadius.circular(5),
-                            border: Border.all(
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
                 ],
               );
             },
@@ -230,16 +249,10 @@ class _EditCategoriesState extends State<EditCategories> {
                     // Remove old category name and add new one
                     widget.selectedCategories.remove(currentCategory);
                     widget.selectedCategories.add(newCategoryName);
-                    // Update category color
-                    _categoryColors[newCategoryName] = _selectedColor;
                   });
                   // Update the ListView item
                   Navigator.of(context).pop();
                 } else {
-                  // Only update color if the category name is not changed
-                  setState(() {
-                    _categoryColors[currentCategory] = _selectedColor;
-                  });
                   Navigator.of(context).pop();
                 }
               },
@@ -310,6 +323,30 @@ class _EditCategoriesState extends State<EditCategories> {
           ],
         );
       },
+    );
+  }
+
+   Widget _amountWidget(String category) {
+    return SizedBox(
+      width: 75,
+      child: TextFormField(
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Empty';
+          }
+          return null;
+        },
+        controller: _budgetControllers[category],
+        decoration: InputDecoration(
+          labelText: 'Amount',
+          labelStyle: TextStyle(color: mainColor, fontSize: 12),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: mainColor),
+          ),
+          border: const OutlineInputBorder(),
+        ),
+        keyboardType: TextInputType.number,
+      ),
     );
   }
 }
