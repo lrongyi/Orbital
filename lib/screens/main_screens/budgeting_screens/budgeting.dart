@@ -388,6 +388,7 @@ class _BudgetingState extends State<Budgeting> {
                       double amount = entry.value[0];
                       bool isBudgetRecurring = entry.value[1];
                       Color color = Color(int.parse(entry.value[2]));
+                      bool isIncome = entry.value[3];
 
                       return ListTile(
                         // Update the budget
@@ -421,7 +422,7 @@ class _BudgetingState extends State<Budgeting> {
                                             onChanged: (value) {
                                               newAmount =
                                                   double.tryParse(value) ?? amount;
-                                              BudgetMethods().updateBudget(category, newAmount, isBudgetRecurring, entry.value[2]);
+                                              BudgetMethods().updateBudget(category, newAmount, isBudgetRecurring, entry.value[2], isIncome);
                                             },
                                           ),
                                           const SizedBox(height: 15.0,),
@@ -437,7 +438,7 @@ class _BudgetingState extends State<Budgeting> {
                                                 onChanged: (bool value) {
                                                   setState(() {
                                                     isBudgetRecurring = value;
-                                                    BudgetMethods().updateBudget(category, newAmount, isBudgetRecurring, entry.value[2]);
+                                                    BudgetMethods().updateBudget(category, newAmount, isBudgetRecurring, entry.value[2], isIncome);
                                                   });
                                                 },
                                               ),

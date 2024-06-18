@@ -53,7 +53,7 @@ class _EditCategoriesState extends State<EditCategories> {
     super.initState();
     _initializeCategoryColors();
     for (var category in _categoryColors.keys) {
-      _budgetControllers[category] = TextEditingController(text: "0");
+      _budgetControllers[category] = TextEditingController(text: null);
     }
   }
 
@@ -150,7 +150,7 @@ class _EditCategoriesState extends State<EditCategories> {
                   );
 
                   for (var entry in budgetAllocations.entries) {
-                    await BudgetMethods().addBudget(entry.key, entry.value[0], entry.value[1], entry.value[2]);
+                    await BudgetMethods().addBudget(entry.key, entry.value[0], entry.value[1], entry.value[2], true); // replace with isIncome
                   }
 
                   Navigator.pushAndRemoveUntil(
@@ -330,7 +330,7 @@ class _EditCategoriesState extends State<EditCategories> {
       child: TextFormField(
         validator: (value) {
           if (value == null || value.isEmpty) {
-            return 'Empty';
+            return 'Add amount';
           }
           return null;
         },

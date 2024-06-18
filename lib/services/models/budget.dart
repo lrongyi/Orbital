@@ -25,6 +25,8 @@ class Budget {
               categoryList[1] as bool,
               // Color
               categoryList.length > 2 ? categoryList[2] as String : '', // handle missing color
+              // isIncome
+              categoryList.length > 3 ? categoryList[3] as bool : false, // handle income/expense
             ]);
           }),
         );

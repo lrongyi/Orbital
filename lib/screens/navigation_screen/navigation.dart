@@ -131,7 +131,7 @@ class _NavigationState extends State<Navigation> {
             ListTile(
               leading: const Icon(Icons.graphic_eq, color: Colors.white),
               title: const Text(
-                'Expenses',
+                'Transactions',
                 style: TextStyle(color: Colors.white),
               ),
               onTap: () {

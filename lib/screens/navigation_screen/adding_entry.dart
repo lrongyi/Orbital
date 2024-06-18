@@ -116,7 +116,7 @@ class _AddingEntryState extends State<AddingEntry> {
                       // amount form field
                       AddingDeco().buildRow('Amount', amountController),
                       // category form field
-                      _buildCategoryField(),
+                      _buildCategoryField(widget.isExpense),
                       // note form field
                       AddingDeco().buildRow('Note', noteController),
                       const SizedBox(height: 40),
@@ -206,7 +206,7 @@ class _AddingEntryState extends State<AddingEntry> {
     ]);
   }
 
-  Widget _buildCategoryField() {
+  Widget _buildCategoryField(bool isExpense) {
     return Row(
       children: [
         const SizedBox(
@@ -219,7 +219,7 @@ class _AddingEntryState extends State<AddingEntry> {
         const SizedBox(width: 10),
         Expanded(
           child: StreamBuilder(
-              stream: BudgetMethods().getCategoriesByMonth(selectDate),
+              stream: isExpense ? BudgetMethods().getIncomeListByMonth(selectDate) : BudgetMethods().getCategoriesByMonth(selectDate),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return const Center(child: CircularProgressIndicator());
@@ -386,7 +386,7 @@ class _AddingEntryState extends State<AddingEntry> {
                                   color = _selectedColor.value.toString();
                                 });
                                 BudgetMethods().addBudget(
-                                    category, amount, isRecurring, color);
+                                    category, amount, isRecurring, color, false); // last argument change to isIncome
                                 Navigator.of(context).pop();
                                 Navigator.pushReplacement(
                                     context,

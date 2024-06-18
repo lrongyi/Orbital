@@ -441,7 +441,7 @@ class _EditingEntryState extends State<EditingEntry> {
             note: noteController.text,
             description: descriptionController.text,
           );
-        ExpenseMethods().addExpense(expense);
+        ExpenseMethods().updateExpense(widget.expenseId, expense);
         Navigator.popUntil(context, (context) => context.isFirst);
       },
       minWidth: 250,
