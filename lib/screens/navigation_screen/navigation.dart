@@ -249,7 +249,7 @@ class _NavigationState extends State<Navigation> {
             _buildBottomNavigationBarItem(
                 icon: CupertinoIcons.home, label: 'Home', index: 0),
             _buildBottomNavigationBarItem(
-                icon: Icons.graphic_eq, label: 'Expenses', index: 1),
+                icon: Icons.graphic_eq, label: 'Transactions', index: 1),
             const Spacer(), // The dummy child for the notch
             _buildBottomNavigationBarItem(
                 icon: Icons.money, label: 'Budgeting', index: 2),

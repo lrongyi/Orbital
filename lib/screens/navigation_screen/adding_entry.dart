@@ -37,27 +37,25 @@ class _AddingEntryState extends State<AddingEntry> {
 
   final List<Color> predefinedColors = [
     Colors.red,
-    Colors.green,
-    Colors.blue,
-    Colors.yellow,
     Colors.orange,
-    Colors.purple,
-    Colors.pink,
+    Colors.amber,
+    Colors.yellowAccent,
+    Colors.limeAccent,
+    Colors.lime,
+    Colors.lightGreen,
+    Colors.green,
     Colors.teal,
     Colors.cyan,
-    Colors.lime,
-    Colors.indigo,
-    Colors.brown,
-    Colors.amber,
-    Colors.deepOrange,
-    Colors.deepPurple,
-    Colors.lightGreen,
     Colors.lightBlue,
-    Colors.limeAccent,
-    Colors.lightBlueAccent,
-    Colors.amberAccent,
-    Colors.lightGreenAccent,
-    Colors.cyanAccent,
+    Colors.blue,
+    Colors.indigo,
+    Colors.deepPurple,
+    Colors.purple,
+    Colors.pinkAccent,
+    Colors.pink,
+    Colors.brown,
+    Colors.grey,
+    Colors.black,
   ];
 
   @override
@@ -80,7 +78,6 @@ class _AddingEntryState extends State<AddingEntry> {
               color: Colors.white,
             ),
             onPressed: () {
-              // Sends back to Expenses page
               // Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => Navigation(state: 1,)), (route) => false);
               Navigator.pop(context);
             },
@@ -391,15 +388,14 @@ class _AddingEntryState extends State<AddingEntry> {
                                 BudgetMethods().addBudget(
                                     category, amount, isRecurring, color);
                                 Navigator.of(context).pop();
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                        'Category added! Please refresh to see changes',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                        )),
-                                  ),
-                                );
+                                Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => widget.isExpense
+                                            ? const AddingEntry(isExpense: true)
+                                            : const AddingEntry(
+                                                isExpense: false)));
+                                // Navigator.of(context).pop();
                               }
 
                               setState(() {
@@ -436,7 +432,8 @@ class _AddingEntryState extends State<AddingEntry> {
         );
         ExpenseMethods().addExpense(expense);
         // Navigator.popUntil(context, (context) => context.isFirst);
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Navigation(state: 0)));
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => Navigation(state: 0)));
       },
       minWidth: 250,
       child: const Text(

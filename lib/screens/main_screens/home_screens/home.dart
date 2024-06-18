@@ -366,7 +366,7 @@ class _HomeState extends State<Home> {
                               leading: CircleAvatar(
                                 backgroundColor:
                                     color,
-                                // child: Icon(Icons.category, color: Colors.white),
+                                child: Icon(Icons.food_bank, color: Colors.white, size: 20),
                               ),
 
                               // Category
