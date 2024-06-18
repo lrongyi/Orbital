@@ -344,39 +344,49 @@ class _ExpensesState extends State<Expenses> {
             ),
             const SizedBox(height: 8),
             FutureBuilder<double>(
-                      future: ExpenseMethods().getMonthlyNetChange(time),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return CircularProgressIndicator(); // Display a loading indicator while waiting
-                        } else if (snapshot.hasError) {
-                          return Text(
-                            'Error: ${snapshot.error}',
-                            style: TextStyle(
-                              color: Colors.red,
-                              fontSize: 20,
-                            ),
-                          );
-                        } else if (snapshot.hasData) {
-                          return Text(
-                            '\$${snapshot.data!.toStringAsFixed(2)}', // Display the amount returned by the method
-                            style: TextStyle(
-                              color: snapshot.data! < 0 ? Colors.red : Colors.green,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          );
-                        } else {
-                          return Text(
-                            '\$0.00',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          );
-                        }
-                      },
+              future: ExpenseMethods().getMonthlyNetChange(time),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return CircularProgressIndicator(); // Display a loading indicator while waiting
+                } else if (snapshot.hasError) {
+                  return Text(
+                    'Error: ${snapshot.error}',
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontSize: 20,
                     ),
+                  );
+                } else if (snapshot.hasData) {              
+                  return 
+                  snapshot.data! < 0 ? 
+                  Text(
+                    '-\$${snapshot.data!.abs().toStringAsFixed(2)}', // Display the amount returned by the method
+                    style: TextStyle(
+                      color: snapshot.data! < 0 ? Colors.red : Colors.green,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  )
+                  : Text(
+                    '\$${snapshot.data!.toStringAsFixed(2)}', // Display the amount returned by the method
+                    style: TextStyle(
+                      color: snapshot.data! < 0 ? Colors.red : Colors.green,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  );
+                } else {
+                  return Text(
+                    '\$0.00',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  );
+                }
+              },
+            ),
             const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

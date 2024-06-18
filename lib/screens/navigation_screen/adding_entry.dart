@@ -435,7 +435,8 @@ class _AddingEntryState extends State<AddingEntry> {
           description: descriptionController.text,
         );
         ExpenseMethods().addExpense(expense);
-        Navigator.popUntil(context, (context) => context.isFirst);
+        // Navigator.popUntil(context, (context) => context.isFirst);
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Navigation(state: 0)));
       },
       minWidth: 250,
       child: const Text(

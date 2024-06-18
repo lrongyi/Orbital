@@ -217,9 +217,9 @@ class _HomeState extends State<Home> {
                                       return Text(
                                           'Error: ${snapshot.error}'); // Display error message if any
                                     } else {
-                                      double budget =
-                                          snapshot.data?.toDouble() ??
-                                              0.0; // Default to 0.0 if no data
+                                      // double budget =
+                                      //     snapshot.data?.toDouble() ??
+                                      //         0.0; // Default to 0.0 if no data
                                       return StreamBuilder(
                                           stream: ExpenseMethods()
                                               .getMonthlySpendingStream(
@@ -361,6 +361,7 @@ class _HomeState extends State<Home> {
                             var entry = allCategories[index];
                             String category = entry.key;
                             Color color = Color(int.parse(entry.value[2]));
+                            // double amount = entry.value[0];
                             return ListTile(
                               leading: CircleAvatar(
                                 backgroundColor:
@@ -369,7 +370,49 @@ class _HomeState extends State<Home> {
                               ),
 
                               // Category
-                              title: Text(category),
+                              title: FutureBuilder<double>(
+                                  future: ExpenseMethods().getMonthlySpending(monthNotifier.currentMonth),
+                                  builder: (BuildContext context, snapshot) {
+                                    if (snapshot.hasError) {
+                                      return Text(category); // Display category if there's an error
+                                    } else if (!snapshot.hasData) {
+                                      return const CircularProgressIndicator(); // Show a loader if data is still being fetched
+                                    } else {
+                                      double netSpend = snapshot.data ?? 0.0;
+                                      return FutureBuilder<double>(
+                                          future: ExpenseMethods()
+                                              .getMonthlySpendingCategorized(
+                                                  monthNotifier.currentMonth,
+                                                  category),
+                                          builder: (BuildContext context,
+                                              AsyncSnapshot<double> snapshot) {
+                                            if (snapshot.hasError) {
+                                              return Text(category); // Display category if there's an error
+                                            }
+
+                                            double spending =
+                                                snapshot.data ?? 0.0;
+                                            String percentage = netSpend == 0
+                                                ? "0.0"
+                                                : (spending / netSpend * 100)
+                                                    .toStringAsFixed(1);
+
+                                            return Row(
+                                              children: [
+                                                Text(category),
+                                                const SizedBox(width: 8),
+                                                Text(
+                                                  '($percentage%)',
+                                                  style: const TextStyle(
+                                                    color: Color.fromARGB(184, 20, 19, 19),
+                                                    fontSize: 14,
+                                                  ),
+                                                ),
+                                              ],
+                                            );
+                                          });
+                                    }
+                                  }),
 
                               // Spending
                               trailing: FutureBuilder<double>(

@@ -27,27 +27,25 @@ class _EditCategoriesState extends State<EditCategories> {
   // List of predefined colors for the Block Picker
   final List<Color> predefinedColors = [
     Colors.red,
-    Colors.green,
-    Colors.blue,
-    Colors.yellow,
     Colors.orange,
-    Colors.purple,
-    Colors.pink,
+    Colors.amber,
+    Colors.yellowAccent,
+    Colors.limeAccent,
+    Colors.lime,
+    Colors.lightGreen,
+    Colors.green, 
     Colors.teal,
     Colors.cyan,
-    Colors.lime,
-    Colors.indigo,
-    Colors.brown,
-    Colors.amber,
-    Colors.deepOrange,
-    Colors.deepPurple,
-    Colors.lightGreen,
     Colors.lightBlue,
-    Colors.limeAccent,
-    Colors.lightBlueAccent, 
-    Colors.amberAccent,     
-    Colors.lightGreenAccent, 
-    Colors.cyanAccent,       
+    Colors.blue,
+    Colors.indigo,
+    Colors.deepPurple,
+    Colors.purple,
+    Colors.pinkAccent,
+    Colors.pink,
+    Colors.brown,
+    Colors.grey,
+    Colors.black,        
   ];
 
   @override
@@ -95,11 +93,11 @@ class _EditCategoriesState extends State<EditCategories> {
                 leading: GestureDetector(
                   onTap:() {
                     _showColorPickerDialog((color) {
-                              setState(() {
-                                _selectedColor = color;
-                                _categoryColors[currentCategory] = _selectedColor;
-                              });
-                            });
+                      setState(() {
+                        _selectedColor = color;
+                        _categoryColors[currentCategory] = _selectedColor;
+                      });
+                    });
                   },
                   child: CircleAvatar(
                     backgroundColor: color,
