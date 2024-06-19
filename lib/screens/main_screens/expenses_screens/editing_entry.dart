@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:intl/intl.dart';
 import 'package:ss/screens/navigation_screen/navigation.dart';
 import 'package:ss/services/budget_methods.dart';
@@ -39,7 +40,33 @@ class _EditingEntryState extends State<EditingEntry> {
   String? selectedItem;
   String category = '';
   double amount = 0.0;
-  bool isRecurring = true;
+  bool isRecurring = false;
+  String color = '';
+  bool isIncome = false;
+  Color _selectedColor = Colors.blue;
+
+  final List<Color> predefinedColors = [
+    Colors.red,
+    Colors.orange,
+    Colors.amber,
+    Colors.yellowAccent,
+    Colors.limeAccent,
+    Colors.lime,
+    Colors.lightGreen,
+    Colors.green,
+    Colors.teal,
+    Colors.cyan,
+    Colors.lightBlue,
+    Colors.blue,
+    Colors.indigo,
+    Colors.deepPurple,
+    Colors.purple,
+    Colors.pinkAccent,
+    Colors.pink,
+    Colors.brown,
+    Colors.grey,
+    Colors.black,
+  ];
 
  @override
   void initState() {
@@ -163,7 +190,7 @@ class _EditingEntryState extends State<EditingEntry> {
                 children: [
                   _buildDateField(),
                   AddingDeco().buildRow('Amount', amountController),
-                  _buildCategoryField(),
+                  _buildCategoryField(widget.isExpense),
                   AddingDeco().buildRow('Note', noteController),
                   const SizedBox(height: 40),
                   AddingDeco().buildRow('Description', descriptionController),
@@ -262,7 +289,7 @@ class _EditingEntryState extends State<EditingEntry> {
     );
   }
 
-  Widget _buildCategoryField() {
+  Widget _buildCategoryField(bool isExpense) {
     return Row(
       children: [
         const SizedBox(
@@ -272,35 +299,32 @@ class _EditingEntryState extends State<EditingEntry> {
             textAlign: TextAlign.start,
           ),
         ),
-
         const SizedBox(width: 10),
-
         Expanded(
           child: StreamBuilder(
-            
-            stream: BudgetMethods().getCategoriesByMonth(selectDate),
-          
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                return const Center(child: CircularProgressIndicator());
-              }   
-          
-              List<String> categories = snapshot.data!;
-          
-              return DropdownButtonFormField(
+              stream: isExpense ? BudgetMethods().getIncomeListByMonth(selectDate) : BudgetMethods().getCategoriesByMonth(selectDate),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                List<String> categories = snapshot.data!;
+
+                return DropdownButtonFormField(
+                  dropdownColor: Colors.white,
                   decoration: const InputDecoration(
                     hintText: 'Select Category',
-                    
                   ),
-                
-                  value: categoryController.text.isEmpty ? null : categoryController.text,
+                  value: categoryController.text.isEmpty
+                      ? null
+                      : categoryController.text,
                   onChanged: (newValue) {
                     setState(() {
                       categoryController.text = newValue!;
                     });
                   },
-                
-                  items: categories.map<DropdownMenuItem<String>>((String category) {
+                  items: categories
+                      .map<DropdownMenuItem<String>>((String category) {
                     return DropdownMenuItem(
                       value: category,
                       child: Text(
@@ -311,22 +335,19 @@ class _EditingEntryState extends State<EditingEntry> {
                       ),
                     );
                   }).toList(),
-              );
-            }
-          ),
+                );
+              }),
         ),
-
         IconButton(
           icon: const Icon(Icons.add, size: 25),
-
           onPressed: () {
             showDialog(
-              context: context, 
-              builder: (context) {
-                return StatefulBuilder(
-                  builder: (context, setState) {
+                context: context,
+                builder: (context) {
+                  return StatefulBuilder(builder: (context, setState) {
                     return AlertDialog(
-                      shape: const BeveledRectangleBorder(borderRadius: BorderRadius.zero),
+                      shape: const BeveledRectangleBorder(
+                          borderRadius: BorderRadius.zero),
                       backgroundColor: Colors.white,
                       title: const Text(
                         'New Category',
@@ -335,7 +356,6 @@ class _EditingEntryState extends State<EditingEntry> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                    
                       content: Form(
                         key: _formKey,
                         child: Column(
@@ -343,40 +363,95 @@ class _EditingEntryState extends State<EditingEntry> {
                           children: [
                             TextFormField(
                               validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Enter Category';
-                                    } 
-                                    return null;
-                                  },
+                                if (value == null || value.isEmpty) {
+                                  return 'Enter Category';
+                                }
+                                return null;
+                              },
                               controller: addCategoryController,
-                              decoration: const InputDecoration(labelText: 'Category'),
+                              decoration:
+                                  const InputDecoration(labelText: 'Name'),
                             ),
                             TextFormField(
                               validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Enter Amount';
-                                    } 
-                                    return null;
-                                  },
+                                if (value == null || value.isEmpty) {
+                                  return 'Enter Amount';
+                                }
+                                return null;
+                              },
                               controller: budgetAmountController,
                               keyboardType: TextInputType.number,
-                              decoration: const InputDecoration(labelText: 'Budget Allocation'),
+                              decoration: const InputDecoration(
+                                  labelText: 'Budget Allocation'),
                             ),
-                            const SizedBox(height: 15.0,),
+                            const SizedBox(
+                              height: 15.0,
+                            ),
+                            // Color picker
+                            Row(
+                              children: [
+                                const Text(
+                                  'Color:',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                GestureDetector(
+                                  onTap: () {
+                                    _showColorPickerDialog((color) {
+                                      setState(() {
+                                        _selectedColor = color;
+                                      });
+                                    });
+                                  },
+                                  child: Container(
+                                    width: 30,
+                                    height: 30,
+                                    decoration: BoxDecoration(
+                                      color: _selectedColor,
+                                      borderRadius: BorderRadius.circular(5),
+                                      border: Border.all(
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(
+                              height: 15.0,
+                            ),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                const Text(
-                                  'Recurring',
+                                Row(
+                                  children: [
+                                    const Text('Recurring'),
+                                    Checkbox(
+                                      activeColor: mainColor,
+                                      value: isRecurring,
+                                      onChanged: (bool? value) {
+                                        setState(() {
+                                          isRecurring = value ?? false;
+                                        });
+                                      },
+                                    ),
+                                  ],
                                 ),
-                                Switch(
-                                  activeColor: mainColor,
-                                  value: isRecurring,
-                                  onChanged: (bool value) {
-                                    setState(() {
-                                      isRecurring = value;
-                                    });
-                                  },
+                                Row(
+                                  children: [
+                                    const Text('Income'),
+                                    Checkbox(
+                                      activeColor: mainColor,
+                                      value: isIncome,
+                                      onChanged: (bool? value) {
+                                        setState(() {
+                                          isIncome = value ?? false;
+                                        });
+                                      },
+                                    ),
+                                  ],
                                 ),
                               ],
                             )
@@ -385,43 +460,74 @@ class _EditingEntryState extends State<EditingEntry> {
                       ),
                       actions: [
                         TextButton(
-                          onPressed: () {
-                            addCategoryController.clear();
-                            budgetAmountController.clear();
-                            Navigator.of(context).pop();
-                          },
-                    
-                          child: const Text('Cancel', style: TextStyle(color: Colors.black),)
-                        ),
-                    
-                        // Bug here
-                        TextButton(
-                          onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                                    setState(() {
-                                      category = addCategoryController.text;
-                                      amount = double.parse(budgetAmountController.text).abs();
-                                    });
-                                    // BudgetMethods().addBudget(category, amount, isRecurring);
-                                    Navigator.of(context).pop();
-                                  }
-                           
-                            setState(() {
+                            // Cancel
+                            onPressed: () {
                               addCategoryController.clear();
                               budgetAmountController.clear();
-                            });
-                          }, 
-                          child: const Text(
-                            'Save',
-                            style: TextStyle(color: Colors.black),
-                          )
-                        )
+                              setState(() {
+                                _selectedColor = Colors.blue;
+                              });
+                              Navigator.of(context).pop();
+                            },
+                            child: const Text(
+                              'Cancel',
+                              style: TextStyle(color: Colors.black),
+                            )),
+                        TextButton(
+                            // Save
+                            onPressed: () {
+                              if (_formKey.currentState!.validate()) {
+                                setState(() {
+                                  category = addCategoryController.text;
+                                  amount =
+                                      double.parse(budgetAmountController.text)
+                                          .abs();
+                                  color = _selectedColor.value.toString();
+                                });
+                                BudgetMethods().addBudget(
+                                    category, amount, isRecurring, color, isIncome); // last argument change to isIncome
+                                Navigator.of(context).pop();
+                                Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => widget.isExpense
+                                        ? EditingEntry(
+                                          isExpense: true,
+                                          expenseId: widget.expenseId,
+                                          date: widget.date,
+                                          amount: widget.amount,
+                                          category: widget.category,
+                                          description: widget.description,
+                                          note: widget.note,
+                                        )
+                                        : EditingEntry(
+                                          isExpense: false,
+                                          expenseId: widget.expenseId,
+                                          date: widget.date,
+                                          amount: widget.amount,
+                                          category: widget.category,
+                                          description: widget.description,
+                                          note: widget.note,
+                                        )
+                                  )
+                                );
+                                // Navigator.of(context).pop();
+                              }
+
+                              setState(() {
+                                addCategoryController.clear();
+                                budgetAmountController.clear();
+                                _selectedColor = Colors.blue;
+                              });
+                            },
+                            child: const Text(
+                              'Save',
+                              style: TextStyle(color: Colors.black),
+                            ))
                       ],
                     );
-                  }
-                );
-              }
-            );
+                  });
+                });
           },
         )
       ],
@@ -465,6 +571,50 @@ class _EditingEntryState extends State<EditingEntry> {
       },
       minWidth: 100,
       child: const Text('Cancel'),
+    );
+  }
+
+  void _showColorPickerDialog(Function(Color) onColorSelected) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          backgroundColor: Colors.white,
+          title: Text(
+            'Select Color',
+            style: TextStyle(
+              color: mainColor,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: SingleChildScrollView(
+            child: BlockPicker(
+              pickerColor: _selectedColor,
+              onColorChanged: (Color color) {
+                onColorSelected(color);
+              },
+              availableColors: predefinedColors,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'Done',
+                style: TextStyle(
+                  color: mainColor,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

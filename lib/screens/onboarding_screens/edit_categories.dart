@@ -48,12 +48,15 @@ class _EditCategoriesState extends State<EditCategories> {
     Colors.black,        
   ];
 
+  Map<String, bool> _isIncomeMap = {};
+
   @override
   void initState() {
     super.initState();
     _initializeCategoryColors();
     for (var category in _categoryColors.keys) {
       _budgetControllers[category] = TextEditingController(text: null);
+      _isIncomeMap[category] = false;
     }
   }
 
@@ -104,6 +107,21 @@ class _EditCategoriesState extends State<EditCategories> {
                   ),
                 ),
                 trailing: _amountWidget(currentCategory),
+                subtitle: Row(
+                  children: [
+                    const Text('Income'),
+
+                    Checkbox(
+                      activeColor: mainColor,
+                      value: _isIncomeMap[currentCategory] ?? false, 
+                      onChanged: (bool? value) {
+                        setState(() {
+                          _isIncomeMap[currentCategory] = value ?? false;
+                        });
+                      }
+                    )
+                  ],
+                ),
               );
             },
           ),
@@ -145,12 +163,13 @@ class _EditCategoriesState extends State<EditCategories> {
                         double.parse(controller.text.trim()), // amount
                         true, // isRecurring
                         _categoryColors[category]!.value.toString(), // color
+                        _isIncomeMap[category] ?? false,
                       ];
                     },
                   );
 
                   for (var entry in budgetAllocations.entries) {
-                    await BudgetMethods().addBudget(entry.key, entry.value[0], entry.value[1], entry.value[2], true); // replace with isIncome
+                    await BudgetMethods().addBudget(entry.key, entry.value[0], entry.value[1], entry.value[2], entry.value[3]); // replace with isIncome
                   }
 
                   Navigator.pushAndRemoveUntil(
@@ -212,6 +231,8 @@ class _EditCategoriesState extends State<EditCategories> {
                   setState(() {
                     widget.selectedCategories.remove(currentCategory);
                     _categoryColors.remove(currentCategory);
+                    _budgetControllers.remove(currentCategory);
+                    _isIncomeMap.remove(currentCategory);
                   });
                   Navigator.of(context).pop();
                 },
@@ -238,6 +259,12 @@ class _EditCategoriesState extends State<EditCategories> {
             },
           ),
           actions: [
+
+
+
+            // Bug here, when you edit the category, i think it doesnt update all 3 maps
+
+
             TextButton(
               onPressed: () {
                 // Save changes to category

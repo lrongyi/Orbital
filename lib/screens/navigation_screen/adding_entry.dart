@@ -33,6 +33,7 @@ class _AddingEntryState extends State<AddingEntry> {
   double amount = 0.0;
   String color = '';
   bool isRecurring = false;
+  bool isIncome = false;
   Color _selectedColor = Colors.blue;
 
   final List<Color> predefinedColors = [
@@ -342,17 +343,33 @@ class _AddingEntryState extends State<AddingEntry> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                const Text(
-                                  'Recurring',
+                                Row(
+                                  children: [
+                                    const Text('Recurring'),
+                                    Checkbox(
+                                      activeColor: mainColor,
+                                      value: isRecurring,
+                                      onChanged: (bool? value) {
+                                        setState(() {
+                                          isRecurring = value ?? false;
+                                        });
+                                      },
+                                    ),
+                                  ],
                                 ),
-                                Switch(
-                                  activeColor: mainColor,
-                                  value: isRecurring,
-                                  onChanged: (bool value) {
-                                    setState(() {
-                                      isRecurring = value;
-                                    });
-                                  },
+                                Row(
+                                  children: [
+                                    const Text('Income'),
+                                    Checkbox(
+                                      activeColor: mainColor,
+                                      value: isIncome,
+                                      onChanged: (bool? value) {
+                                        setState(() {
+                                          isIncome = value ?? false;
+                                        });
+                                      },
+                                    ),
+                                  ],
                                 ),
                               ],
                             )
@@ -386,7 +403,7 @@ class _AddingEntryState extends State<AddingEntry> {
                                   color = _selectedColor.value.toString();
                                 });
                                 BudgetMethods().addBudget(
-                                    category, amount, isRecurring, color, false); // last argument change to isIncome
+                                    category, amount, isRecurring, color, isIncome); // last argument change to isIncome
                                 Navigator.of(context).pop();
                                 Navigator.pushReplacement(
                                     context,

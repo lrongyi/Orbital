@@ -24,7 +24,8 @@ class _BudgetingState extends State<Budgeting> {
   final budgetController = TextEditingController();
   String category = '';
   double amount = 0.0;
-  bool isRecurring = true;
+  bool isRecurring = false;
+  bool isIncome = false;
 
   @override
   void initState() {
@@ -248,17 +249,33 @@ class _BudgetingState extends State<Budgeting> {
                                             Row(
                                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                               children: [
-                                                const Text(
-                                                  'Recurring',
+                                                Row(
+                                                  children: [
+                                                    const Text('Recurring'),
+                                                    Checkbox(
+                                                      activeColor: mainColor,
+                                                      value: isRecurring,
+                                                      onChanged: (bool? value) {
+                                                        setState(() {
+                                                          isRecurring = value ?? false;
+                                                        });
+                                                      },
+                                                    ),
+                                                  ],
                                                 ),
-                                                Switch(
-                                                  activeColor: mainColor,
-                                                  value: isRecurring,
-                                                  onChanged: (bool value) {
-                                                    setState(() {
-                                                      isRecurring = value;
-                                                    });
-                                                  },
+                                                Row(
+                                                  children: [
+                                                    const Text('Income'),
+                                                    Checkbox(
+                                                      activeColor: mainColor,
+                                                      value: isIncome,
+                                                      onChanged: (bool? value) {
+                                                        setState(() {
+                                                          isIncome = value ?? false;
+                                                        });
+                                                      },
+                                                    ),
+                                                  ],
                                                 ),
                                               ],
                                             )
@@ -285,7 +302,7 @@ class _BudgetingState extends State<Budgeting> {
                                                 category = categoryController.text;
                                                 amount = double.parse(budgetController.text).abs();
                                               });
-                                              // BudgetMethods().addBudget(category, amount, isRecurring);
+                                              BudgetMethods().addBudget(category, amount, isRecurring, Colors.black.value.toString(), isIncome); // Need to give it a color
                                               Navigator.of(context).pop();
                                             }
                                                         
