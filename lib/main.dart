@@ -33,8 +33,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: LogIn(),
-      // home: SelectCategories(),
+      // home: LogIn(),
+      home: SelectCategories(),
       // home: Navigation(),
       // home: Billing()
     );
