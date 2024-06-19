@@ -87,12 +87,7 @@ class _EditCategoriesState extends State<EditCategories> {
               final currentCategory = widget.selectedCategories.elementAt(index);
               final color = _categoryColors[currentCategory] ?? Colors.grey; // Use a default color (grey) if null
               return ListTile(
-                title: GestureDetector(
-                  onTap: () {
-                    _showEditCategoryDialog(currentCategory: currentCategory);
-                  },
-                  child: Text(currentCategory)
-                ),
+                title: Text(currentCategory),
                 leading: GestureDetector(
                   onTap:() {
                     _showColorPickerDialog((color) {
@@ -204,109 +199,7 @@ class _EditCategoriesState extends State<EditCategories> {
       index++;
     }
   }
-  // Helper 2: Edit Category Dialog Box
-  void _showEditCategoryDialog({required String currentCategory}) {
-    categoryNameController.text = currentCategory;
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10.0),
-          ),
-          backgroundColor: Colors.white,
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Edit Category',
-                style: TextStyle(
-                  color: mainColor,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              IconButton(
-                onPressed: () {
-                  // Delete the category
-                  setState(() {
-                    widget.selectedCategories.remove(currentCategory);
-                    _categoryColors.remove(currentCategory);
-                    _budgetControllers.remove(currentCategory);
-                    _isIncomeMap.remove(currentCategory);
-                  });
-                  Navigator.of(context).pop();
-                },
-                icon: const Icon(
-                  Icons.delete,
-                ),
-              ),
-            ],
-          ),
-          content: StatefulBuilder(
-            builder: (BuildContext context, StateSetter setState) {
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextFormField(
-                    controller: categoryNameController,
-                    decoration: const InputDecoration(
-                      labelText: 'Name',
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                ],
-              );
-            },
-          ),
-          actions: [
-
-
-
-            // Bug here, when you edit the category, i think it doesnt update all 3 maps
-
-
-            TextButton(
-              onPressed: () {
-                // Save changes to category
-                final newCategoryName = categoryNameController.text;
-                if (newCategoryName != currentCategory) {
-                  setState(() {
-                    // Remove old category name and add new one
-                    widget.selectedCategories.remove(currentCategory);
-                    widget.selectedCategories.add(newCategoryName);
-                  });
-                  // Update the ListView item
-                  Navigator.of(context).pop();
-                } else {
-                  Navigator.of(context).pop();
-                }
-              },
-              child: Text(
-                'Save',
-                style: TextStyle(
-                  color: mainColor,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text(
-                'Cancel',
-                style: TextStyle(
-                  color: mainColor,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-  // Helper 3: Color Picker Dialog Box
+  // Helper 2: Color Picker Dialog Box
   void _showColorPickerDialog(Function(Color) onColorSelected) {
     showDialog(
       context: context,
