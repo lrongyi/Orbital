@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:ss/screens/main_screens/expenses_screens/stats.dart';
 import 'package:ss/screens/navigation_screen/navigation.dart';
+import 'package:ss/screens/onboarding_screens/get_started.dart';
 import 'package:ss/screens/onboarding_screens/select_bills.dart';
 import 'package:ss/screens/onboarding_screens/select_categories.dart';
 import 'package:ss/services/budget_methods.dart';
@@ -41,7 +42,7 @@ class AuthMethods {
           'name': userDetails.displayName,
           'id': userDetails.uid,
           // 'monthlyBudget': 0,
-          'netSpend': 0
+          'salary': 0.0
         };
 
         //Database methods
@@ -50,7 +51,7 @@ class AuthMethods {
         
         Navigator.pushAndRemoveUntil(
             context,
-            MaterialPageRoute(builder: ((context) => SelectBills(bills: [],))),
+            MaterialPageRoute(builder: ((context) => const GetStarted())),
             (route) => false
           );
       }
@@ -120,7 +121,7 @@ class AuthMethods {
           'name': name,
           'id': userDetails.uid,
           // 'monthlyBudget': 0,
-          'netSpend': 0
+          'salary': 0.0
         };
 
         //Database methods
@@ -129,7 +130,7 @@ class AuthMethods {
             .then((value) {
           Navigator.pushAndRemoveUntil(
             context,
-            MaterialPageRoute(builder: ((context) => SelectBills(bills: [],))),
+            MaterialPageRoute(builder: ((context) => const GetStarted())),
             (route) => false
           );
         });

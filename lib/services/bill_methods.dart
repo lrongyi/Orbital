@@ -49,4 +49,25 @@ class BillMethods {
         .where('due', isEqualTo: selectedDay)
         .snapshots();
   }
+
+  Stream<QuerySnapshot> getPaidBillsStream() {
+    return getBillsRef(UserMethods().getCurrentUserId()).where('isPaid', isEqualTo: true).snapshots();
+  }
+
+  Stream<QuerySnapshot> getUnpaidBillsStream() {
+    return getBillsRef(UserMethods().getCurrentUserId()).where('isPaid', isEqualTo: false).snapshots();
+  }
+
+  Future<double> getPaidAmount() async {
+    QuerySnapshot<Bill> query = await getBillsRef(UserMethods().getCurrentUserId()).where('isPaid', isEqualTo: true).get();
+
+    double amount = 0.0;
+
+    for (var bills in query.docs) {
+      Bill data = bills.data();
+      amount += data.amount;
+    }
+
+    return amount;
+  }
 }

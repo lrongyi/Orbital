@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:ss/screens/navigation_screen/navigation.dart';
 import 'package:ss/screens/onboarding_screens/edit_categories.dart';
-import 'package:ss/screens/onboarding_screens/set_budget.dart';
 import 'package:ss/shared/main_screens_deco.dart';
 
 class SelectCategories extends StatefulWidget {

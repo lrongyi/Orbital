@@ -39,11 +39,11 @@ class UserMethods {
     }
   }
 
-  Future<double> getNetSpendAsync() async {
+  Future<double> getSalaryAsync() async {
     DocumentSnapshot userDoc = await _firestore.collection(USER_COLLECTION).doc(getCurrentUserId()).get();
 
     if (userDoc.exists) {
-      return userDoc['netSpend'];
+      return userDoc['salary'];
     } else {
       return 0.00;
     }
@@ -59,6 +59,10 @@ class UserMethods {
 
   Future updateUserEmail(String userId, String newEmail) {
     return _firestore.collection(USER_COLLECTION).doc(userId).update({'email': newEmail});
+  }
+
+  Future updateUserSalary(String userId, double amount) {
+    return _firestore.collection(USER_COLLECTION).doc(userId).update({'salary': amount});
   }
 
   CollectionReference<UserModel> getUserRef() {

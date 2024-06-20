@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:ss/screens/navigation_screen/navigation.dart';
-import 'package:ss/screens/onboarding_screens/set_budget.dart';
 import 'package:ss/services/budget_methods.dart';
 import 'package:ss/services/models/budget.dart';
 import 'package:ss/shared/main_screens_deco.dart';
