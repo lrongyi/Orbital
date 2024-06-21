@@ -7,10 +7,12 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:ss/screens/main_screens/expenses_screens/editing_entry.dart';
 import 'package:ss/screens/main_screens/home_screens/home.dart';
+import 'package:ss/screens/navigation_screen/navigation.dart';
 import 'package:ss/services/budget_methods.dart';
 import 'package:ss/services/expense_methods.dart';
 import 'package:ss/services/models/budget.dart';
 import 'package:ss/services/models/expense.dart';
+import 'package:ss/services/user_methods.dart';
 import 'package:ss/shared/main_screens_deco.dart';
 
 class Expenses extends StatefulWidget {
@@ -335,14 +337,30 @@ class _ExpensesState extends State<Expenses> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Net Flow',
-              style: TextStyle(
-                color: Colors.white70,
-                fontSize: 16,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Net Flow',
+                  style: TextStyle(
+                    color: Colors.white70,
+                    fontSize: 16,
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(
+                    Icons.more_vert,
+                    color: Colors.white70,
+                  ),
+                  onPressed: () {
+                    // Change salary dialog. See helper 2
+                    _showChangeSalaryDialog(context); 
+                  },
+                ),
+
+
+              ],
             ),
-            const SizedBox(height: 8),
             FutureBuilder<double>(
               future: ExpenseMethods().getMonthlyNetChange(time),
               builder: (context, snapshot) {
@@ -503,6 +521,56 @@ class _ExpensesState extends State<Expenses> {
       ),
     );
   }
+
+  // Helper 2: Change Salary Dialog
+  void _showChangeSalaryDialog(BuildContext context) async {
+  double currentSalary = await UserMethods().getSalaryAsync();
+  TextEditingController _salaryController = TextEditingController(text: currentSalary.toString());
+
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        backgroundColor: Colors.white,
+        shape: const BeveledRectangleBorder(borderRadius: BorderRadius.zero),
+        title: Text('Change Salary'),
+        content: TextField(
+          controller: _salaryController,
+          keyboardType: TextInputType.number,
+          decoration: InputDecoration(
+            labelText: 'Enter new salary',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              // Implement salary update logic here
+              String userInput = _salaryController.text;
+              if (userInput.isNotEmpty) {
+                double? newSalary = double.tryParse(userInput);
+                if (newSalary != null && newSalary != currentSalary) {
+                  String userId = UserMethods().getCurrentUserId();
+                  await UserMethods().updateUserSalary(userId, newSalary);
+                }
+              }
+              Navigator.pushAndRemoveUntil(context, 
+                  MaterialPageRoute(builder: (context) => Navigation(state: 1)), (route) => false);
+            },
+            child: Text('Save'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text('Cancel'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+
 
 }
 

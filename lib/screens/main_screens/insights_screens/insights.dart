@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -21,8 +22,8 @@ class _InsightsState extends State<Insights> {
   TextEditingController targetDateController = TextEditingController();
   DateTime selectDate = DateTime.now();
   final DateTime _currentMonth = DateTime.now();
-  String goalName = '';
-  double goalTargetAmount = 0.0;
+  // String goalName = '';
+  // double goalTargetAmount = 0.0;
 
   @override
   void initState() {
@@ -37,6 +38,36 @@ class _InsightsState extends State<Insights> {
       targetDateController.text = DateFormat('dd/MM/yyyy').format(DateTime.now());
       selectDate = DateTime.now();
     });
+  }
+
+  Future<List<BarChartGroupData>> _createData() async {
+    DateTime now = DateTime.now();
+    List<BarChartGroupData> data = [];
+    
+    for (int i = 0; i < 5; i++) {
+      DateTime month = DateTime(now.year, now.month - i, 1);
+      double spending = await ExpenseMethods().getMonthlySpending(month);
+
+      // Set a minimum height for the bar if spending is 0. 
+      // EDIT: onPressed shows the value to be $0.10
+      // double barHeight = spending == 0 ? 0.1 : spending;
+    
+      data.add(
+        BarChartGroupData(
+          x: i,
+          barRods: [
+            BarChartRodData(
+              y: spending, 
+              colors: [Colors.blue],
+              width: 16,
+              
+              ),
+          ],
+        ),
+      );
+    }
+
+    return data.reversed.toList();
   }
 
   @override
@@ -84,13 +115,37 @@ class _InsightsState extends State<Insights> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Monthly Spending',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: mainColor,
-                    ),
+                  Row(
+                    children: [
+                      Text(
+                        'Comparison Chart',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: mainColor,
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          Icons.info_outline,
+                          color: mainColor,
+                          ),
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return const AlertDialog(
+                                backgroundColor: Colors.white,
+                                shape: const BeveledRectangleBorder(borderRadius: BorderRadius.zero),                         
+                                content: Text(
+                                'This is a comparison chart of your monthly spending over the last 5 months'
+                                ),
+                             );
+                            }
+                          );                        
+                        },
+                      )
+                    ],
                   ),
                   const SizedBox(height: 10),
                   Container(
@@ -99,98 +154,7 @@ class _InsightsState extends State<Insights> {
                       color: Colors.blueAccent.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Total Spent',
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: mainColor,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        StreamBuilder<double>(
-                          stream: ExpenseMethods().getMonthlySpendingStream(
-                              monthNotifier.currentMonth),
-                          builder: (BuildContext context, snapshot) {
-                            if (snapshot.hasError) {
-                              return Text('Error: ${snapshot.error}');
-                            } else if (!snapshot.hasData) {
-                              return const Center(
-                                child: CircularProgressIndicator(),
-                              );
-                            } else {
-                              double totalSpending = snapshot.data ?? 0.0;
-                              return Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    '\$${totalSpending.toStringAsFixed(2)}',
-                                    style: TextStyle(
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.bold,
-                                      color: mainColor,
-                                    ),
-                                  ),
-                                  const Icon(
-                                    Icons.trending_up,
-                                    color: Colors.green,
-                                    size: 30,
-                                  ),
-                                ],
-                              );
-                            }
-                          },
-                        ),
-                        const SizedBox(height: 10),
-                        Row(
-                          children: [
-                            Expanded(
-                              flex: 6,
-                              child: Container(
-                                height: 10,
-                                decoration: BoxDecoration(
-                                  color: Colors.green,
-                                  borderRadius: BorderRadius.circular(5),
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              flex: 4,
-                              child: Container(
-                                height: 10,
-                                decoration: BoxDecoration(
-                                  color: Colors.red,
-                                  borderRadius: BorderRadius.circular(5),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 5),
-                        const Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Spent 60% of budget',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.black,
-                              ),
-                            ),
-                            Text(
-                              '40% remaining',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                    child: _buildBarChart()
                   ),
                   const SizedBox(height: 20),
                   
@@ -199,7 +163,7 @@ class _InsightsState extends State<Insights> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Your Goals',
+                        'Insights',
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -209,330 +173,333 @@ class _InsightsState extends State<Insights> {
                       // + button
                       IconButton(
                         icon: Icon(Icons.add, color: mainColor),
-                        onPressed: () async {
-                          await showDialog(
-                            context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(0),
-                                ),
-                                backgroundColor: Colors.white,
-                                title: const Text(
-                                  'Add New Goal',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18,
-                                  ),
-                                ),
-                                content: Form(
-                                  key: _formKey,
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      // Name Field
-                                      TextFormField(
-                                        validator: (value) {
-                                          if (value == null || value.isEmpty) {
-                                            return 'Enter Name';
-                                          }
-                                          return null;
-                                        },
-                                        decoration: const InputDecoration(
-                                            labelText: 'Name'),
-                                        controller: nameController,
-                                      ),
-                                      const SizedBox(height: 20),
-                                      // Target Amount Field
-                                      TextFormField(
-                                        validator: (value) {
-                                          if (value == null || value.isEmpty) {
-                                            return 'Enter Target Amount';
-                                          }
-                                          return null;
-                                        },
-                                        decoration: const InputDecoration(
-                                            labelText: 'Target Amount'),
-                                        keyboardType: TextInputType.number,
-                                        controller: targetAmountController,
-                                      ),
-                                      const SizedBox(height: 20),
-                                      // Target Date Field
-                                      TextFormField(
-                                        decoration: const InputDecoration(
-                                            labelText: 'Target Date'),
-                                        controller: targetDateController,
-                                        readOnly: true,
-                                        onTap: () async {
-                                          // Show date picker to select target date
-                                          DateTime? newDate =
-                                              await showDatePicker(
-                                            context: context,
-                                            initialDate: selectDate,
-                                            firstDate: DateTime(2002),
-                                            lastDate: DateTime.now()
-                                                .add(const Duration(days: 365)),
-                                          );
+                        onPressed: () {
 
-                                          if (newDate != null) {
-                                            setState(() {
-                                              targetDateController.text =
-                                                  DateFormat('dd/MM/yyyy')
-                                                      .format(newDate);
-                                              selectDate = newDate;
-                                            });
-                                          }
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      clearControllers();
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: const Text('Cancel'),
-                                  ),
-                                  TextButton(
-                                    onPressed: () {
-                                      if (_formKey.currentState!.validate()) {
-                                        setState(() {
-                                          goalName = nameController.text;
-                                          goalTargetAmount = double.parse(
-                                                  targetAmountController.text)
-                                              .abs();
-                                        });
-
-                                        Goal newGoal = Goal(
-                                          name: goalName,
-                                          targetAmount: goalTargetAmount,
-                                          targetDate:
-                                              Timestamp.fromDate(selectDate),
-                                        );
-                                        GoalMethods().addGoal(newGoal);
-                                        clearControllers();
-                                        Navigator.pop(context);
-                                      }
-                                    },
-                                    child: const Text('Add'),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
                         },
+                        // onPressed: () async {
+                        //   await showDialog(
+                        //     context: context,
+                        //     builder: (BuildContext context) {
+                        //       return AlertDialog(
+                        //         shape: RoundedRectangleBorder(
+                        //           borderRadius: BorderRadius.circular(0),
+                        //         ),
+                        //         backgroundColor: Colors.white,
+                        //         title: const Text(
+                        //           'Add New Goal',
+                        //           style: TextStyle(
+                        //             fontWeight: FontWeight.bold,
+                        //             fontSize: 18,
+                        //           ),
+                        //         ),
+                        //         content: Form(
+                        //           key: _formKey,
+                        //           child: Column(
+                        //             mainAxisSize: MainAxisSize.min,
+                        //             crossAxisAlignment:
+                        //                 CrossAxisAlignment.start,
+                        //             children: [
+                        //               // Name Field
+                        //               TextFormField(
+                        //                 validator: (value) {
+                        //                   if (value == null || value.isEmpty) {
+                        //                     return 'Enter Name';
+                        //                   }
+                        //                   return null;
+                        //                 },
+                        //                 decoration: const InputDecoration(
+                        //                     labelText: 'Name'),
+                        //                 controller: nameController,
+                        //               ),
+                        //               const SizedBox(height: 20),
+                        //               // Target Amount Field
+                        //               TextFormField(
+                        //                 validator: (value) {
+                        //                   if (value == null || value.isEmpty) {
+                        //                     return 'Enter Target Amount';
+                        //                   }
+                        //                   return null;
+                        //                 },
+                        //                 decoration: const InputDecoration(
+                        //                     labelText: 'Target Amount'),
+                        //                 keyboardType: TextInputType.number,
+                        //                 controller: targetAmountController,
+                        //               ),
+                        //               const SizedBox(height: 20),
+                        //               // Target Date Field
+                        //               TextFormField(
+                        //                 decoration: const InputDecoration(
+                        //                     labelText: 'Target Date'),
+                        //                 controller: targetDateController,
+                        //                 readOnly: true,
+                        //                 onTap: () async {
+                        //                   // Show date picker to select target date
+                        //                   DateTime? newDate =
+                        //                       await showDatePicker(
+                        //                     context: context,
+                        //                     initialDate: selectDate,
+                        //                     firstDate: DateTime(2002),
+                        //                     lastDate: DateTime.now()
+                        //                         .add(const Duration(days: 365)),
+                        //                   );
+
+                        //                   if (newDate != null) {
+                        //                     setState(() {
+                        //                       targetDateController.text =
+                        //                           DateFormat('dd/MM/yyyy')
+                        //                               .format(newDate);
+                        //                       selectDate = newDate;
+                        //                     });
+                        //                   }
+                        //                 },
+                        //               ),
+                        //             ],
+                        //           ),
+                        //         ),
+                        //         actions: [
+                        //           TextButton(
+                        //             onPressed: () {
+                        //               clearControllers();
+                        //               Navigator.of(context).pop();
+                        //             },
+                        //             child: const Text('Cancel'),
+                        //           ),
+                        //           TextButton(
+                        //             onPressed: () {
+                        //               if (_formKey.currentState!.validate()) {
+                        //                 setState(() {
+                        //                   goalName = nameController.text;
+                        //                   goalTargetAmount = double.parse(
+                        //                           targetAmountController.text)
+                        //                       .abs();
+                        //                 });
+
+                        //                 Goal newGoal = Goal(
+                        //                   name: goalName,
+                        //                   targetAmount: goalTargetAmount,
+                        //                   targetDate:
+                        //                       Timestamp.fromDate(selectDate),
+                        //                 );
+                        //                 GoalMethods().addGoal(newGoal);
+                        //                 clearControllers();
+                        //                 Navigator.pop(context);
+                        //               }
+                        //             },
+                        //             child: const Text('Add'),
+                        //           ),
+                        //         ],
+                        //       );
+                        //     },
+                        //   );
+                        // },
                       ),
                     ],
                   ),
                   const SizedBox(height: 10),
 
                   // List view of goals
-                  Expanded(
-                    child: StreamBuilder(
-                      stream: GoalMethods().getGoals(), 
-                      builder: (context, snapshot) {
-                        if (snapshot.hasError) {
-                          return Text('Error: ${snapshot.error}');
-                        } 
+                  // Expanded(
+                  //   child: StreamBuilder(
+                  //     stream: GoalMethods().getGoals(), 
+                  //     builder: (context, snapshot) {
+                  //       if (snapshot.hasError) {
+                  //         return Text('Error: ${snapshot.error}');
+                  //       } 
                         
-                        if (!snapshot.hasData) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );                     
-                        } 
+                  //       if (!snapshot.hasData) {
+                  //         return const Center(
+                  //           child: CircularProgressIndicator(),
+                  //         );                     
+                  //       } 
                         
-                        final goals = snapshot.data!.docs;
+                  //       final goals = snapshot.data!.docs;
 
-                        if (goals.isEmpty) {
-                          return const Center(
-                            child: Text('No Goals Found'),
-                          );
-                        }
-                        return ListView.separated(
-                          separatorBuilder: (context, index) => const Divider(),
-                          itemCount: goals.length,
-                          itemBuilder: (context, index) {
-                            Goal goal = goals[index].data();
-                            String goalId = goals[index].id;
+                  //       if (goals.isEmpty) {
+                  //         return const Center(
+                  //           child: Text('No Goals Found'),
+                  //         );
+                  //       }
+                  //       return ListView.separated(
+                  //         separatorBuilder: (context, index) => const Divider(),
+                  //         itemCount: goals.length,
+                  //         itemBuilder: (context, index) {
+                  //           Goal goal = goals[index].data();
+                  //           String goalId = goals[index].id;
 
-                            return ListTile(
-                              title: Text(
-                                goal.name,
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text('Target Amount: \$${goal.targetAmount.toStringAsFixed(2)}'),
-                                  Text('Target Date: ${DateFormat('dd/MM/yyyy').format(goal.targetDate.toDate())}'),
-                                ],
-                              ),
-                              // goal info button
-                              trailing: IconButton(
-                                icon: Icon(
-                                  Icons.info_outline,
-                                  color: mainColor),
-                                onPressed: () async {
-                                  showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    String newName = goal.name;
-                                    double newAmount = goal.targetAmount;
-                                    return StatefulBuilder(
-                                      builder: (context, setState) {
-                                        return AlertDialog(
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(0), 
-                                          ),
-                                          backgroundColor:Colors.white,
-                                          title: const Text('Edit Goal',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 18,
-                                              )),
-                                          content: Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              // current goal name
-                                              TextFormField(                                               
-                                                initialValue: goal.name,
-                                                keyboardType:
-                                                  const TextInputType.numberWithOptions(
-                                                    decimal: true),
+                  //           return ListTile(
+                  //             title: Text(
+                  //               goal.name,
+                  //               style: const TextStyle(
+                  //                 fontSize: 18,
+                  //                 fontWeight: FontWeight.bold,
+                  //               ),
+                  //             ),
+                  //             subtitle: Column(
+                  //               crossAxisAlignment: CrossAxisAlignment.start,
+                  //               children: [
+                  //                 Text('Target Amount: \$${goal.targetAmount.toStringAsFixed(2)}'),
+                  //                 Text('Target Date: ${DateFormat('dd/MM/yyyy').format(goal.targetDate.toDate())}'),
+                  //               ],
+                  //             ),
+                  //             // goal info button
+                  //             trailing: IconButton(
+                  //               icon: Icon(
+                  //                 Icons.info_outline,
+                  //                 color: mainColor),
+                  //               onPressed: () async {
+                  //                 showDialog(
+                  //                 context: context,
+                  //                 builder: (context) {
+                  //                   String newName = goal.name;
+                  //                   double newAmount = goal.targetAmount;
+                  //                   return StatefulBuilder(
+                  //                     builder: (context, setState) {
+                  //                       return AlertDialog(
+                  //                         shape: RoundedRectangleBorder(
+                  //                           borderRadius: BorderRadius.circular(0), 
+                  //                         ),
+                  //                         backgroundColor:Colors.white,
+                  //                         title: const Text('Edit Goal',
+                  //                             style: TextStyle(
+                  //                               fontWeight: FontWeight.bold,
+                  //                               fontSize: 18,
+                  //                             )),
+                  //                         content: Column(
+                  //                           mainAxisSize: MainAxisSize.min,
+                  //                           children: [
+                  //                             // current goal name
+                  //                             TextFormField(                                               
+                  //                               initialValue: goal.name,
+                  //                               keyboardType:
+                  //                                 const TextInputType.numberWithOptions(
+                  //                                   decimal: true),
                                               
-                                                onChanged: (String value) {
-                                                  newName = value;
-                                                },
-                                              ),
-                                              // current goal target amount
-                                              TextFormField(
-                                                initialValue: goal.targetAmount.toStringAsFixed(2),
-                                                keyboardType:
-                                                  const TextInputType.numberWithOptions(
-                                                    decimal: true),           
-                                                onChanged: (value) {
-                                                  newAmount =
-                                                    double.tryParse(value) ?? goal.targetAmount;
-                                                },
-                                              ),
-                                              // current date form field
-                                              // TextFormField(
-                                              //   // don't need to declare a new controller in the class. temporary instance
-                                              //   controller: editDateController,
-                                              //   readOnly: true,
-                                              //   onTap: () async {
-                                              //     DateTime? newDate = await showDatePicker(
-                                              //       context: context,
-                                              //       initialDate: goal.targetDate.toDate(),
-                                              //       firstDate: DateTime(2002),
-                                              //       lastDate: DateTime.now().add(const Duration(days: 365)),
-                                              //     );
+                  //                               onChanged: (String value) {
+                  //                                 newName = value;
+                  //                               },
+                  //                             ),
+                  //                             // current goal target amount
+                  //                             TextFormField(
+                  //                               initialValue: goal.targetAmount.toStringAsFixed(2),
+                  //                               keyboardType:
+                  //                                 const TextInputType.numberWithOptions(
+                  //                                   decimal: true),           
+                  //                               onChanged: (value) {
+                  //                                 newAmount =
+                  //                                   double.tryParse(value) ?? goal.targetAmount;
+                  //                               },
+                  //                             ),
+                  //                             // current date form field
+                  //                             // TextFormField(
+                  //                             //   // don't need to declare a new controller in the class. temporary instance
+                  //                             //   controller: editDateController,
+                  //                             //   readOnly: true,
+                  //                             //   onTap: () async {
+                  //                             //     DateTime? newDate = await showDatePicker(
+                  //                             //       context: context,
+                  //                             //       initialDate: goal.targetDate.toDate(),
+                  //                             //       firstDate: DateTime(2002),
+                  //                             //       lastDate: DateTime.now().add(const Duration(days: 365)),
+                  //                             //     );
 
-                                              //     if (newDate != null) {
-                                              //       setState(() {
-                                              //         editDateController.text = DateFormat('dd/MM/yyyy').format(newDate); 
-                                              //         selectDate = newDate;
-                                              //       });
-                                              //     }
-                                              //   },
-                                              // ),
-                                            ]
-                                          ),
-                                          actions: [
-                                            // save button
-                                            TextButton(
-                                                onPressed: () {
-                                                  Map<String, dynamic> updatedData = {
-                                                    'name': newName,
-                                                    'targetAmount': newAmount,
-                                                    'targetDate': Timestamp.now(),
-                                                  };
-                                                  GoalMethods().updateGoal(goalId, updatedData);
-                                                  Navigator.of(context).pop();
-                                                },
-                                                child: const Text(
-                                                  'Save',
-                                                  style: TextStyle(
-                                                    color: Colors.black,
-                                                  ),
-                                                )),
-                                          ],
-                                        );
-                                      }
-                                    );
-                                  });
-                                },
-                              ),
-                              onLongPress: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return AlertDialog(              
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(0), 
-                                      ),
-                                      backgroundColor: Colors.white,
-                                      title: const Text(
-                                        'Delete Goal'
-                                      ),
-                                      // content: const Text(
-                                      //   'Are you sure you want to delete this goal?'
-                                      // ),
-                                      content: const Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text('Are you sure you want to delete this goal?'),
-                                          Text(
-                                            'You cannot undo this action!',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                            )
-                                          ),
-                                        ]
-                                      ),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.of(context).pop();
-                                          },
-                                          child: const Text(
-                                            'Cancel',
-                                            style: TextStyle(
-                                              color: Colors.black,
-                                            ),
-                                          ),
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            GoalMethods().deleteGoal(goalId);
-                                            Navigator.of(context).pop();
-                                          },
-                                          child: const Text(
-                                            'Delete',
-                                            style: TextStyle(
-                                              color: Colors.red,
-                                            ),
-                                          ),
-                                        ),
-                                      ]
-                                    );
-                                  }
-                                );
-                              },
-                            );
-                          },
-                        );                       
-                      },
-                    ),
-                  ),
+                  //                             //     if (newDate != null) {
+                  //                             //       setState(() {
+                  //                             //         editDateController.text = DateFormat('dd/MM/yyyy').format(newDate); 
+                  //                             //         selectDate = newDate;
+                  //                             //       });
+                  //                             //     }
+                  //                             //   },
+                  //                             // ),
+                  //                           ]
+                  //                         ),
+                  //                         actions: [
+                  //                           // save button
+                  //                           TextButton(
+                  //                               onPressed: () {
+                  //                                 Map<String, dynamic> updatedData = {
+                  //                                   'name': newName,
+                  //                                   'targetAmount': newAmount,
+                  //                                   'targetDate': Timestamp.now(),
+                  //                                 };
+                  //                                 GoalMethods().updateGoal(goalId, updatedData);
+                  //                                 Navigator.of(context).pop();
+                  //                               },
+                  //                               child: const Text(
+                  //                                 'Save',
+                  //                                 style: TextStyle(
+                  //                                   color: Colors.black,
+                  //                                 ),
+                  //                               )),
+                  //                         ],
+                  //                       );
+                  //                     }
+                  //                   );
+                  //                 });
+                  //               },
+                  //             ),
+                  //             onLongPress: () {
+                  //               showDialog(
+                  //                 context: context,
+                  //                 builder: (context) {
+                  //                   return AlertDialog(              
+                  //                     shape: RoundedRectangleBorder(
+                  //                       borderRadius: BorderRadius.circular(0), 
+                  //                     ),
+                  //                     backgroundColor: Colors.white,
+                  //                     title: const Text(
+                  //                       'Delete Goal'
+                  //                     ),
+                  //                     // content: const Text(
+                  //                     //   'Are you sure you want to delete this goal?'
+                  //                     // ),
+                  //                     content: const Column(
+                  //                       mainAxisSize: MainAxisSize.min,
+                  //                       crossAxisAlignment: CrossAxisAlignment.start,
+                  //                       children: [
+                  //                         Text('Are you sure you want to delete this goal?'),
+                  //                         Text(
+                  //                           'You cannot undo this action!',
+                  //                           style: TextStyle(
+                  //                             fontWeight: FontWeight.bold,
+                  //                           )
+                  //                         ),
+                  //                       ]
+                  //                     ),
+                  //                     actions: [
+                  //                       TextButton(
+                  //                         onPressed: () {
+                  //                           Navigator.of(context).pop();
+                  //                         },
+                  //                         child: const Text(
+                  //                           'Cancel',
+                  //                           style: TextStyle(
+                  //                             color: Colors.black,
+                  //                           ),
+                  //                         ),
+                  //                       ),
+                  //                       TextButton(
+                  //                         onPressed: () {
+                  //                           GoalMethods().deleteGoal(goalId);
+                  //                           Navigator.of(context).pop();
+                  //                         },
+                  //                         child: const Text(
+                  //                           'Delete',
+                  //                           style: TextStyle(
+                  //                             color: Colors.red,
+                  //                           ),
+                  //                         ),
+                  //                       ),
+                  //                     ]
+                  //                   );
+                  //                 }
+                  //               );
+                  //             },
+                  //           );
+                  //         },
+                  //       );                       
+                  //     },
+                  //   ),
+                  // ),
                 ],
               ),
             ),
@@ -541,6 +508,63 @@ class _InsightsState extends State<Insights> {
       }),
     );
   }
+
+  FutureBuilder<List<BarChartGroupData>> _buildBarChart() {
+    return FutureBuilder<List<BarChartGroupData>>(
+      future: _createData(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(child: Text('No data available'));
+        } else {
+          return Container(
+            padding: const EdgeInsets.all(16),
+            child: SizedBox(
+              height: 200,
+              child: BarChart(
+                BarChartData(
+                  barTouchData: BarTouchData(
+                    touchTooltipData: BarTouchTooltipData(
+                      tooltipBgColor: Colors.blueGrey.withOpacity(0.8),
+                      getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                        return BarTooltipItem(
+                          '\$${rod.y.toStringAsFixed(2)}',
+                          TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                        );
+                      },
+                    ),
+                  ),
+                  barGroups: snapshot.data!,
+                  borderData: FlBorderData(show: false),
+                  titlesData: FlTitlesData(
+                    leftTitles: SideTitles(showTitles: false),
+                    bottomTitles: SideTitles(
+                      showTitles: true,
+                      getTitles: (value) {
+                        // Subtract months directly from the current date
+                        List<String> months = [
+                          DateFormat('MMM yyyy').format(DateTime.now().subtract(Duration(days: 30 * (0 - value.toInt())))),
+                          DateFormat('MMM yyyy').format(DateTime.now().subtract(Duration(days: 30 * (2 - value.toInt())))),
+                          DateFormat('MMM yyyy').format(DateTime.now().subtract(Duration(days: 30 * (4 - value.toInt())))),
+                          DateFormat('MMM yyyy').format(DateTime.now().subtract(Duration(days: 30 * (6 - value.toInt())))),
+                          DateFormat('MMM yyyy').format(DateTime.now().subtract(Duration(days: 30 * (8 - value.toInt())))),
+                        ];
+                        return months[value.toInt()];
+                      },
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        }
+      },
+    );
+  }
+
 }
 
 class MonthNotifier extends ChangeNotifier {
