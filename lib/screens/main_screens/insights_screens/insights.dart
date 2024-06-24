@@ -40,6 +40,7 @@ class _InsightsState extends State<Insights> {
     });
   }
 
+  // Helper 1.1: Bar Chart Data
   Future<List<BarChartGroupData>> _createData() async {
     DateTime now = DateTime.now();
     List<BarChartGroupData> data = [];
@@ -58,7 +59,7 @@ class _InsightsState extends State<Insights> {
           barRods: [
             BarChartRodData(
               y: spending, 
-              colors: [Colors.blue],
+              colors: [Colors.redAccent.withOpacity(0.4)],
               width: 16,
               
               ),
@@ -68,6 +69,54 @@ class _InsightsState extends State<Insights> {
     }
 
     return data.reversed.toList();
+  }
+
+  // Helper 2.1: Calculating Average Spending of Months
+  Future<double> _calculateAverageSpending() async {
+    DateTime now = DateTime.now();
+    List<double> spendingList = [];
+
+    for (int i = 0; i < 5; i++) {
+      DateTime month = DateTime(now.year, now.month - i, 1);
+      double spending = await ExpenseMethods().getMonthlySpending(month);
+      if (spending > 0) {
+        spendingList.add(spending);
+      }
+    }
+
+    if (spendingList.isEmpty) return 0.0;
+    double totalSpending = spendingList.reduce((a, b) => a + b);
+    return totalSpending / spendingList.length;
+  }
+
+  // Helper 2.2: Calculate number of months with actual spending
+  Future<int> _countMonthsWithSpending() async {
+    DateTime now = DateTime.now();
+    int count = 0;
+
+    for (int i = 0; i < 5; i++) {
+      DateTime month = DateTime(now.year, now.month - i, 1);
+      double spending = await ExpenseMethods().getMonthlySpending(month);
+      if (spending > 0) {
+        count++;
+      }
+    }
+
+    return count;
+  }
+
+  // Helper 3.1: Calculate overall net change over the last 5 months
+  Future<List<double>> _getNetChangesForMonths() async {
+    DateTime now = DateTime.now();
+    List<double> netChanges = [];
+
+    for (int i = 0; i < 5; i++) {
+      DateTime month = DateTime(now.year, now.month - i, 1);
+      double netChange = await ExpenseMethods().getMonthlyNetChange(month);
+      netChanges.add(netChange);
+    }
+
+    return netChanges;
   }
 
   @override
@@ -148,17 +197,18 @@ class _InsightsState extends State<Insights> {
                     ],
                   ),
                   const SizedBox(height: 10),
+                  // Bar Chart
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.blueAccent.withOpacity(0.1),
+                      color: Colors.red.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: _buildBarChart()
+                    child: _buildBarChart() // See Helper 1
                   ),
                   const SizedBox(height: 20),
                   
-                  // Your Goals & + button
+                  // Insights
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -170,336 +220,18 @@ class _InsightsState extends State<Insights> {
                           color: mainColor,
                         ),
                       ),
-                      // + button
-                      IconButton(
-                        icon: Icon(Icons.add, color: mainColor),
-                        onPressed: () {
-
-                        },
-                        // onPressed: () async {
-                        //   await showDialog(
-                        //     context: context,
-                        //     builder: (BuildContext context) {
-                        //       return AlertDialog(
-                        //         shape: RoundedRectangleBorder(
-                        //           borderRadius: BorderRadius.circular(0),
-                        //         ),
-                        //         backgroundColor: Colors.white,
-                        //         title: const Text(
-                        //           'Add New Goal',
-                        //           style: TextStyle(
-                        //             fontWeight: FontWeight.bold,
-                        //             fontSize: 18,
-                        //           ),
-                        //         ),
-                        //         content: Form(
-                        //           key: _formKey,
-                        //           child: Column(
-                        //             mainAxisSize: MainAxisSize.min,
-                        //             crossAxisAlignment:
-                        //                 CrossAxisAlignment.start,
-                        //             children: [
-                        //               // Name Field
-                        //               TextFormField(
-                        //                 validator: (value) {
-                        //                   if (value == null || value.isEmpty) {
-                        //                     return 'Enter Name';
-                        //                   }
-                        //                   return null;
-                        //                 },
-                        //                 decoration: const InputDecoration(
-                        //                     labelText: 'Name'),
-                        //                 controller: nameController,
-                        //               ),
-                        //               const SizedBox(height: 20),
-                        //               // Target Amount Field
-                        //               TextFormField(
-                        //                 validator: (value) {
-                        //                   if (value == null || value.isEmpty) {
-                        //                     return 'Enter Target Amount';
-                        //                   }
-                        //                   return null;
-                        //                 },
-                        //                 decoration: const InputDecoration(
-                        //                     labelText: 'Target Amount'),
-                        //                 keyboardType: TextInputType.number,
-                        //                 controller: targetAmountController,
-                        //               ),
-                        //               const SizedBox(height: 20),
-                        //               // Target Date Field
-                        //               TextFormField(
-                        //                 decoration: const InputDecoration(
-                        //                     labelText: 'Target Date'),
-                        //                 controller: targetDateController,
-                        //                 readOnly: true,
-                        //                 onTap: () async {
-                        //                   // Show date picker to select target date
-                        //                   DateTime? newDate =
-                        //                       await showDatePicker(
-                        //                     context: context,
-                        //                     initialDate: selectDate,
-                        //                     firstDate: DateTime(2002),
-                        //                     lastDate: DateTime.now()
-                        //                         .add(const Duration(days: 365)),
-                        //                   );
-
-                        //                   if (newDate != null) {
-                        //                     setState(() {
-                        //                       targetDateController.text =
-                        //                           DateFormat('dd/MM/yyyy')
-                        //                               .format(newDate);
-                        //                       selectDate = newDate;
-                        //                     });
-                        //                   }
-                        //                 },
-                        //               ),
-                        //             ],
-                        //           ),
-                        //         ),
-                        //         actions: [
-                        //           TextButton(
-                        //             onPressed: () {
-                        //               clearControllers();
-                        //               Navigator.of(context).pop();
-                        //             },
-                        //             child: const Text('Cancel'),
-                        //           ),
-                        //           TextButton(
-                        //             onPressed: () {
-                        //               if (_formKey.currentState!.validate()) {
-                        //                 setState(() {
-                        //                   goalName = nameController.text;
-                        //                   goalTargetAmount = double.parse(
-                        //                           targetAmountController.text)
-                        //                       .abs();
-                        //                 });
-
-                        //                 Goal newGoal = Goal(
-                        //                   name: goalName,
-                        //                   targetAmount: goalTargetAmount,
-                        //                   targetDate:
-                        //                       Timestamp.fromDate(selectDate),
-                        //                 );
-                        //                 GoalMethods().addGoal(newGoal);
-                        //                 clearControllers();
-                        //                 Navigator.pop(context);
-                        //               }
-                        //             },
-                        //             child: const Text('Add'),
-                        //           ),
-                        //         ],
-                        //       );
-                        //     },
-                        //   );
-                        // },
-                      ),
                     ],
                   ),
                   const SizedBox(height: 10),
 
-                  // List view of goals
-                  // Expanded(
-                  //   child: StreamBuilder(
-                  //     stream: GoalMethods().getGoals(), 
-                  //     builder: (context, snapshot) {
-                  //       if (snapshot.hasError) {
-                  //         return Text('Error: ${snapshot.error}');
-                  //       } 
-                        
-                  //       if (!snapshot.hasData) {
-                  //         return const Center(
-                  //           child: CircularProgressIndicator(),
-                  //         );                     
-                  //       } 
-                        
-                  //       final goals = snapshot.data!.docs;
+                  // Insight 1: Average Spending per Month
+                  _buildAverageSpendingTile(),  // See Helper 2
 
-                  //       if (goals.isEmpty) {
-                  //         return const Center(
-                  //           child: Text('No Goals Found'),
-                  //         );
-                  //       }
-                  //       return ListView.separated(
-                  //         separatorBuilder: (context, index) => const Divider(),
-                  //         itemCount: goals.length,
-                  //         itemBuilder: (context, index) {
-                  //           Goal goal = goals[index].data();
-                  //           String goalId = goals[index].id;
+                  const SizedBox(height: 20),
 
-                  //           return ListTile(
-                  //             title: Text(
-                  //               goal.name,
-                  //               style: const TextStyle(
-                  //                 fontSize: 18,
-                  //                 fontWeight: FontWeight.bold,
-                  //               ),
-                  //             ),
-                  //             subtitle: Column(
-                  //               crossAxisAlignment: CrossAxisAlignment.start,
-                  //               children: [
-                  //                 Text('Target Amount: \$${goal.targetAmount.toStringAsFixed(2)}'),
-                  //                 Text('Target Date: ${DateFormat('dd/MM/yyyy').format(goal.targetDate.toDate())}'),
-                  //               ],
-                  //             ),
-                  //             // goal info button
-                  //             trailing: IconButton(
-                  //               icon: Icon(
-                  //                 Icons.info_outline,
-                  //                 color: mainColor),
-                  //               onPressed: () async {
-                  //                 showDialog(
-                  //                 context: context,
-                  //                 builder: (context) {
-                  //                   String newName = goal.name;
-                  //                   double newAmount = goal.targetAmount;
-                  //                   return StatefulBuilder(
-                  //                     builder: (context, setState) {
-                  //                       return AlertDialog(
-                  //                         shape: RoundedRectangleBorder(
-                  //                           borderRadius: BorderRadius.circular(0), 
-                  //                         ),
-                  //                         backgroundColor:Colors.white,
-                  //                         title: const Text('Edit Goal',
-                  //                             style: TextStyle(
-                  //                               fontWeight: FontWeight.bold,
-                  //                               fontSize: 18,
-                  //                             )),
-                  //                         content: Column(
-                  //                           mainAxisSize: MainAxisSize.min,
-                  //                           children: [
-                  //                             // current goal name
-                  //                             TextFormField(                                               
-                  //                               initialValue: goal.name,
-                  //                               keyboardType:
-                  //                                 const TextInputType.numberWithOptions(
-                  //                                   decimal: true),
-                                              
-                  //                               onChanged: (String value) {
-                  //                                 newName = value;
-                  //                               },
-                  //                             ),
-                  //                             // current goal target amount
-                  //                             TextFormField(
-                  //                               initialValue: goal.targetAmount.toStringAsFixed(2),
-                  //                               keyboardType:
-                  //                                 const TextInputType.numberWithOptions(
-                  //                                   decimal: true),           
-                  //                               onChanged: (value) {
-                  //                                 newAmount =
-                  //                                   double.tryParse(value) ?? goal.targetAmount;
-                  //                               },
-                  //                             ),
-                  //                             // current date form field
-                  //                             // TextFormField(
-                  //                             //   // don't need to declare a new controller in the class. temporary instance
-                  //                             //   controller: editDateController,
-                  //                             //   readOnly: true,
-                  //                             //   onTap: () async {
-                  //                             //     DateTime? newDate = await showDatePicker(
-                  //                             //       context: context,
-                  //                             //       initialDate: goal.targetDate.toDate(),
-                  //                             //       firstDate: DateTime(2002),
-                  //                             //       lastDate: DateTime.now().add(const Duration(days: 365)),
-                  //                             //     );
-
-                  //                             //     if (newDate != null) {
-                  //                             //       setState(() {
-                  //                             //         editDateController.text = DateFormat('dd/MM/yyyy').format(newDate); 
-                  //                             //         selectDate = newDate;
-                  //                             //       });
-                  //                             //     }
-                  //                             //   },
-                  //                             // ),
-                  //                           ]
-                  //                         ),
-                  //                         actions: [
-                  //                           // save button
-                  //                           TextButton(
-                  //                               onPressed: () {
-                  //                                 Map<String, dynamic> updatedData = {
-                  //                                   'name': newName,
-                  //                                   'targetAmount': newAmount,
-                  //                                   'targetDate': Timestamp.now(),
-                  //                                 };
-                  //                                 GoalMethods().updateGoal(goalId, updatedData);
-                  //                                 Navigator.of(context).pop();
-                  //                               },
-                  //                               child: const Text(
-                  //                                 'Save',
-                  //                                 style: TextStyle(
-                  //                                   color: Colors.black,
-                  //                                 ),
-                  //                               )),
-                  //                         ],
-                  //                       );
-                  //                     }
-                  //                   );
-                  //                 });
-                  //               },
-                  //             ),
-                  //             onLongPress: () {
-                  //               showDialog(
-                  //                 context: context,
-                  //                 builder: (context) {
-                  //                   return AlertDialog(              
-                  //                     shape: RoundedRectangleBorder(
-                  //                       borderRadius: BorderRadius.circular(0), 
-                  //                     ),
-                  //                     backgroundColor: Colors.white,
-                  //                     title: const Text(
-                  //                       'Delete Goal'
-                  //                     ),
-                  //                     // content: const Text(
-                  //                     //   'Are you sure you want to delete this goal?'
-                  //                     // ),
-                  //                     content: const Column(
-                  //                       mainAxisSize: MainAxisSize.min,
-                  //                       crossAxisAlignment: CrossAxisAlignment.start,
-                  //                       children: [
-                  //                         Text('Are you sure you want to delete this goal?'),
-                  //                         Text(
-                  //                           'You cannot undo this action!',
-                  //                           style: TextStyle(
-                  //                             fontWeight: FontWeight.bold,
-                  //                           )
-                  //                         ),
-                  //                       ]
-                  //                     ),
-                  //                     actions: [
-                  //                       TextButton(
-                  //                         onPressed: () {
-                  //                           Navigator.of(context).pop();
-                  //                         },
-                  //                         child: const Text(
-                  //                           'Cancel',
-                  //                           style: TextStyle(
-                  //                             color: Colors.black,
-                  //                           ),
-                  //                         ),
-                  //                       ),
-                  //                       TextButton(
-                  //                         onPressed: () {
-                  //                           GoalMethods().deleteGoal(goalId);
-                  //                           Navigator.of(context).pop();
-                  //                         },
-                  //                         child: const Text(
-                  //                           'Delete',
-                  //                           style: TextStyle(
-                  //                             color: Colors.red,
-                  //                           ),
-                  //                         ),
-                  //                       ),
-                  //                     ]
-                  //                   );
-                  //                 }
-                  //               );
-                  //             },
-                  //           );
-                  //         },
-                  //       );                       
-                  //     },
-                  //   ),
-                  // ),
+                  // Insight 2: Overall net change over the last 5 months
+                  _buildNetChangeTile(), // See Helper 3
+            
                 ],
               ),
             ),
@@ -509,16 +241,17 @@ class _InsightsState extends State<Insights> {
     );
   }
 
+  // Helper 1: Builds the Bar Chart Graph that contains 5 months of user spending 
   FutureBuilder<List<BarChartGroupData>> _buildBarChart() {
     return FutureBuilder<List<BarChartGroupData>>(
       future: _createData(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return Center(child: Text('No data available'));
+          return const Center(child: Text('No data available'));
         } else {
           return Container(
             padding: const EdgeInsets.all(16),
@@ -528,11 +261,11 @@ class _InsightsState extends State<Insights> {
                 BarChartData(
                   barTouchData: BarTouchData(
                     touchTooltipData: BarTouchTooltipData(
-                      tooltipBgColor: Colors.blueGrey.withOpacity(0.8),
+                      tooltipBgColor: const Color.fromARGB(255, 139, 96, 98).withOpacity(0.8),
                       getTooltipItem: (group, groupIndex, rod, rodIndex) {
                         return BarTooltipItem(
                           '\$${rod.y.toStringAsFixed(2)}',
-                          TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                          const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                         );
                       },
                     ),
@@ -564,6 +297,114 @@ class _InsightsState extends State<Insights> {
       },
     );
   }
+
+  // Helper 2: Builds the ListTile that shows average spending per month
+  Widget _buildAverageSpendingTile() {
+    return FutureBuilder<int>(
+      future: _countMonthsWithSpending(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else {
+          int numberOfMonths = snapshot.data ?? 0;
+          String monthText = numberOfMonths == 1 ? 'month' : 'months';
+          return FutureBuilder<double>(
+            future: _calculateAverageSpending(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return Center(child: Text('Error: ${snapshot.error}'));
+              } else {
+                double averageSpending = snapshot.data ?? 0.0;
+                return Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8.0),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.3),
+                        spreadRadius: 1,
+                        blurRadius: 5,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
+                  ),
+                  child: ListTile(
+                    leading: const CircleAvatar(
+                      backgroundColor: Colors.amber,
+                      child: Icon(
+                        Icons.attach_money,
+                        color: Colors.white,
+                      ),
+                    ),
+                    title: Text(
+                      "Over the last $numberOfMonths $monthText, you've spent on average \$${averageSpending.toStringAsFixed(2)} per month",
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                );
+              }
+            },
+          );
+        }
+      },
+    );
+  }
+
+  // Helper 3: Builds the ListTile that shows the overall net change over 5 months.
+  Widget _buildNetChangeTile() {
+    return FutureBuilder<List<double>>(
+      future: _getNetChangesForMonths(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else {
+          List<double> netChanges = snapshot.data ?? [];
+          double overallNetChange = netChanges.fold(0, (prev, element) => prev + element);
+          String sign = overallNetChange > 0 ? '+' : overallNetChange < 0 ? '-' : '';
+          return Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8.0),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.3),
+                  spreadRadius: 1,
+                  blurRadius: 5,
+                  offset: Offset(0, 3),
+                ),
+              ],
+            ),
+            child: ListTile(
+              leading: CircleAvatar(
+                backgroundColor: Colors.greenAccent,
+                child: Icon(
+                  Icons.trending_up,
+                  color: Colors.white,
+                ),
+              ),
+              title: Text(
+                "Overall net change over the last ${netChanges.length} months: ${sign}\$${overallNetChange.abs().toStringAsFixed(2)}",
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.black,
+                ),
+              ),
+            ),
+          );
+        }
+      },
+    );
+  }
+
 
 }
 
