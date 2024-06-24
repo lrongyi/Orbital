@@ -69,7 +69,7 @@ class BudgetMethods {
     if (query.docs.isNotEmpty) {
       DocumentSnapshot<Budget> budgetDoc = query.docs.first;
       Budget existingBudget = budgetDoc.data()!;
-      return existingBudget.categories.keys.where((key) => existingBudget.categories[key]![3] == false).toList();
+      return existingBudget.categories.keys.where((key) => existingBudget.categories[key]![3] == false).toList(); // false means Income, true means Expense
     } else {
       return List.empty();
     }
@@ -100,10 +100,10 @@ class BudgetMethods {
     return singleSubStream().asBroadcastStream();
   }
 
-  Future<void> addBudget(String category, double amount, bool isRecurring, String color, bool isIncome) async {
-    DateTime now = DateTime.now();
-    DateTime firstOfMonth = DateTime(now.year, now.month, 1);
-    DateTime nextMonth = DateTime(now.year, now.month + 1, 1);
+  Future<void> addBudget(String category, double amount, bool isRecurring, String color, bool isIncome, DateTime time) async {
+    // DateTime now = DateTime.now();
+    DateTime firstOfMonth = DateTime(time.year, time.month, 1);
+    DateTime nextMonth = DateTime(time.year, time.month + 1, 1);
     Timestamp firstOfMonthTS = Timestamp.fromDate(firstOfMonth);
     Timestamp nextMonthTS = Timestamp.fromDate(nextMonth);
 
@@ -119,7 +119,8 @@ class BudgetMethods {
         (value[0] as double) + amount, // update amount
         value[1] as bool, // isRecurring
         value.length > 2 ? value[2] : color, // update color if present
-        value[2] as String
+        // value[2] as String
+        value[3] as bool, 
       ], ifAbsent: () => [amount, isRecurring, color, isIncome]);
       existingBudget.monthlyBudget += amount;
       await budgetDoc.reference.set(existingBudget);
@@ -133,10 +134,10 @@ class BudgetMethods {
     }
   }
 
-  void updateBudget(String category, double amount, bool isRecurring, String color, bool isIncome) async {
-    DateTime now = DateTime.now();
-    DateTime firstOfMonth = DateTime(now.year, now.month, 1);
-    DateTime nextMonth = DateTime(now.year, now.month + 1, 1);
+  void updateBudget(String category, double amount, bool isRecurring, String color, bool isIncome, DateTime time) async {
+    // DateTime now = DateTime.now();
+    DateTime firstOfMonth = DateTime(time.year, time.month, 1);
+    DateTime nextMonth = DateTime(time.year, time.month + 1, 1);
     Timestamp firstOfMonthTS = Timestamp.fromDate(firstOfMonth);
     Timestamp nextMonthTS = Timestamp.fromDate(nextMonth);
 

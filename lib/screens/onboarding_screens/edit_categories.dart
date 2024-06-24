@@ -5,21 +5,21 @@ import 'package:ss/screens/navigation_screen/navigation.dart';
 import 'package:ss/services/budget_methods.dart';
 import 'package:ss/services/models/budget.dart';
 import 'package:ss/shared/main_screens_deco.dart';
+
 class EditCategories extends StatefulWidget {
-  
   final Set<String> selectedCategories;
 
   const EditCategories({super.key, required this.selectedCategories});
+  
   @override
   State<EditCategories> createState() => _EditCategoriesState();
 }
+
 class _EditCategoriesState extends State<EditCategories> {
-  
+  DateTime _currentMonth = DateTime.now();
   TextEditingController categoryNameController = TextEditingController();
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final Map<String, TextEditingController> _budgetControllers = {};
-
-
   Map<String, Color> _categoryColors = {};
   Color _selectedColor = Colors.blue;
 
@@ -53,6 +53,7 @@ class _EditCategoriesState extends State<EditCategories> {
   void initState() {
     super.initState();
     _initializeCategoryColors();
+    _currentMonth = DateTime(DateTime.now().year, DateTime.now().month);
     for (var category in _categoryColors.keys) {
       _budgetControllers[category] = TextEditingController(text: null);
       _isIncomeMap[category] = false;
@@ -88,7 +89,7 @@ class _EditCategoriesState extends State<EditCategories> {
               return ListTile(
                 title: Text(currentCategory),
                 leading: GestureDetector(
-                  onTap:() {
+                  onTap: () {
                     _showColorPickerDialog((color) {
                       setState(() {
                         _selectedColor = color;
@@ -103,8 +104,7 @@ class _EditCategoriesState extends State<EditCategories> {
                 trailing: _amountWidget(currentCategory),
                 subtitle: Row(
                   children: [
-                    const Text('Income'),
-
+                    const Text('Income only'),
                     Checkbox(
                       activeColor: mainColor,
                       value: _isIncomeMap[currentCategory] ?? false, 
@@ -113,7 +113,52 @@ class _EditCategoriesState extends State<EditCategories> {
                           _isIncomeMap[currentCategory] = value ?? false;
                         });
                       }
-                    )
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.0),
+                              ),
+                              backgroundColor: Colors.white,
+                              title: const Text(
+                                'Information',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              content: const Text(
+                                'If you wish to have the category only be shown under Income, please check the "Income only" box. Otherwise, leave this unchecked to account for rebates.',
+                                style: TextStyle(color: Colors.black),
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: Text(
+                                    'Close',
+                                    style: TextStyle(
+                                      color: mainColor,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                      child: Icon(
+                        Icons.help_outline,
+                        color: Colors.grey[600],
+                        size: 20,
+                      ),
+                    ),
                   ],
                 ),
               );
@@ -163,7 +208,7 @@ class _EditCategoriesState extends State<EditCategories> {
                   );
 
                   for (var entry in budgetAllocations.entries) {
-                    await BudgetMethods().addBudget(entry.key, entry.value[0], entry.value[1], entry.value[2], entry.value[3]); // replace with isIncome
+                    await BudgetMethods().addBudget(entry.key, entry.value[0], entry.value[1], entry.value[2], entry.value[3], _currentMonth); // replace with isIncome
                   }
 
                   Navigator.pushAndRemoveUntil(
@@ -198,6 +243,7 @@ class _EditCategoriesState extends State<EditCategories> {
       index++;
     }
   }
+
   // Helper 2: Color Picker Dialog Box
   void _showColorPickerDialog(Function(Color) onColorSelected) {
     showDialog(
@@ -243,7 +289,7 @@ class _EditCategoriesState extends State<EditCategories> {
     );
   }
 
-   Widget _amountWidget(String category) {
+  Widget _amountWidget(String category) {
     return SizedBox(
       width: 75,
       child: TextFormField(
@@ -265,5 +311,23 @@ class _EditCategoriesState extends State<EditCategories> {
         keyboardType: TextInputType.number,
       ),
     );
+  }
+}
+
+class MonthNotifier extends ChangeNotifier {
+  DateTime _currentMonth;
+
+  MonthNotifier(this._currentMonth);
+
+  DateTime get currentMonth => _currentMonth;
+
+  void incrementMonth() {
+    _currentMonth = DateTime(_currentMonth.year, _currentMonth.month + 1, 1);
+    notifyListeners();
+  }
+
+  void decrementMonth() {
+    _currentMonth = DateTime(_currentMonth.year, _currentMonth.month - 1, 1);
+    notifyListeners();
   }
 }

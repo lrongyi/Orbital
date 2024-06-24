@@ -44,6 +44,7 @@ class _EditingEntryState extends State<EditingEntry> {
   String color = '';
   bool isIncome = false;
   Color _selectedColor = Colors.blue;
+  DateTime _currentMonth = DateTime.now();
 
   final List<Color> predefinedColors = [
     Colors.red,
@@ -70,6 +71,7 @@ class _EditingEntryState extends State<EditingEntry> {
 
  @override
   void initState() {
+    _currentMonth = DateTime(DateTime.now().year, DateTime.now().month);
     dateController.text = DateFormat('dd/MM/yyyy').format(widget.date);
     selectDate = widget.date;
     amountController.text = widget.amount.abs().toStringAsFixed(2);
@@ -485,7 +487,7 @@ class _EditingEntryState extends State<EditingEntry> {
                                   color = _selectedColor.value.toString();
                                 });
                                 BudgetMethods().addBudget(
-                                    category, amount, isRecurring, color, isIncome); // last argument change to isIncome
+                                    category, amount, isRecurring, color, isIncome, _currentMonth); // last argument change to isIncome
                                 Navigator.of(context).pop();
                                 Navigator.pushReplacement(
                                     context,
@@ -616,5 +618,23 @@ class _EditingEntryState extends State<EditingEntry> {
         );
       },
     );
+  }
+}
+
+class MonthNotifier extends ChangeNotifier {
+  DateTime _currentMonth;
+
+  MonthNotifier(this._currentMonth);
+
+  DateTime get currentMonth => _currentMonth;
+
+  void incrementMonth() {
+    _currentMonth = DateTime(_currentMonth.year, _currentMonth.month + 1, 1);
+    notifyListeners();
+  }
+
+  void decrementMonth() {
+    _currentMonth = DateTime(_currentMonth.year, _currentMonth.month - 1, 1);
+    notifyListeners();
   }
 }
