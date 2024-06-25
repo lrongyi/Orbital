@@ -5,6 +5,7 @@ import 'package:ss/screens/authentication_screens/forgot_password.dart';
 import 'package:ss/screens/authentication_screens/sign_up.dart';
 import 'package:ss/services/auth.dart';
 import 'package:ss/shared/authentication_deco.dart';
+import 'package:ss/shared/main_screens_deco.dart';
 
 class LogIn extends StatefulWidget {
   const LogIn({super.key});
@@ -28,8 +29,8 @@ class _LogInState extends State<LogIn> {
       body: Container(
         padding: const EdgeInsets.only(
           top: 100,
-          left: 20,
-          right: 20,
+          left: 5,
+          right: 5,
           ),
         height: MediaQuery.of(context).size.height,
         child: SingleChildScrollView(
@@ -61,7 +62,13 @@ class _LogInState extends State<LogIn> {
                               return null;
                             },
                             controller: emailController,
-                            decoration: inputDeco.copyWith(hintText: 'Email'),
+                            decoration: inputDeco.copyWith(
+                              hintText: 'Email',
+                              icon: Icon(
+                                Icons.mail_outline_rounded,
+                                color: mainColor,
+                              )
+                            ),
                             )
                           ),
                           sizedBoxSpacer,
@@ -77,7 +84,13 @@ class _LogInState extends State<LogIn> {
                                 return null;
                               },
                               controller: passwordController,
-                              decoration: inputDeco.copyWith(hintText: 'Password'),
+                              decoration: inputDeco.copyWith(
+                                hintText: 'Password',
+                                icon: Icon(
+                                  Icons.lock_outline_rounded,
+                                  color: mainColor,
+                                )
+                              ),
                             ),
                           ),
                           sizedBoxSpacer,
@@ -116,25 +129,25 @@ class _LogInState extends State<LogIn> {
                   onTap: () {
                     Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => ForgotPassword()), (route) => false);
                   },
-                  child: const Text(
+                  child: Text(
                     'Forgot Password?',
                     style: TextStyle(
-                      color: Colors.blue,
+                      color: mainColor,
                       fontSize: 18.0,
                       fontWeight: FontWeight.w500,
                     )
                   )
                 ),
-                sizedBoxSpacer,
-                const Text(
-                  'or Login with',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 20.0,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                sizedBoxSpacer,
+
+                const SizedBox(height: 35,),
+
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: orDivider,
+                ), 
+
+                const SizedBox(height: 40,),
+                
                 // Insert google Sign in 
                 GestureDetector(
                   onTap:() {
@@ -147,33 +160,33 @@ class _LogInState extends State<LogIn> {
                     fit: BoxFit.cover,
                     )
                 ),
-                sizedBoxSpacer,
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text(
-                      "Don't have an account?",
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 18.0,
-                        fontWeight: FontWeight.w500,
-                      )
+                
+                const SizedBox(height: 40,),
+
+                Padding(
+                  padding: const EdgeInsets.only(left: 20, right: 20),
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: ((context) => SignUp())), (route) => false);
+                    },
+                  
+                    child: Container(
+                      width: MediaQuery.of(context).size.width,
+                      padding: const EdgeInsets.symmetric(vertical: 13.0, horizontal: 30.0),
+                      decoration: switchAuthButtonDeco,
+                      child: Center(
+                        child: Text(
+                          'Create new account',
+                          style: TextStyle(
+                            color: mainColor,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500
+                          ),
+                        ),
+                      ),
                     ),
-                    const SizedBox(
-                      width: 5.0,
-                    ),
-                    GestureDetector(
-                      onTap:() {
-                        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: ((context) => SignUp())), (route) => false);
-                      },
-                      child: const Text('Sign Up', style: TextStyle(
-                        color: Colors.blue,
-                        fontSize: 18.0,
-                        fontWeight: FontWeight.w500,
-                      ),),
-                    )
-                  ],
-                )  
+                  ),
+                )
             ]
           ),
         )

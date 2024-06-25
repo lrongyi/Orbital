@@ -6,6 +6,7 @@ import 'package:ss/screens/navigation_screen/navigation.dart';
 import 'package:ss/services/auth.dart';
 import 'package:ss/shared/authentication_deco.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:ss/shared/main_screens_deco.dart';
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -63,7 +64,13 @@ class _SignUpState extends State<SignUp> {
                                   },
                                   controller: nameController,
                                   decoration:
-                                      inputDeco.copyWith(hintText: 'Name'),
+                                      inputDeco.copyWith(
+                                        hintText: 'Name',
+                                        icon: Icon(
+                                          Icons.person,
+                                          color: mainColor,
+                                        )
+                                      ),
                                 )),
                             sizedBoxSpacer,
                             Container(
@@ -78,7 +85,13 @@ class _SignUpState extends State<SignUp> {
                                   },
                                   controller: emailController,
                                   decoration:
-                                      inputDeco.copyWith(hintText: 'Email'),
+                                      inputDeco.copyWith(
+                                        hintText: 'Email',
+                                        icon: Icon(
+                                          Icons.mail_outline_rounded,
+                                          color: mainColor,
+                                        )
+                                      ),
                                 )),
                             sizedBoxSpacer,
                             Container(
@@ -94,7 +107,13 @@ class _SignUpState extends State<SignUp> {
                                 },
                                 controller: passwordController,
                                 decoration:
-                                    inputDeco.copyWith(hintText: 'Password'),
+                                    inputDeco.copyWith(
+                                      hintText: 'Password',
+                                      icon: Icon(
+                                        Icons.lock_outline_rounded,
+                                        color: mainColor,
+                                      )
+                                    ),
                               ),
                             ),
                             sizedBoxSpacer,
@@ -126,57 +145,56 @@ class _SignUpState extends State<SignUp> {
                                     )))
                           ],
                         ))),
-                sizedBoxSpacer,
-                const Text(
-                  'or Login with',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 20.0,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                sizedBoxSpacer,
-                // Insert google Sign in
+
+                const SizedBox(height: 35,),
+
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: orDivider,
+                ), 
+
+                const SizedBox(height: 35,),
+                
+                // Insert google Sign in 
                 GestureDetector(
-                    onTap: () {
-                      AuthMethods().signInWithGoogle(context);
-                    },
-                    child: Image.asset(
-                      'assets/google.png',
-                      height: 45.0,
-                      width: 45.0,
-                      fit: BoxFit.cover,
-                    )),
+                  onTap:() {
+                    AuthMethods().signInWithGoogle(context);
+                  },
+                  child: Image.asset(
+                    'assets/google.png',
+                    height: 45.0,
+                    width: 45.0,
+                    fit: BoxFit.cover,
+                    )
+                ),
+                
                 sizedBoxSpacer,
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text('Already have an account?',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 18.0,
-                          fontWeight: FontWeight.w500,
-                        )),
-                    const SizedBox(
-                      width: 5.0,
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pushAndRemoveUntil(
+  
+                Padding(
+                  padding: const EdgeInsets.only(left: 20, right: 20),
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.pushAndRemoveUntil(
                             context,
                             MaterialPageRoute(builder: ((context) => LogIn())),
                             (route) => false);
-                      },
-                      child: const Text(
-                        'Log In',
-                        style: TextStyle(
-                          color: Colors.blue,
-                          fontSize: 18.0,
-                          fontWeight: FontWeight.w500,
+                    },
+                    child: Container(
+                        width: MediaQuery.of(context).size.width,
+                        padding: const EdgeInsets.symmetric(vertical: 13.0, horizontal: 30.0),
+                        decoration: switchAuthButtonDeco,
+                        child: Center(
+                          child: Text(
+                            'Already have an account',
+                            style: TextStyle(
+                              color: mainColor,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500
+                            ),
+                          ),
                         ),
                       ),
-                    )
-                  ],
+                  ),
                 )
               ]),
             )));
