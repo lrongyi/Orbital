@@ -3,8 +3,10 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:ss/services/budget_methods.dart';
 import 'package:ss/services/expense_methods.dart';
 import 'package:ss/services/goal_methods.dart';
+import 'package:ss/services/models/budget.dart';
 import 'package:ss/services/models/goal.dart';
 import 'package:ss/shared/main_screens_deco.dart';
 
@@ -16,7 +18,6 @@ class Insights extends StatefulWidget {
 }
 
 class _InsightsState extends State<Insights> {
-  final _formKey = GlobalKey<FormState>();
   TextEditingController nameController = TextEditingController();
   TextEditingController targetAmountController = TextEditingController();
   TextEditingController targetDateController = TextEditingController();
@@ -38,85 +39,6 @@ class _InsightsState extends State<Insights> {
       targetDateController.text = DateFormat('dd/MM/yyyy').format(DateTime.now());
       selectDate = DateTime.now();
     });
-  }
-
-  // Helper 1.1: Bar Chart Data
-  Future<List<BarChartGroupData>> _createData() async {
-    DateTime now = DateTime.now();
-    List<BarChartGroupData> data = [];
-    
-    for (int i = 0; i < 5; i++) {
-      DateTime month = DateTime(now.year, now.month - i, 1);
-      double spending = await ExpenseMethods().getMonthlySpending(month);
-
-      // Set a minimum height for the bar if spending is 0. 
-      // EDIT: onPressed shows the value to be $0.10
-      // double barHeight = spending == 0 ? 0.1 : spending;
-    
-      data.add(
-        BarChartGroupData(
-          x: i,
-          barRods: [
-            BarChartRodData(
-              y: spending, 
-              colors: [Colors.redAccent.withOpacity(0.4)],
-              width: 16,
-              
-              ),
-          ],
-        ),
-      );
-    }
-
-    return data.reversed.toList();
-  }
-
-  // Helper 2.1: Calculating Average Spending of Months
-  Future<double> _calculateAverageSpending() async {
-    DateTime now = DateTime.now();
-    List<double> spendingList = [];
-
-    for (int i = 0; i < 5; i++) {
-      DateTime month = DateTime(now.year, now.month - i, 1);
-      double spending = await ExpenseMethods().getMonthlySpending(month);
-      if (spending > 0) {
-        spendingList.add(spending);
-      }
-    }
-
-    if (spendingList.isEmpty) return 0.0;
-    double totalSpending = spendingList.reduce((a, b) => a + b);
-    return totalSpending / spendingList.length;
-  }
-
-  // Helper 2.2: Calculate number of months with actual spending
-  Future<int> _countMonthsWithSpending() async {
-    DateTime now = DateTime.now();
-    int count = 0;
-
-    for (int i = 0; i < 5; i++) {
-      DateTime month = DateTime(now.year, now.month - i, 1);
-      double spending = await ExpenseMethods().getMonthlySpending(month);
-      if (spending > 0) {
-        count++;
-      }
-    }
-
-    return count;
-  }
-
-  // Helper 3.1: Calculate overall net change over the last 5 months
-  Future<List<double>> _getNetChangesForMonths() async {
-    DateTime now = DateTime.now();
-    List<double> netChanges = [];
-
-    for (int i = 0; i < 5; i++) {
-      DateTime month = DateTime(now.year, now.month - i, 1);
-      double netChange = await ExpenseMethods().getMonthlyNetChange(month);
-      netChanges.add(netChange);
-    }
-
-    return netChanges;
   }
 
   @override
@@ -197,18 +119,13 @@ class _InsightsState extends State<Insights> {
                     ],
                   ),
                   const SizedBox(height: 10),
+
                   // Bar Chart
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.red.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: _buildBarChart() // See Helper 1
-                  ),
+                  _buildBarChart(), // See Bar Chart 
+
                   const SizedBox(height: 20),
                   
-                  // Insights
+                  // Insights Label
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -224,14 +141,14 @@ class _InsightsState extends State<Insights> {
                   ),
                   const SizedBox(height: 10),
 
-                  // Insight 1: Average Spending per Month
-                  _buildAverageSpendingTile(),  // See Helper 2
-
+                  _buildAverageSpendingTile(),  // See Insight 1
+                  
                   const SizedBox(height: 20),
-
+                  
                   // Insight 2: Overall net change over the last 5 months
-                  _buildNetChangeTile(), // See Helper 3
-            
+                  _buildNetChangeTile(), // See Insight 2
+                  
+                  const SizedBox(height: 20), 
                 ],
               ),
             ),
@@ -240,10 +157,55 @@ class _InsightsState extends State<Insights> {
       }),
     );
   }
+  // Bar Chart: Builds the Bar Chart Graph that contains 5 months of user spending
+  Widget _buildBarChart() {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.red.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildBarChartData(),
+              const SizedBox(height: 10), // Adjust spacing between chart and legends
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _buildLegend(color: Colors.redAccent.withOpacity(0.4), label: 'Total'),
+                  const SizedBox(width: 20), // Adjust spacing between legends
+                  _buildLegend(color: Colors.blueAccent.withOpacity(0.4), label: 'Highest'),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
 
-  // Helper 1: Builds the Bar Chart Graph that contains 5 months of user spending 
-  FutureBuilder<List<BarChartGroupData>> _buildBarChart() {
-    return FutureBuilder<List<BarChartGroupData>>(
+  // Bar Chart (Helper): Builds the legends for the two bars
+  Widget _buildLegend({required Color color, required String label}) {
+    return Row(
+      children: [
+        Container(
+          width: 20,
+          height: 20,
+          color: color,
+        ),
+        const SizedBox(width: 5),
+        Text(label),
+        const SizedBox(width: 20), // Adjust spacing as needed
+      ],
+    );
+  }
+
+  // Bar Chart (Helper): Bar Chart
+  FutureBuilder<List<Map<String, dynamic>>> _buildBarChartData() {
+    return FutureBuilder<List<Map<String, dynamic>>>(
       future: _createData(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -263,14 +225,38 @@ class _InsightsState extends State<Insights> {
                     touchTooltipData: BarTouchTooltipData(
                       tooltipBgColor: const Color.fromARGB(255, 139, 96, 98).withOpacity(0.8),
                       getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                        String categoryName;
+                        if (rodIndex == 0) {
+                          categoryName = 'Total';
+                        } else {
+                          categoryName = snapshot.data![groupIndex]['categoryData']['category'] as String;
+                        }
                         return BarTooltipItem(
-                          '\$${rod.y.toStringAsFixed(2)}',
+                          '$categoryName: \$${rod.y.toStringAsFixed(2)}',
                           const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                         );
                       },
                     ),
                   ),
-                  barGroups: snapshot.data!,
+                  barGroups: snapshot.data!.asMap().entries.map((entry) {
+                    var index = entry.key;
+                    var value = entry.value;
+                    return BarChartGroupData(
+                      x: index,
+                      barRods: [
+                        BarChartRodData(
+                          y: value['spending'] as double? ?? 0,
+                          colors: [Colors.redAccent.withOpacity(0.4)],
+                          width: 16,
+                        ),
+                        BarChartRodData(
+                          y: value['categoryData']['spending'] as double? ?? 0,
+                          colors: [Colors.blueAccent.withOpacity(0.4)],
+                          width: 16,
+                        ),
+                      ],
+                    );
+                  }).toList(),
                   borderData: FlBorderData(show: false),
                   titlesData: FlTitlesData(
                     leftTitles: SideTitles(showTitles: false),
@@ -298,7 +284,53 @@ class _InsightsState extends State<Insights> {
     );
   }
 
-  // Helper 2: Builds the ListTile that shows average spending per month
+
+  // Bar Chart (Helper): Bar Chart Data
+  Future<List<Map<String, dynamic>>> _createData() async {
+    DateTime now = DateTime.now();
+    List<Map<String, dynamic>> data = [];
+    
+    for (int i = 0; i < 5; i++) {
+      DateTime month = DateTime(now.year, now.month - i, 1);
+      double spending = await ExpenseMethods().getMonthlySpending(month);
+      Map<String, dynamic> categoryData = await _getHighestSpendingCategoryData(month);
+
+      data.add({
+        'spending': spending,
+        'categoryData': categoryData,
+      });
+    }
+
+    return data.reversed.toList();
+  }
+
+  // Bar Chart (Helper): Get the highest spending category along with its spending amount
+  Future<Map<String, dynamic>> _getHighestSpendingCategoryData(DateTime month) async {
+    final budgetsSnapshot = await BudgetMethods().getBudgetsByMonth(month).first;
+
+    if (budgetsSnapshot.docs.isEmpty) {
+      return {'category': 'No category', 'spending': 0.0};
+    }
+
+    String highestSpendingCategory = '';
+    double highestExpenditure = 0.0;
+
+    for (var budgetDoc in budgetsSnapshot.docs) {
+      Budget budget = budgetDoc.data() as Budget;
+      for (var category in budget.categories.keys) {
+        double categorySpending = await ExpenseMethods().getMonthlySpendingCategorized(month, category);
+        if (categorySpending > highestExpenditure) {
+          highestExpenditure = categorySpending;
+          highestSpendingCategory = category;
+        }
+      }
+    }
+
+    return {'category': highestSpendingCategory, 'spending': highestExpenditure};
+  }
+
+
+  // Insight 1: Builds the ListTile that shows average spending per month
   Widget _buildAverageSpendingTile() {
     return FutureBuilder<int>(
       future: _countMonthsWithSpending(),
@@ -357,13 +389,47 @@ class _InsightsState extends State<Insights> {
     );
   }
 
-  // Helper 3: Builds the ListTile that shows the overall net change over 5 months.
+  // Insight 1 (Helper) : Calculating average spending of months
+  Future<double> _calculateAverageSpending() async {
+    DateTime now = DateTime.now();
+    List<double> spendingList = [];
+
+    for (int i = 0; i < 5; i++) {
+      DateTime month = DateTime(now.year, now.month - i, 1);
+      double spending = await ExpenseMethods().getMonthlySpending(month);
+      if (spending > 0) {
+        spendingList.add(spending);
+      }
+    }
+
+    if (spendingList.isEmpty) return 0.0;
+    double totalSpending = spendingList.reduce((a, b) => a + b);
+    return totalSpending / spendingList.length;
+  }
+
+  // Insight 1 (Helper): Calculate number of months with actual spending
+  Future<int> _countMonthsWithSpending() async {
+    DateTime now = DateTime.now();
+    int count = 0;
+
+    for (int i = 0; i < 5; i++) {
+      DateTime month = DateTime(now.year, now.month - i, 1);
+      double spending = await ExpenseMethods().getMonthlySpending(month);
+      if (spending > 0) {
+        count++;
+      }
+    }
+
+    return count;
+  }
+
+  // Insight 2: Builds the ListTile that shows the overall net change over 5 months.
   Widget _buildNetChangeTile() {
     return FutureBuilder<List<double>>(
       future: _getNetChangesForMonths(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
         } else {
@@ -379,12 +445,12 @@ class _InsightsState extends State<Insights> {
                   color: Colors.black.withOpacity(0.3),
                   spreadRadius: 1,
                   blurRadius: 5,
-                  offset: Offset(0, 3),
+                  offset: const Offset(0, 3),
                 ),
               ],
             ),
             child: ListTile(
-              leading: CircleAvatar(
+              leading: const CircleAvatar(
                 backgroundColor: Colors.greenAccent,
                 child: Icon(
                   Icons.trending_up,
@@ -393,7 +459,7 @@ class _InsightsState extends State<Insights> {
               ),
               title: Text(
                 "Overall net change over the last ${netChanges.length} months: ${sign}\$${overallNetChange.abs().toStringAsFixed(2)}",
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 16,
                   color: Colors.black,
                 ),
@@ -405,6 +471,20 @@ class _InsightsState extends State<Insights> {
     );
   }
 
+  
+  // Insight 2 (Helper): Calculate overall net change over the last 5 months
+  Future<List<double>> _getNetChangesForMonths() async {
+    DateTime now = DateTime.now();
+    List<double> netChanges = [];
+
+    for (int i = 0; i < 5; i++) {
+      DateTime month = DateTime(now.year, now.month - i, 1);
+      double netChange = await ExpenseMethods().getMonthlyNetChange(month);
+      netChanges.add(netChange);
+    }
+
+    return netChanges;
+  }
 
 }
 

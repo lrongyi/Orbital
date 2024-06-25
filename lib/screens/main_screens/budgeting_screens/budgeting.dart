@@ -183,156 +183,158 @@ class _BudgetingState extends State<Budgeting> {
               ),
 
               // add budget button
-              Padding(
-                padding: const EdgeInsets.only(top: 10, right: 8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    MaterialButton(
-                        shape: const RoundedRectangleBorder(
-                          side: BorderSide(color: Colors.black),
-                        ),
-                        color: Colors.white,
-                        // Allocate new budget
-                        onPressed: () {
-                          showDialog(
-                              context: context,
-                              builder: (context) {
-                                return StatefulBuilder(
-                                  builder: (context, setState) {
-                                    return AlertDialog(
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(0), 
-                                      ),
-                                      backgroundColor: Colors.white,
-                                      title: const Text(
-                                        'Add Budget',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 18,
-                                        ),
-                                      ),
-                                      content: Form(
-                                        key: _formKey,
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            TextFormField(
-                                              validator: (value) {
-                                                if (value == null || value.isEmpty) {
-                                                  return 'Enter Category';
-                                                } 
-                                                return null;
-                                              },
-                                              controller: categoryController,
-                                              decoration: const InputDecoration(
-                                                  labelText: 'Category'),
-                                            ),
-                                            TextFormField(
-                                              validator: (value) {
-                                                if (value == null || value.isEmpty) {
-                                                  return 'Enter Amount';
-                                                } 
-                                                return null;
-                                              },
-                                              controller: budgetController,
-                                              decoration: const InputDecoration(
-                                                labelText: 'Budget Allocated',
-                                              ),
-                                              keyboardType: const TextInputType
-                                                  .numberWithOptions(
-                                                decimal: true,
-                                              ),
-                                            ),
+              // Padding(
+              //   padding: const EdgeInsets.only(top: 10, right: 8.0),
+              //   child: Row(
+              //     mainAxisAlignment: MainAxisAlignment.end,
+              //     children: [
+              //       MaterialButton(
+              //           shape: const RoundedRectangleBorder(
+              //             side: BorderSide(color: Colors.black),
+              //           ),
+              //           color: Colors.white,
+              //           // Allocate new budget
+              //           onPressed: () {
+              //             showDialog(
+              //                 context: context,
+              //                 builder: (context) {
+              //                   return StatefulBuilder(
+              //                     builder: (context, setState) {
+              //                       return AlertDialog(
+              //                         shape: RoundedRectangleBorder(
+              //                           borderRadius: BorderRadius.circular(0), 
+              //                         ),
+              //                         backgroundColor: Colors.white,
+              //                         title: const Text(
+              //                           'Add Budget',
+              //                           style: TextStyle(
+              //                             fontWeight: FontWeight.bold,
+              //                             fontSize: 18,
+              //                           ),
+              //                         ),
+              //                         content: Form(
+              //                           key: _formKey,
+              //                           child: Column(
+              //                             mainAxisSize: MainAxisSize.min,
+              //                             children: [
+              //                               TextFormField(
+              //                                 validator: (value) {
+              //                                   if (value == null || value.isEmpty) {
+              //                                     return 'Enter Category';
+              //                                   } 
+              //                                   return null;
+              //                                 },
+              //                                 controller: categoryController,
+              //                                 decoration: const InputDecoration(
+              //                                     labelText: 'Category'),
+              //                               ),
+              //                               TextFormField(
+              //                                 validator: (value) {
+              //                                   if (value == null || value.isEmpty) {
+              //                                     return 'Enter Amount';
+              //                                   } 
+              //                                   return null;
+              //                                 },
+              //                                 controller: budgetController,
+              //                                 decoration: const InputDecoration(
+              //                                   labelText: 'Budget Allocated',
+              //                                 ),
+              //                                 keyboardType: const TextInputType
+              //                                     .numberWithOptions(
+              //                                   decimal: true,
+              //                                 ),
+              //                               ),
                                     
-                                            const SizedBox(height: 15.0,),
-                                            Row(
-                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                              children: [
-                                                Row(
-                                                  children: [
-                                                    const Text('Recurring'),
-                                                    Checkbox(
-                                                      activeColor: mainColor,
-                                                      value: isRecurring,
-                                                      onChanged: (bool? value) {
-                                                        setState(() {
-                                                          isRecurring = value ?? false;
-                                                        });
-                                                      },
-                                                    ),
-                                                  ],
-                                                ),
-                                                Row(
-                                                  children: [
-                                                    const Text('Income'),
-                                                    Checkbox(
-                                                      activeColor: mainColor,
-                                                      value: isIncome,
-                                                      onChanged: (bool? value) {
-                                                        setState(() {
-                                                          isIncome = value ?? false;
-                                                        });
-                                                      },
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
-                                            )
-                                          ],
-                                        ),
-                                      ),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () {
-                                            categoryController.clear();
-                                            budgetController.clear();
-                                            Navigator.of(context).pop();
-                                          },
-                                          child: const Text('Cancel',
-                                            style: TextStyle(
-                                              color: Colors.black,
-                                            )
-                                          ),
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            if (_formKey.currentState!.validate()) {
-                                              setState(() {
-                                                category = categoryController.text;
-                                                amount = double.parse(budgetController.text).abs();
-                                              });
-                                              BudgetMethods().addBudget(category, amount, isRecurring, Colors.black.value.toString(), isIncome, _currentMonth); // Need to give it a color
-                                              Navigator.of(context).pop();
-                                            }
+              //                               const SizedBox(height: 15.0,),
+              //                               Row(
+              //                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //                                 children: [
+              //                                   Row(
+              //                                     children: [
+              //                                       const Text('Recurring'),
+              //                                       Checkbox(
+              //                                         activeColor: mainColor,
+              //                                         value: isRecurring,
+              //                                         onChanged: (bool? value) {
+              //                                           setState(() {
+              //                                             isRecurring = value ?? false;
+              //                                           });
+              //                                         },
+              //                                       ),
+              //                                     ],
+              //                                   ),
+              //                                   Row(
+              //                                     children: [
+              //                                       const Text('Income'),
+              //                                       Checkbox(
+              //                                         activeColor: mainColor,
+              //                                         value: isIncome,
+              //                                         onChanged: (bool? value) {
+              //                                           setState(() {
+              //                                             isIncome = value ?? false;
+              //                                           });
+              //                                         },
+              //                                       ),
+              //                                     ],
+              //                                   ),
+              //                                 ],
+              //                               )
+              //                             ],
+              //                           ),
+              //                         ),
+              //                         actions: [
+              //                           TextButton(
+              //                             onPressed: () {
+              //                               categoryController.clear();
+              //                               budgetController.clear();
+              //                               Navigator.of(context).pop();
+              //                             },
+              //                             child: const Text('Cancel',
+              //                               style: TextStyle(
+              //                                 color: Colors.black,
+              //                               )
+              //                             ),
+              //                           ),
+              //                           TextButton(
+              //                             onPressed: () {
+              //                               if (_formKey.currentState!.validate()) {
+              //                                 setState(() {
+              //                                   category = categoryController.text;
+              //                                   amount = double.parse(budgetController.text).abs();
+              //                                 });
+              //                                 BudgetMethods().addBudget(category, amount, isRecurring, Colors.black.value.toString(), isIncome, _currentMonth); // Need to give it a color
+              //                                 Navigator.of(context).pop();
+              //                               }
                                                         
-                                            setState(() {
-                                              categoryController.clear();
-                                              budgetController.clear();
-                                            });
-                                          },
-                                          child: const Text('Save',
-                                            style: TextStyle(
-                                              color: Colors.black,
-                                            )
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                  }
-                                );
-                              });
-                        },
-                        child: const Text(
-                          'Add Budget',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                          ),
-                        ))
-                  ],
-                ),
-              ),
+              //                               setState(() {
+              //                                 categoryController.clear();
+              //                                 budgetController.clear();
+              //                               });
+              //                             },
+              //                             child: const Text('Save',
+              //                               style: TextStyle(
+              //                                 color: Colors.black,
+              //                               )
+              //                             ),
+              //                           ),
+              //                         ],
+              //                       );
+              //                     }
+              //                   );
+              //                 });
+              //           },
+              //           child: const Text(
+              //             'Add Budget',
+              //             style: TextStyle(
+              //               fontWeight: FontWeight.bold,
+              //               fontSize: 14,
+              //             ),
+              //           ))
+              //     ],
+              //   ),
+              // ),
+
+              const SizedBox(height: 40),
 
               // Row to show the Categories label
               const Padding(
@@ -547,7 +549,8 @@ class _BudgetingState extends State<Budgeting> {
                               children: [
                                 CircleAvatar(
                                   backgroundColor: color,
-                                ),
+                                  child: Icon(Icons.food_bank, color: Colors.white, size: 20),
+                              ),
                                 SizedBox(width: 16),
                                 Text(category),
                               ],

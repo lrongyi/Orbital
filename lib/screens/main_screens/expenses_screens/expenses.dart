@@ -143,7 +143,7 @@ class _ExpensesState extends State<Expenses> {
                         itemBuilder: (context, index) {
                           Expense expense = expenses[index].data() as Expense;
                           String expenseId = expenses[index].id;
-                          double amount = expense.amount;
+                          // double amount = expense.amount;
                           return StreamBuilder<QuerySnapshot>(
                             stream: BudgetMethods().getBudgetsByMonth(
                                   monthNotifier._currentMonth),
@@ -166,10 +166,7 @@ class _ExpensesState extends State<Expenses> {
                                   // Icon
                                   leading: CircleAvatar(
                                     backgroundColor: color,
-                                    // child: Icon(
-                                    //   expense.amount < 0 ? Icons.money_off_csred_outlined : Icons.monetization_on_outlined,
-                                    //   color: Colors.white,
-                                    // ),
+                                    child: Icon(Icons.food_bank, color: Colors.white, size: 20),
                                   ),
                                   // List Tile
                                   title: Text(
@@ -339,24 +336,27 @@ class _ExpensesState extends State<Expenses> {
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Net Flow',
-                  style: TextStyle(
-                    color: Colors.white70,
-                    fontSize: 16,
+              children: const [
+                Padding(
+                  padding: EdgeInsets.only(bottom: 8.0),
+                  child: Text(
+                    'Net Flow',
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 16,
+                    ),
                   ),
                 ),
-                IconButton(
-                  icon: Icon(
-                    Icons.more_vert,
-                    color: Colors.white70,
-                  ),
-                  onPressed: () {
-                    // Change salary dialog. See helper 2
-                    _showChangeSalaryDialog(context); 
-                  },
-                ),
+                // IconButton(
+                //   icon: Icon(
+                //     Icons.more_vert,
+                //     color: Colors.white70,
+                //   ),
+                //   onPressed: () {
+                //     // Change salary dialog. See helper 2
+                //     _showChangeSalaryDialog(context); 
+                //   },
+                // ),
 
 
               ],
@@ -439,12 +439,17 @@ class _ExpensesState extends State<Expenses> {
                             ),
                           );
                         } else if (snapshot.hasData) {
-                          return Text(
-                            '\$${snapshot.data!.toStringAsFixed(2)}', // Display the amount returned by the method
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
+                          return GestureDetector(
+                            onTap: () {
+                              _showChangeSalaryDialog(context);
+                            },
+                            child: Text(
+                              '\$${snapshot.data!.toStringAsFixed(2)}', // Display the amount returned by the method
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           );
                         } else {
