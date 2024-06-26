@@ -158,10 +158,10 @@ class BudgetMethods {
     }
   }
 
-  void deleteBudget(String category) async {
-    DateTime now = DateTime.now();
-    DateTime firstOfMonth = DateTime(now.year, now.month, 1);
-    DateTime nextMonth = DateTime(now.year, now.month + 1, 1);
+  void deleteBudget(String category, DateTime time) async {
+    // DateTime now = DateTime.now();
+    DateTime firstOfMonth = DateTime(time.year, time.month, 1);
+    DateTime nextMonth = DateTime(time.year, time.month + 1, 1);
     Timestamp firstOfMonthTS = Timestamp.fromDate(firstOfMonth);
     Timestamp nextMonthTS = Timestamp.fromDate(nextMonth);
 

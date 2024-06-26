@@ -1,14 +1,9 @@
-import 'dart:ffi';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/provider.dart'; // Import provider package
 import 'package:ss/screens/navigation_screen/navigation.dart';
 import 'package:ss/services/budget_methods.dart';
 import 'package:ss/services/expense_methods.dart';
-import 'package:ss/services/models/budget.dart';
-import 'package:ss/shared/home_deco.dart';
+import 'package:ss/services/user_methods.dart';
 import 'package:ss/shared/main_screens_deco.dart';
 import 'package:fl_chart/fl_chart.dart';
 
@@ -21,11 +16,15 @@ class Breakdown extends StatefulWidget {
 
 class _BreakdownState extends State<Breakdown> {
   bool allBudgetsMet = true;
+  bool isOverallNetFlowPositive = false;
+  String userName = '';
 
   @override
   void initState() {
     super.initState();
     _checkAllBudgetsMet();
+    _checkPositiveOverallNetFlow();
+    _retrieveUsername();
   }
 
   Future<void> _checkAllBudgetsMet() async {
@@ -45,42 +44,62 @@ class _BreakdownState extends State<Breakdown> {
     }
   }
 
+  Future<void> _checkPositiveOverallNetFlow() async {
+    DateTime now = DateTime.now();
+    double overallNetFlow = 0.0;
+
+    for (int i = 0; i < 5; i++) {
+      DateTime month = DateTime(now.year, now.month - i, 1);
+      double netFlow = await ExpenseMethods().getMonthlyNetChange(month);
+      overallNetFlow += netFlow;
+    }
+
+    setState(() {
+      isOverallNetFlowPositive = overallNetFlow > 0;
+    });
+  }
+
+  // This one increased the loading time by a bit 
+  Future<void> _retrieveUsername() async {
+    String temp = await UserMethods().getUserNameAsync();
+
+    setState(() {
+      userName = temp;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => MonthNotifier(DateTime.now()),
-      child: Consumer<MonthNotifier>(builder: (context, monthNotifier, _) {
-        return Scaffold(
-          backgroundColor: Colors.white,
-          appBar: AppBar(
-            title: Text(
-              'Monthly Spending vs Budget',
-              style: TextStyle(
-                color: mainColor,
-                fontSize: 20,
-                fontWeight: FontWeight.bold
-              ),
-            ),
-            backgroundColor: Colors.white, // Customize app bar color as needed
-            leading: IconButton(
-              icon: Icon(
-                Icons.close, // Close icon (X)
-                color: mainColor, // Icon color
-              ),
-              onPressed: () {
-                Navigator.pop(context); // Pop current context on icon press
-              },
-            ),
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: Text(
+          'Monthly Spending vs Budget',
+          style: TextStyle(
+            color: mainColor,
+            fontSize: 20,
+            fontWeight: FontWeight.bold
           ),
-          body: Column(
-            children: [
-              _buildBarChart(),
-              // _buildMonthSelector(),
-              _buildDetailsList(),
-            ],
+        ),
+        backgroundColor: Colors.white, // Customize app bar color as needed
+        leading: IconButton(
+          icon: Icon(
+            Icons.close, // Close icon (X)
+            color: mainColor, // Icon color
           ),
-        );
-      }),
+          onPressed: () {
+            Navigator.pop(context); // Pop current context on icon press
+          },
+        ),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            _buildBarChart(),
+            _buildDetailsList(),
+          ],
+        ),
+      ),
     );
   }
 
@@ -98,7 +117,6 @@ class _BreakdownState extends State<Breakdown> {
             children: [
               Container(
                 margin: const EdgeInsets.all(16),
-                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   boxShadow: [
                     BoxShadow(
@@ -117,14 +135,50 @@ class _BreakdownState extends State<Breakdown> {
                 ),
                 child: ListTile(
                   leading: Icon(
-                    allBudgetsMet ? Icons.thumb_up : Icons.sentiment_dissatisfied,
+                    allBudgetsMet ? Icons.sentiment_very_satisfied : Icons.sentiment_dissatisfied,
                     color: allBudgetsMet ? Colors.green : Colors.amber,
                     size: 50,
                   ),
                   title: Text(
-                    allBudgetsMet
-                        ? 'Good job! You\'ve met all your budgets within these 5 months'
-                        : 'Oh no! You did not meet all your budgets within these 5 months',
+                    allBudgetsMet 
+                        ? 'Good job, $userName! You\'ve met all your budgets within these 5 months!'
+                        : 'Oh no, $userName! You did not meet all your budgets within these 5 months!',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+              ),
+              Container(
+                margin: const EdgeInsets.only(bottom: 16, left: 16, right: 16),
+                decoration: BoxDecoration(
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 2,
+                      blurRadius: 5,
+                      offset: const Offset(0, 3), // changes position of shadow
+                    ),
+                  ],
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: isOverallNetFlowPositive ? Colors.green : Colors.red,
+                    width: 2,
+                  ),
+                  color: Colors.white,
+                ),
+                child: ListTile(
+                  leading: Icon(
+                    isOverallNetFlowPositive ? Icons.sentiment_very_satisfied : Icons.sentiment_dissatisfied,
+                    color: isOverallNetFlowPositive ? Colors.green : Colors.red,
+                    size: 50,
+                  ),
+                  title: Text(
+                    isOverallNetFlowPositive
+                        ? 'Good job, $userName! Your overall net flow is positive!'
+                        : 'Oh no, $userName! Your overall net flow isn\'t looking good! Let\'s work on it!',
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 18,
@@ -134,21 +188,77 @@ class _BreakdownState extends State<Breakdown> {
                 ),
               ),
               if (snapshot.hasData && snapshot.data!.isNotEmpty)
-                const Padding(
-                  padding: EdgeInsets.only(left: 120),
-                  child: Row(
+                Padding(
+                  padding: const EdgeInsets.only(left: 120),
+                  child: Column(
                     children: [
-                      Icon(
-                        Icons.monetization_on_outlined,
-                        color: Colors.black,
+                      const Row(
+                        children: [
+                          Icon(
+                            Icons.monetization_on_outlined,
+                            color: Colors.black,
+                          ),
+                          SizedBox(width: 8),
+                          Text(
+                            'Budgets Met',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                              color: Colors.black,
+                            ),
+                          ),
+                          SizedBox(width: 25),
+                          Icon(
+                            Icons.trending_up, // Replace with your suitable icon for Net Flow
+                            color: Colors.black,
+                          ),
+                          SizedBox(width: 8),
+                          Text(
+                            'Net Flow',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ],
                       ),
-                      SizedBox(width: 8),
-                      Text(
-                        'Budgets Met',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                          color: Colors.black,
+                      Padding(
+                        padding: const EdgeInsets.only(left: 30, right: 10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => Navigation(state: 2)),
+                                  (route) => false,
+                                );
+                              },
+                              child: const Text(
+                                'View budgets',
+                                style: TextStyle(
+                                  color: Colors.blue,
+                                )
+                              )
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => Navigation(state: 1)),
+                                  (route) => false,
+                                );
+                              },
+                              child: Text(
+                                'View transactions',
+                                style: TextStyle(
+                                  color: mainColor,
+                                )
+                              )
+                            ),
+                          ],
                         ),
                       ),
                     ],
@@ -175,7 +285,7 @@ class _BreakdownState extends State<Breakdown> {
 
     tiles.add(
       Padding(
-        padding: const EdgeInsets.only(left: 40, top: 8.0, right: 16),
+        padding: const EdgeInsets.only(left: 30, top: 8.0, right: 22),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -203,22 +313,8 @@ class _BreakdownState extends State<Breakdown> {
                     fontSize: 18,
                   ),
                 ),
-                const SizedBox(width: 70),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(builder: (context) => Navigation(state: 2)),
-                      (route) => false,
-                    );
-                  },
-                  child: const Text(
-                    'View budgets',
-                    style: TextStyle(
-                      color: Colors.blue,
-                    )
-                  ),
-                ),
+                const SizedBox(width: 60),
+                _buildNetFlow(month),
               ],
             ),
           ],
@@ -227,6 +323,42 @@ class _BreakdownState extends State<Breakdown> {
     );
   }
   return tiles;
+}
+
+Widget _buildNetFlow(DateTime month) {
+  return FutureBuilder<double>(
+    future: ExpenseMethods().getMonthlyNetChange(month),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return const SizedBox(
+          width: 120,
+          child: Center(child: CircularProgressIndicator()),
+        );
+      } else if (snapshot.hasError) {
+        return Text('Error: ${snapshot.error}');
+      } else {
+        double netChange = snapshot.data ?? 0.0;
+        String sign = netChange > 0 ? '+' : netChange < 0 ? '-' : '';
+
+        return Container(
+          width: 100,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Text(
+                '$sign\$${netChange.abs().toStringAsFixed(2)}',
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: Colors.black,
+                ),
+              ),
+            ],
+          ),
+        );
+      }
+    },
+  );
 }
 
   Future<int> getTotalBudgetCount(DateTime month) async {
@@ -251,53 +383,6 @@ class _BreakdownState extends State<Breakdown> {
       print('Error retrieving budgets within zone: $e');
       return 0;
     }
-  }
-
-  // Helper method to build the month selector UI
-  Widget _buildMonthSelector() {
-    return Consumer<MonthNotifier>(
-      builder: (context, monthNotifier, child) => Container(
-        color: mainColor,
-        height: 50,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // back arrow
-            if (!monthNotifier.isFirstMonth)
-              IconButton(
-                icon: const Icon(
-                  Icons.arrow_left,
-                  color: Colors.white,
-                ),
-                onPressed: () {
-                  monthNotifier.decrementMonth();
-                },
-              ),
-
-            // the date itself
-            Text(
-              DateFormat.yMMMM().format(monthNotifier.currentMonth),
-              style: const TextStyle(
-                fontSize: 18,
-                color: Colors.white,
-              ),
-            ),
-
-            // right arrow with conditional disable
-            if (!monthNotifier.isCurrentMonth)
-              IconButton(
-                icon: const Icon(
-                  Icons.arrow_right,
-                  color: Colors.white,
-                ),
-                onPressed: () {
-                  monthNotifier.incrementMonth();
-                },
-              ),
-          ],
-        ),
-      ),
-    );
   }
 
   // Bar Chart: Builds the Bar Chart Graph that contains 5 months of user spending
@@ -433,34 +518,5 @@ class _BreakdownState extends State<Breakdown> {
     }
 
     return data.reversed.toList();
-  }
-}
-
-class MonthNotifier extends ChangeNotifier {
-  DateTime _currentMonth;
-
-  MonthNotifier(this._currentMonth);
-
-  DateTime get currentMonth => _currentMonth;
-
-  bool get isFirstMonth {
-    DateTime now = DateTime.now();
-    DateTime firstAllowedMonth = DateTime(now.year, now.month - 3, 1);
-    return _currentMonth.isBefore(firstAllowedMonth);
-  }
-
-  bool get isCurrentMonth {
-    DateTime now = DateTime.now();
-    return _currentMonth.year == now.year && _currentMonth.month == now.month;
-  }
-
-  void incrementMonth() {
-    _currentMonth = DateTime(_currentMonth.year, _currentMonth.month + 1, 1);
-    notifyListeners();
-  }
-
-  void decrementMonth() {
-    _currentMonth = DateTime(_currentMonth.year, _currentMonth.month - 1, 1);
-    notifyListeners();
   }
 }

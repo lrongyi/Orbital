@@ -650,7 +650,7 @@ class _EditingEntryState extends State<EditingEntry> {
             description: descriptionController.text,
           );
           ExpenseMethods().updateExpense(widget.expenseId, expense);
-          Navigator.popUntil(context, (context) => context.isFirst);
+          Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => Navigation(state: 1,)), (route) => false);
         },
         minWidth: 250,
         child: const Text(

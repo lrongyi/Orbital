@@ -343,7 +343,7 @@ class _BudgetingState extends State<Budgeting> {
                                                   category = categoryController.text;
                                                   amount = double.parse(budgetController.text).abs();
                                                 });
-                                                BudgetMethods().addBudget(category, amount, isRecurring, Colors.black.value.toString(), isIncome, _currentMonth); // Need to give it a color
+                                                BudgetMethods().addBudget(category, amount, isRecurring, Colors.black.value.toString(), isIncome, monthNotifier.currentMonth); // Need to give it a color
                                                 Navigator.of(context).pop();
                                               }
                                                           
@@ -515,7 +515,7 @@ class _BudgetingState extends State<Budgeting> {
                                             onChanged: (value) {
                                               newAmount =
                                                   double.tryParse(value) ?? amount;
-                                              BudgetMethods().updateBudget(category, newAmount, isBudgetRecurring, entry.value[2], isIncome, _currentMonth);
+                                              BudgetMethods().updateBudget(category, newAmount, isBudgetRecurring, entry.value[2], isIncome, monthNotifier.currentMonth);
                                             },
                                           ),
                                           const SizedBox(height: 15.0,),
@@ -531,7 +531,7 @@ class _BudgetingState extends State<Budgeting> {
                                                 onChanged: (bool value) {
                                                   setState(() {
                                                     isBudgetRecurring = value;
-                                                    BudgetMethods().updateBudget(category, newAmount, isBudgetRecurring, entry.value[2], isIncome, _currentMonth);
+                                                    BudgetMethods().updateBudget(category, newAmount, isBudgetRecurring, entry.value[2], isIncome, monthNotifier.currentMonth);
                                                   });
                                                 },
                                               ),
@@ -609,8 +609,9 @@ class _BudgetingState extends State<Budgeting> {
                                   Center(
                                     child: TextButton(
                                       onPressed: () {
-                                        BudgetMethods().deleteBudget(category);
+                                        BudgetMethods().deleteBudget(category, monthNotifier.currentMonth);
                                         Navigator.of(context).pop();
+                                        setState(() {});
                                       },
                                       style: ButtonStyle(
                                         side: MaterialStateProperty.resolveWith((states) => const BorderSide(

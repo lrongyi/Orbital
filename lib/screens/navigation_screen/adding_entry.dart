@@ -500,12 +500,13 @@ class _AddingEntryState extends State<AddingEntry> {
                     });
                     BudgetMethods().addBudget(category, amount, isRecurring, color, isIncome, _currentMonth); // last argument change to isIncome
                     Navigator.of(context).pop();
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => widget.isExpense ? const AddingEntry(isExpense: true) : const AddingEntry(isExpense: false),
-                      ),
-                    );
+                    // Navigator.pushReplacement(
+                    //   context,
+                    //   MaterialPageRoute(
+                    //     builder: (context) => widget.isExpense ? const AddingEntry(isExpense: true) : const AddingEntry(isExpense: false),
+                    //   ),
+                    // );
+                    setState(() {});  // acts as a hot reload
                     // Navigator.of(context).pop();
                   }
               
