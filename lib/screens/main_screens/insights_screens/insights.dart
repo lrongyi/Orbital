@@ -3,6 +3,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:ss/screens/main_screens/insights_screens/breakdown.dart';
 import 'package:ss/services/budget_methods.dart';
 import 'package:ss/services/expense_methods.dart';
 import 'package:ss/services/goal_methods.dart';
@@ -89,7 +90,7 @@ class _InsightsState extends State<Insights> {
                   Row(
                     children: [
                       Text(
-                        'Comparison Chart',
+                        'Monthly Spending vs Budget',
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -141,14 +142,24 @@ class _InsightsState extends State<Insights> {
                   ),
                   const SizedBox(height: 10),
 
-                  _buildAverageSpendingTile(),  // See Insight 1
-                  
-                  const SizedBox(height: 20),
-                  
-                  // Insight 2: Overall net change over the last 5 months
-                  _buildNetChangeTile(), // See Insight 2
-                  
-                  const SizedBox(height: 20), 
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          _buildAverageSpendingTile(),  // See Insight 1
+                          
+                          const SizedBox(height: 20),
+                          
+                          // Insight 2: Overall net change over the last 5 months
+                          _buildNetChangeTile(), // See Insight 2
+                          
+                          const SizedBox(height: 20),
+                          
+                          _buildBreakdownTile(),
+                        ],
+                      ),
+                    ),
+                  ), 
                 ],
               ),
             ),
@@ -175,9 +186,9 @@ class _InsightsState extends State<Insights> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _buildLegend(color: Colors.redAccent.withOpacity(0.4), label: 'Total'),
+                  _buildLegend(color: Colors.redAccent.withOpacity(0.4), label: 'Total Spent'),
                   const SizedBox(width: 20), // Adjust spacing between legends
-                  _buildLegend(color: Colors.blueAccent.withOpacity(0.4), label: 'Highest'),
+                  _buildLegend(color: Colors.blueAccent.withOpacity(0.4), label: 'Budget'),
                 ],
               ),
             ],
@@ -204,7 +215,7 @@ class _InsightsState extends State<Insights> {
   }
 
   // Bar Chart (Helper): Bar Chart
-  FutureBuilder<List<Map<String, dynamic>>> _buildBarChartData() {
+  Widget _buildBarChartData() {
     return FutureBuilder<List<Map<String, dynamic>>>(
       future: _createData(),
       builder: (context, snapshot) {
@@ -215,65 +226,52 @@ class _InsightsState extends State<Insights> {
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const Center(child: Text('No data available'));
         } else {
+          List<Map<String, dynamic>> data = snapshot.data!;
           return Container(
             padding: const EdgeInsets.all(16),
-            child: SizedBox(
-              height: 200,
-              child: BarChart(
-                BarChartData(
-                  barTouchData: BarTouchData(
-                    touchTooltipData: BarTouchTooltipData(
-                      tooltipBgColor: const Color.fromARGB(255, 139, 96, 98).withOpacity(0.8),
-                      getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                        String categoryName;
-                        if (rodIndex == 0) {
-                          categoryName = 'Total';
-                        } else {
-                          categoryName = snapshot.data![groupIndex]['categoryData']['category'] as String;
-                        }
-                        return BarTooltipItem(
-                          '$categoryName: \$${rod.y.toStringAsFixed(2)}',
-                          const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                        );
-                      },
-                    ),
+            height: 200,
+            child: BarChart(
+              BarChartData(
+                barTouchData: BarTouchData(
+                  touchTooltipData: BarTouchTooltipData(
+                    tooltipBgColor: const Color.fromARGB(255, 139, 96, 98).withOpacity(0.8),
+                    getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                      String categoryName = rodIndex == 0 ? 'Expenditure' : 'Budget';
+                      return BarTooltipItem(
+                        '$categoryName: \$${rod.y.toStringAsFixed(2)}',
+                        const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                      );
+                    },
                   ),
-                  barGroups: snapshot.data!.asMap().entries.map((entry) {
-                    var index = entry.key;
-                    var value = entry.value;
-                    return BarChartGroupData(
-                      x: index,
-                      barRods: [
-                        BarChartRodData(
-                          y: value['spending'] as double? ?? 0,
-                          colors: [Colors.redAccent.withOpacity(0.4)],
-                          width: 16,
-                        ),
-                        BarChartRodData(
-                          y: value['categoryData']['spending'] as double? ?? 0,
-                          colors: [Colors.blueAccent.withOpacity(0.4)],
-                          width: 16,
-                        ),
-                      ],
-                    );
-                  }).toList(),
-                  borderData: FlBorderData(show: false),
-                  titlesData: FlTitlesData(
-                    leftTitles: SideTitles(showTitles: false),
-                    bottomTitles: SideTitles(
-                      showTitles: true,
-                      getTitles: (value) {
-                        // Subtract months directly from the current date
-                        List<String> months = [
-                          DateFormat('MMM yyyy').format(DateTime.now().subtract(Duration(days: 30 * (0 - value.toInt())))),
-                          DateFormat('MMM yyyy').format(DateTime.now().subtract(Duration(days: 30 * (2 - value.toInt())))),
-                          DateFormat('MMM yyyy').format(DateTime.now().subtract(Duration(days: 30 * (4 - value.toInt())))),
-                          DateFormat('MMM yyyy').format(DateTime.now().subtract(Duration(days: 30 * (6 - value.toInt())))),
-                          DateFormat('MMM yyyy').format(DateTime.now().subtract(Duration(days: 30 * (8 - value.toInt())))),
-                        ];
-                        return months[value.toInt()];
-                      },
-                    ),
+                ),
+                barGroups: List.generate(data.length, (index) {
+                  return BarChartGroupData(
+                    x: index,
+                    barRods: [
+                      BarChartRodData(
+                        y: data[index]['spending'] as double? ?? 0,
+                        colors: [Colors.redAccent.withOpacity(0.4)],
+                        width: 16,
+                      ),
+                      BarChartRodData(
+                        y: data[index]['budget'] as double? ?? 0,
+                        colors: [Colors.blueAccent.withOpacity(0.4)],
+                        width: 16,
+                      ),
+                    ],
+                  );
+                }),
+                borderData: FlBorderData(show: false),
+                titlesData: FlTitlesData(
+                  leftTitles: SideTitles(showTitles: false),
+                  bottomTitles: SideTitles(
+                    showTitles: true,
+                    getTitles: (value) {
+                      if (value.toInt() >= 0 && value.toInt() < data.length) {
+                        return data[value.toInt()]['monthLabel'] ?? '';
+                      }
+                      return '';
+                    },
                   ),
                 ),
               ),
@@ -289,15 +287,17 @@ class _InsightsState extends State<Insights> {
   Future<List<Map<String, dynamic>>> _createData() async {
     DateTime now = DateTime.now();
     List<Map<String, dynamic>> data = [];
-    
+
     for (int i = 0; i < 5; i++) {
       DateTime month = DateTime(now.year, now.month - i, 1);
       double spending = await ExpenseMethods().getMonthlySpending(month);
-      Map<String, dynamic> categoryData = await _getHighestSpendingCategoryData(month);
+      double budget = await BudgetMethods().getMonthlyBudgetAsync(month); 
 
       data.add({
+        'month': month,
+        'monthLabel': DateFormat('MMM yyyy').format(month), 
         'spending': spending,
-        'categoryData': categoryData,
+        'budget': budget,
       });
     }
 
@@ -484,6 +484,44 @@ class _InsightsState extends State<Insights> {
     }
 
     return netChanges;
+  }
+
+  Widget _buildBreakdownTile() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8.0),
+        border: Border.all(color: Colors.blue, width: 2.0), // Yellow border
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.3),
+            spreadRadius: 1,
+            blurRadius: 5,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: ListTile(
+        onTap: () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const Breakdown()),
+        );
+        },
+        leading: const CircleAvatar(
+          backgroundColor: Colors.blue,
+          child: Icon(
+            Icons.lightbulb_outline,
+            color: Colors.white,
+          ),
+        ),
+        title: const Text(
+          'See complete breakdown',
+          style: TextStyle(
+            fontSize: 16,
+            color: Colors.black,
+          ),
+        ),
+      ),
+    );
   }
 
 }

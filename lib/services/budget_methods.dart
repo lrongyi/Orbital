@@ -225,4 +225,25 @@ class BudgetMethods {
     await getBudgetRef(userId).add(newBudget);
   }
 
+  Future<double> getCategoryBudgetAsync(DateTime time, String category) async {
+    DateTime firstOfMonth = DateTime(time.year, time.month, 1);
+    DateTime nextMonth = time.month != 12 ? DateTime(time.year, time.month + 1, 1) : DateTime(time.year + 1, 1, 1);
+    Timestamp firstOfMonthTS = Timestamp.fromDate(firstOfMonth);
+    Timestamp nextMonthTS = Timestamp.fromDate(nextMonth);
+
+    QuerySnapshot<Budget> query = await getBudgetRef(UserMethods().getCurrentUserId())
+        .where('month', isGreaterThanOrEqualTo: firstOfMonthTS)
+        .where('month', isLessThan: nextMonthTS)
+        .get();
+
+    if (query.docs.isNotEmpty) {
+      DocumentSnapshot<Budget> budgetDoc = query.docs.first;
+      Budget existingBudget = budgetDoc.data()!;
+      if (existingBudget.categories.containsKey(category)) {
+        return existingBudget.categories[category]![0] as double;
+      }
+    }
+    return 0.0; // Return 0.0 if the budget for the category is not found
+  }
+
 }

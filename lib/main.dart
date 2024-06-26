@@ -34,9 +34,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: LogIn(),
+      // home: LogIn(),
       // home: GetStarted(),
-      // home: Navigation(),
+      home: Navigation(),
       // home: Billing()
     );
   }

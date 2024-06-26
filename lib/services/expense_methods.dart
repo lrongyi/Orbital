@@ -128,6 +128,38 @@ class ExpenseMethods {
     return monthlyBudget - monthlyExpense;
   }
 
+  Future<int> getBudgetsOvershotCountMonthly(DateTime time) async {
+    List<String> categories = await BudgetMethods().getCategoriesList(time);
+    int overshotCount = 0;
+
+    for (String category in categories) {
+      double categoryBudget = await BudgetMethods().getCategoryBudgetAsync(time, category);
+      double categorySpending = await getMonthlySpendingCategorized(time, category);
+
+      if (categorySpending > categoryBudget) {
+        overshotCount += 1;
+      }
+    }
+
+    return overshotCount;
+  }
+
+  Future<int> getBudgetsWithinZone(DateTime time) async {
+    List<String> categories = await BudgetMethods().getCategoriesList(time);
+    int withinZoneCount = 0;
+
+    for (String category in categories) {
+      double categoryBudget = await BudgetMethods().getCategoryBudgetAsync(time, category);
+      double categorySpending = await getMonthlySpendingCategorized(time, category);
+
+      if (categorySpending <= categoryBudget) {
+        withinZoneCount += 1;
+      }
+    }
+
+    return withinZoneCount;
+  }
+
   void addExpense(Expense expense) async { 
     await getExpensesRef(UserMethods().getCurrentUserId()).add(expense);
   }
