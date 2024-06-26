@@ -213,9 +213,16 @@ class _ExpensesState extends State<Expenses> {
                                       context: context,
                                       builder: (context) {
                                         return AlertDialog(
-                                          shape: const BeveledRectangleBorder(borderRadius: BorderRadius.zero),
+                                          surfaceTintColor: Colors.white,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(10), 
+                                            side: const BorderSide(
+                                              color: Colors.black,
+                                              width: 2.0,
+                                            )
+                                          ),
                                           backgroundColor: expense.amount > 0
-                                              ? Colors.green[100]
+                                              ? Colors.green[50]
                                               : Colors.red[50],
                                           title: Text(expense.amount > 0 
                                             ? 'Income Description'
@@ -227,28 +234,39 @@ class _ExpensesState extends State<Expenses> {
                                             ),
                                             textAlign: TextAlign.center,
                                           ),
-                                          content: Container(
-                                            height: 100,
-                                            color: Colors.white,                                 
-                                            constraints: BoxConstraints(
-                                              minHeight: 150,
-                                              maxWidth: MediaQuery.of(context).size.width * 0.5,
-                                            ),
-                                            child: Text(
-                                              description == '' ? 'No description provided' : description ?? '',
-                                              style: const TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 16,
+                                          content: ClipRRect(
+                                            borderRadius: BorderRadius.circular(10),
+                                            child: Container(
+                                              padding: const EdgeInsets.all(10.0),
+                                              color: Colors.white,                                 
+                                              constraints: BoxConstraints(
+                                                minHeight: 150,
+                                                maxWidth: MediaQuery.of(context).size.width * 0.5,
+                                              ),
+                                              child: Text(
+                                                description == '' ? 'No description provided' : description ?? '',
+                                                style: const TextStyle(
+                                                  color: Colors.black,
+                                                  fontSize: 16,
+                                                ),
                                               ),
                                             ),
                                           ),
                                           actions: [
-                                            TextButton(
-                                              onPressed: () {
-                                                Navigator.of(context).pop();
-                                              },
-                                              child: const Text(
-                                                'Close',
+                                            Center(
+                                              child: TextButton(
+                                                style: TextButton.styleFrom(
+                                                  backgroundColor: expense.amount > 0 ? incomeColor : mainColor
+                                                ),
+                                                onPressed: () {
+                                                  Navigator.of(context).pop();
+                                                },
+                                                child: const Text(
+                                                  'Close',
+                                                  style: TextStyle(
+                                                    color: Colors.white
+                                                  ),
+                                                ),
                                               ),
                                             ),
                                           ],

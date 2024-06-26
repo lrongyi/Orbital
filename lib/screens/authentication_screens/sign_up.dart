@@ -156,19 +156,45 @@ class _SignUpState extends State<SignUp> {
                 const SizedBox(height: 35,),
                 
                 // Insert google Sign in 
-                GestureDetector(
-                  onTap:() {
-                    AuthMethods().signInWithGoogle(context);
-                  },
-                  child: Image.asset(
-                    'assets/google.png',
-                    height: 45.0,
-                    width: 45.0,
-                    fit: BoxFit.cover,
-                    )
-                ),
+                // Padding(
+                //   padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                //   child: GestureDetector(
+                //     onTap: () {
+                //       AuthMethods().signInWithGoogle(context);
+                //     },
+                //     child: CustomPaint(
+                //       painter: GoogleBorderPainter(),
+                //       child: Container(
+                //         width: MediaQuery.of(context).size.width,
+                //         padding: const EdgeInsets.symmetric(
+                //           vertical: 13.0, horizontal: 20.0
+                //         ),
+                //         child: Row(
+                //           mainAxisSize: MainAxisSize.min,
+                //           children: [
+                //             Image.asset(
+                //               'assets/google.png',
+                //               height: 30.0,
+                //               width: 30.0,
+                //               fit: BoxFit.cover,
+                //             ),
+                //             const SizedBox(width: 50.0),
+                //             const Text(
+                //               'Continue with Google',
+                //               style: TextStyle(
+                //                 color: Colors.black,
+                //                 fontSize: 16.0,
+                //                 fontWeight: FontWeight.w500,
+                //               ),
+                //             ),
+                //           ],
+                //         ),
+                //       ),
+                //     ),
+                //   ),
+                // ),
                 
-                sizedBoxSpacer,
+                // sizedBoxSpacer,
   
                 Padding(
                   padding: const EdgeInsets.only(left: 20, right: 20),

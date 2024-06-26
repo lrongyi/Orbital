@@ -112,9 +112,9 @@ class _AddBillState extends State<AddBill> {
                     ? Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          AddingDeco().buildRow('Name', nameController),
+                          AddingDeco().buildRow('Name', nameController, Icon(Icons.abc), Colors.black),
                           sizedBoxSpacer,
-                          AddingDeco().buildRow('Amount', amountController),
+                          AddingDeco().buildRow('Amount', amountController, Icon(Icons.monetization_on_outlined), Colors.black),
                           sizedBoxSpacer,
                           _buildPaidSwitch(),
                         ],
@@ -205,9 +205,9 @@ class _AddBillState extends State<AddBill> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  AddingDeco().buildRow('Name', nameController),
+                  AddingDeco().buildRow('Name', nameController, Icon(Icons.abc), Colors.black),
                   sizedBoxSpacer,
-                  AddingDeco().buildRow('Amount', amountController),
+                  AddingDeco().buildRow('Amount', amountController, Icon(Icons.monetization_on_outlined), Colors.black),
                   sizedBoxSpacer,
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,

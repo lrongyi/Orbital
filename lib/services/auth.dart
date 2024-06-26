@@ -9,6 +9,7 @@ import 'package:ss/screens/onboarding_screens/select_bills.dart';
 import 'package:ss/screens/onboarding_screens/select_categories.dart';
 import 'package:ss/services/budget_methods.dart';
 import 'package:ss/services/user_methods.dart';
+import 'package:ss/shared/main_screens_deco.dart';
 
 class AuthMethods {
   final FirebaseAuth auth = FirebaseAuth.instance;
@@ -74,28 +75,31 @@ class AuthMethods {
           (route) => false);
     } on FirebaseAuthException catch (e) {
       if (e.code == 'invalid-credential') {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text(
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          showCloseIcon: true,
+          content: const Text(
             'Wrong Email or Password',
-            style: TextStyle(fontSize: 18.0),
+            style: TextStyle(fontSize: 18.0, color: Colors.white),
           ),
-          backgroundColor: Colors.red,
+          backgroundColor: mainColor,
         ));
       } else if (e.code == 'channel-error'){
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text(
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          showCloseIcon: true,
+          content: const Text(
             'Enter Fields',
-            style: TextStyle(fontSize: 18.0),
+            style: TextStyle(fontSize: 18.0, color: Colors.white),
           ),
-          backgroundColor: Colors.red,
+          backgroundColor: mainColor,
         ));
       } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          showCloseIcon: true,
           content: Text(
             e.code,
-            style: TextStyle(fontSize: 18.0),
+            style: const TextStyle(fontSize: 18.0, color: Colors.white),
           ),
-          backgroundColor: Colors.red,
+          backgroundColor: mainColor,
         ));
       }
     }
@@ -107,12 +111,13 @@ class AuthMethods {
       try {
         UserCredential result = await FirebaseAuth.instance
             .createUserWithEmailAndPassword(email: email, password: password);
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           showCloseIcon: true,
-          content: Text(
+          content: const Text(
             'Registered Successfully',
-            style: TextStyle(fontSize: 20.0),
+            style: TextStyle(fontSize: 18.0, color: Colors.white),
           ),
+          backgroundColor: mainColor,
         ));
         User? userDetails = result.user;
 
@@ -136,36 +141,40 @@ class AuthMethods {
         });
       } on FirebaseAuthException catch (e) {
         if (e.code == 'email-already-in-use') {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text(
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            showCloseIcon: true,
+            content: const Text(
               'User Already Exists',
-              style: TextStyle(fontSize: 18.0),
+              style: TextStyle(fontSize: 18.0, color: Colors.white),
             ),
-            backgroundColor: Colors.red,
+            backgroundColor: mainColor,
           ));
         } else if (e.code == 'weak-password') {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text(
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            showCloseIcon: true,
+            content: const Text(
               'Weak Password',
-              style: TextStyle(fontSize: 18.0),
+              style: TextStyle(fontSize: 18.0, color: Colors.white),
             ),
-            backgroundColor: Colors.red,
+            backgroundColor: mainColor,
           ));
         } else if (e.code == 'channel-error'){
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text(
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            showCloseIcon: true,
+            content: const Text(
               'Enter Fields',
-              style: TextStyle(fontSize: 18.0),
+              style: TextStyle(fontSize: 18.0, color: Colors.white),
             ),
-            backgroundColor: Colors.red,
+            backgroundColor: mainColor,
           ));
         } else {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            showCloseIcon: true,
             content: Text(
               e.code,
-              style: TextStyle(fontSize: 18.0),
+              style: const TextStyle(fontSize: 18.0, color: Colors.white),
             ),
-            backgroundColor: Colors.red,
+            backgroundColor: mainColor,
           ));
         }
       }
@@ -175,29 +184,34 @@ class AuthMethods {
   resetPassword(BuildContext context, String email) async {
     try {
       await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text(
-        'Password Reset Email has been Sent',
-        style: TextStyle(fontSize: 18.0),
-      )));
-    } on FirebaseAuthException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        showCloseIcon: true,
         content: Text(
-          'Email Invalid',
-          style: TextStyle(fontSize: 18.0),
+          'Password Reset Email has been Sent',
+          style: TextStyle(fontSize: 18.0, color: Colors.white),
         ),
-        backgroundColor: Colors.red,
+        backgroundColor: mainColor,
       ));
+    } on FirebaseAuthException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          showCloseIcon: true,
+          content: const Text(
+            'Invalid Email',
+            style: TextStyle(fontSize: 18.0, color: Colors.white),
+          ),
+          backgroundColor: mainColor,
+        ));
     }
   }
 
   signOut(BuildContext context) async {
     await auth.signOut();
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text(
         'Signed Out',
-        style: TextStyle(fontSize: 18.0),
+        style: TextStyle(fontSize: 18.0, color: Colors.white),
       ),
+      backgroundColor: mainColor,
       ));
   }
 

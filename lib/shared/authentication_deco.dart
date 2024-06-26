@@ -67,3 +67,40 @@ Row orDivider = Row(
                           ),
                         ],
                       );
+
+class GoogleBorderPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
+
+    final rect = Rect.fromLTWH(0, 0, size.width, size.height);
+    final borderRadius = BorderRadius.circular(30.0).toRRect(rect);
+
+    final colors = [
+      Color(0xFF3367D6), 
+      Color(0xFF287B37), 
+      Color(0xFFE1A500), 
+      Color(0xFFC0342D), 
+    ];
+
+    final gradient = LinearGradient(
+      colors: colors,
+      stops: [0.0, 0.33, 0.66, 1.0],
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+    );
+
+    final shader = gradient.createShader(rect);
+
+    paint.shader = shader;
+
+    canvas.drawRRect(borderRadius, paint);
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) {
+    return false;
+  }
+}

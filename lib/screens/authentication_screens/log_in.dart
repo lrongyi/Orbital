@@ -146,22 +146,50 @@ class _LogInState extends State<LogIn> {
                   child: orDivider,
                 ), 
 
-                const SizedBox(height: 40,),
+                const SizedBox(height: 60,),
                 
                 // Insert google Sign in 
-                GestureDetector(
-                  onTap:() {
-                    AuthMethods().signInWithGoogle(context);
-                  },
-                  child: Image.asset(
-                    'assets/google.png',
-                    height: 45.0,
-                    width: 45.0,
-                    fit: BoxFit.cover,
-                    )
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: GestureDetector(
+                    onTap: () {
+                      AuthMethods().signInWithGoogle(context);
+                    },
+                    child: CustomPaint(
+                      painter: GoogleBorderPainter(),
+                      child: Container(
+                        width: MediaQuery.of(context).size.width,
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 13.0, horizontal: 20.0
+                        ),
+                        
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Image.asset(
+                              'assets/google.png',
+                              height: 30.0,
+                              width: 30.0,
+                              fit: BoxFit.cover,
+                            ),
+                            const SizedBox(width: 50.0),
+                            const Text(
+                              'Continue with Google',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 18.0,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
+
                 
-                const SizedBox(height: 40,),
+                const SizedBox(height: 20,),
 
                 Padding(
                   padding: const EdgeInsets.only(left: 20, right: 20),
@@ -186,7 +214,9 @@ class _LogInState extends State<LogIn> {
                       ),
                     ),
                   ),
-                )
+                ),
+
+                
             ]
           ),
         )
