@@ -364,7 +364,7 @@ class _ExpensesState extends State<Expenses> {
                 ),
                 IconButton(
                   icon: Icon(
-                    Icons.more_vert,
+                    Icons.add,
                     color: Colors.white70,
                   ),
                   onPressed: () {
@@ -547,37 +547,71 @@ class _ExpensesState extends State<Expenses> {
     builder: (context) {
       return AlertDialog(
         backgroundColor: Colors.white,
-        shape: const BeveledRectangleBorder(borderRadius: BorderRadius.zero),
-        title: Text('Change Salary'),
-        content: TextField(
+        surfaceTintColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10), 
+          side: const BorderSide(
+            color: Colors.black,
+            width: 2.0,
+          )
+        ),
+        title: Row(
+          children: [
+            Icon(
+              Icons.update_rounded,
+              color: incomeColor,
+            ),
+            const SizedBox(width: 30,),
+            Text('Update Salary'),
+            const SizedBox(width: 30,),
+            IconButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              }, 
+              icon: Icon(
+                Icons.close,
+                color: Colors.black,
+              )
+            )
+          ],
+        ),
+        content: TextFormField(
+          cursorColor: mainColor,
           controller: _salaryController,
           keyboardType: TextInputType.number,
           decoration: InputDecoration(
-            labelText: 'Enter new salary',
+            hintText: 'Enter new salary',
+            focusedBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: mainColor)
+            ),
+            prefixIcon: const Icon(
+              Icons.monetization_on_outlined,
+              color: Colors.black,
+            ),
           ),
         ),
         actions: [
-          TextButton(
-            onPressed: () async {
-              // Implement salary update logic here
-              String userInput = _salaryController.text;
-              if (userInput.isNotEmpty) {
-                double? newSalary = double.tryParse(userInput);
-                if (newSalary != null && newSalary != currentSalary) {
-                  String userId = UserMethods().getCurrentUserId();
-                  await UserMethods().updateUserSalary(userId, newSalary);
+          Center(
+            child: TextButton(
+              style: TextButton.styleFrom(
+                backgroundColor: incomeColor,
+                foregroundColor: Colors.white
+              ),
+              onPressed: () async {
+                // Implement salary update logic here
+                String userInput = _salaryController.text;
+                if (userInput.isNotEmpty) {
+                  double? newSalary = double.tryParse(userInput);
+                  if (newSalary != null && newSalary != currentSalary) {
+                    String userId = UserMethods().getCurrentUserId();
+                    await UserMethods().updateUserSalary(userId, newSalary);
+                  }
                 }
-              }
-              Navigator.pushAndRemoveUntil(context, 
-                  MaterialPageRoute(builder: (context) => Navigation(state: 1)), (route) => false);
-            },
-            child: Text('Save'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: Text('Cancel'),
+                Navigator.pushAndRemoveUntil(context, 
+                    MaterialPageRoute(builder: (context) => Navigation(state: 1)), (route) => false);
+              },
+              child: Text('Save'),
+            ),
           ),
         ],
       );

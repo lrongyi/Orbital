@@ -34,10 +34,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      // home: LogIn(),
+      home: LogIn(),
       // home: GetStarted(),
-      home: Navigation(),
-      // home: Billing()
+      // home: Navigation(),
+      // home: SelectBills(bills: [],)
+      // home: Billing(),
     );
   }
 }

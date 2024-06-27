@@ -73,14 +73,15 @@ class _AddBillState extends State<AddBill> {
                 Center(
                   child: Container(
                     decoration: BoxDecoration(
-                      border: Border.all(color: mainColor, width: 2.0)
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: _isPaid ? incomeColor : mainColor, width: 2.0)
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
                     child: Text(
                       DateFormat('dd/MM/yyyy').format(widget.date.toLocal()),
                       style: TextStyle(
                         fontSize: 20,
-                        color: mainColor,
+                        color: _isPaid ? incomeColor : mainColor,
                         fontWeight: FontWeight.bold
                       ),
                     ),
@@ -112,9 +113,9 @@ class _AddBillState extends State<AddBill> {
                     ? Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          AddingDeco().buildRow('Name', nameController, Icon(Icons.abc), Colors.black),
+                          AddingDeco().buildRow('Name', nameController, Icon(Icons.abc, color: _isPaid ? incomeColor : mainColor,), _isPaid ? incomeColor : mainColor,),
                           sizedBoxSpacer,
-                          AddingDeco().buildRow('Amount', amountController, Icon(Icons.monetization_on_outlined), Colors.black),
+                          AddingDeco().buildRow('Amount', amountController, Icon(Icons.monetization_on_outlined, color: _isPaid ? incomeColor : mainColor,), _isPaid ? incomeColor : mainColor,),
                           sizedBoxSpacer,
                           _buildPaidSwitch(),
                         ],
@@ -189,139 +190,218 @@ class _AddBillState extends State<AddBill> {
   }
 
    void _showEditDialog(Bill bill) {
-  nameController.text = bill.name;
-  amountController.text = bill.amount.toStringAsFixed(2);
-  _isPaid = bill.isPaid;
+    final GlobalKey<FormState> _dialogFormKey = GlobalKey<FormState>();
 
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text('Edit Bill'),
-        content: StatefulBuilder(
+    nameController.text = bill.name;
+    amountController.text = bill.amount.toStringAsFixed(2);
+    _isPaid = bill.isPaid;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
-            return Form(
-              key: _formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
+            return AlertDialog(
+              surfaceTintColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10), 
+                side: const BorderSide(
+                  color: Colors.black,
+                  width: 2.0,
+                )
+              ),
+              backgroundColor: Colors.white,
+              title: Row(
                 children: [
-                  AddingDeco().buildRow('Name', nameController, Icon(Icons.abc), Colors.black),
-                  sizedBoxSpacer,
-                  AddingDeco().buildRow('Amount', amountController, Icon(Icons.monetization_on_outlined), Colors.black),
-                  sizedBoxSpacer,
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Paid',
-                        style: TextStyle(
-                          fontSize: 14,
-                        ),
-                      ),
-                      Switch(
-                        value: _isPaid,
-                        onChanged: (value) {
-                          setState(() {
-                            _isPaid = value;
-                          });
-                        },
-                        activeColor: mainColor,
-                      )
-                    ],
+                  Icon(
+                    Icons.edit,
+                    color: _isPaid ? incomeColor : mainColor,
                   ),
+                  const SizedBox(width: 30,),
+                  const Text('Edit Bill'),
+                  const SizedBox(width: 50,),
+                  IconButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    }, 
+                    icon: const Icon(
+                      Icons.close,
+                      color: Colors.black,
+                    )
+                  )
                 ],
               ),
+              content: Form(
+                key: _dialogFormKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    AddingDeco().buildRow('Name', nameController, Icon(Icons.abc, color: _isPaid ? incomeColor : mainColor,), _isPaid ? incomeColor : mainColor,),
+                    sizedBoxSpacer,
+                    AddingDeco().buildRow('Amount', amountController, Icon(Icons.monetization_on_outlined, color: _isPaid ? incomeColor : mainColor,), _isPaid ? incomeColor : mainColor,),
+                    sizedBoxSpacer,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Paid',
+                          style: TextStyle(
+                            fontSize: 14,
+                          ),
+                        ),
+                        Switch(
+                          value: _isPaid,
+                          onChanged: (value) {
+                            setState(() {
+                              _isPaid = value;
+                            });
+                          },
+                          activeColor: incomeColor,
+                        )
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                Center(
+                  child: TextButton(
+                    style: TextButton.styleFrom(
+                      backgroundColor: _isPaid ? incomeColor : mainColor,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        if (_formKey.currentState!.validate()) {
+                          bill.name = nameController.text;
+                          bill.amount = double.parse(amountController.text);
+                          bill.isPaid = _isPaid;
+                        }
+                      });
+                      Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(builder: (context) => SelectBills(bills: widget.bills,)),
+                            (route) => false);
+                    },
+                    child: const Text(
+                      'Save',
+                      style: TextStyle(
+                        color: Colors.white
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             );
-          },
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: Text(
-              'Cancel',
-              style: TextStyle(
-                color: mainColor
-              ),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              setState(() {
-                if (_formKey.currentState!.validate()) {
-                  bill.name = nameController.text;
-                  bill.amount = double.parse(amountController.text);
-                  bill.isPaid = _isPaid;
-                }
-              });
-              Navigator.of(context).pop();
-            },
-            child: Text(
-              'Save',
-              style: TextStyle(
-                color: mainColor
-              ),
-            ),
-          ),
-        ],
-      );
-    },
-  );
-}
+          }
+        );
+      },
+    );
+  }
 
   void _showDeleteConfirmation(Bill bill) {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (context) {
         return AlertDialog(
-          title: const Text('Delete Bill'),
-          content: const Text('Are you sure you want to delete this bill?'),
+          surfaceTintColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10), 
+            side: const BorderSide(
+              color: Colors.black,
+              width: 2.0,
+            )
+          ),
+          backgroundColor: Colors.white,
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Delete Bill'
+              ),
+              const SizedBox(width: 50,),
+              IconButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                icon: const Icon(
+                  Icons.close,
+                  color: Colors.black,
+                ),
+              )
+            ],
+          ),
+          content: const Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Are you sure you want to delete this bill?'),
+              Text(
+                'You cannot undo this action!',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                )
+              ),
+            ]
+          ),
           actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancel'),
+            Center(
+              child: TextButton(
+                onPressed: () {
+                  setState(() {
+                    widget.bills.remove(bill);
+                  });
+                  Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(builder: (context) => SelectBills(bills: widget.bills,)),
+                            (route) => false);
+                },
+                style: ButtonStyle(
+                  side: MaterialStateProperty.resolveWith((states) => const BorderSide(
+                    color: Colors.red,
+                    width: 1.5, 
+                  )),
+                ),
+                child: const Text(
+                  'Delete',
+                  style: TextStyle(
+                    color: Colors.red,
+                  ),
+                ),
+              ),
             ),
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  widget.bills.remove(bill);
-                });
-                Navigator.of(context).pop();
-              },
-              child: const Text('Delete'),
-            ),
-          ],
+          ]
         );
-      },
+      }
     );
   }
 
    Widget _buildSwitchButton(BuildContext context, String label, bool isAdd) {
     return Container(
       decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: widget.isAdding == isAdd ? incomeColor : Colors.white,
+          color: widget.isAdding == isAdd ? _isPaid ? incomeColor : mainColor : Colors.white,
           width: 1.30,
         ),
       ),
 
-      child: SizedBox(
-        width: 175,
-        height: 35,
-        child: MaterialButton(
-          color: Colors.grey[100],
-
-          onPressed: () {
-            if (widget.isAdding != isAdd) {
-              Navigator.pushReplacement(context, MaterialPageRoute(builder: (builder) => AddBill(date: widget.date, bills: widget.bills, isAdding: isAdd,)));
-            }
-          },
-          minWidth: 175,
-          child: Text(
-            label,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: SizedBox(
+          width: 175,
+          height: 35,
+          child: MaterialButton(
+            color: Colors.grey[100],
+        
+            onPressed: () {
+              if (widget.isAdding != isAdd) {
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (builder) => AddBill(date: widget.date, bills: widget.bills, isAdding: isAdd,)));
+              }
+            },
+            minWidth: 175,
+            child: Text(
+              label,
+            ),
           ),
         ),
       )
@@ -345,57 +425,63 @@ class _AddBillState extends State<AddBill> {
               _isPaid = value;
             });
           },
-          activeColor: mainColor,
+          activeColor: incomeColor,
         )
       ],
     );
   }
 
    Widget _buildSaveButton() {
-    return MaterialButton(
-      color: mainColor,
-
-      onPressed: () {
-        if (_formKey.currentState!.validate()) {
-          String name = nameController.text;
-          if (name.isNotEmpty) {
-            name = name[0].toUpperCase() + name.substring(1);
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(30),
+      child: MaterialButton(
+        color: _isPaid ? incomeColor : mainColor,
+      
+        onPressed: () {
+          if (_formKey.currentState!.validate()) {
+            String name = nameController.text;
+            if (name.isNotEmpty) {
+              name = name[0].toUpperCase() + name.substring(1);
+            }
+            
+                  Bill added = Bill(
+              name: name, 
+              amount: double.parse(amountController.text), 
+              due: Timestamp.fromDate(widget.date), 
+              isPaid: _isPaid,
+            );
+            widget.bills.add(added);
+            Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(builder: (context) => SelectBills(bills: widget.bills,)),
+                            (route) => false);
           }
-          
-                Bill added = Bill(
-            name: name, 
-            amount: double.parse(amountController.text), 
-            due: Timestamp.fromDate(widget.date), 
-            isPaid: _isPaid,
-          );
-          widget.bills.add(added);
-          Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(builder: (context) => SelectBills(bills: widget.bills,)),
-                          (route) => false);
-        }
-      },
-      minWidth: 200,
-      child: const Text(
-        'Save',
-        style: TextStyle(
-          color: Colors.white,
-        ),
-        ),
+        },
+        minWidth: 200,
+        child: const Text(
+          'Save',
+          style: TextStyle(
+            color: Colors.white,
+          ),
+          ),
+      ),
     );
   }
 
   Widget _buildCancelButton(BuildContext context) {
-    return MaterialButton(
-      color: Colors.grey[100],
-      onPressed: () {
-        Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(builder: (context) => SelectBills(bills: widget.bills,)),
-                        (route) => false);
-      },
-      minWidth: 100,
-      child: const Text('Cancel'),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(30),
+      child: MaterialButton(
+        color: Colors.grey[100],
+        onPressed: () {
+          Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (context) => SelectBills(bills: widget.bills,)),
+                          (route) => false);
+        },
+        minWidth: 100,
+        child: const Text('Cancel'),
+      ),
     );
   }
 }

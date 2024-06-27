@@ -134,6 +134,7 @@ class _SelectCategoriesState extends State<SelectCategories> {
                             controller: categoryController,
                             decoration: InputDecoration(
                               focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20),
                                 borderSide: BorderSide(color: mainColor)
                               ),
                               labelText: 'Enter category',
@@ -153,7 +154,7 @@ class _SelectCategoriesState extends State<SelectCategories> {
                           backgroundColor: mainColor,
                           elevation: 10.0,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(0)
+                            borderRadius: BorderRadius.circular(20)
                           )
                         ),
                         child: Text('Add'),

@@ -88,46 +88,49 @@ class _SelectBillsState extends State<SelectBills> {
           Container(
             color: mainColor,
 
-            child: TableCalendar(
-              pageJumpingEnabled: false,
-              selectedDayPredicate: (day) => isSameDay(day, now),
-              headerStyle: const HeaderStyle(
-                titleTextStyle: TextStyle(
-                  color: Colors.white
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 30.0,),
+              child: TableCalendar(
+                pageJumpingEnabled: false,
+                selectedDayPredicate: (day) => isSameDay(day, now),
+                headerStyle: const HeaderStyle(
+                  titleTextStyle: TextStyle(
+                    color: Colors.white
+                  ),
+                  leftChevronVisible: false,
+                  rightChevronVisible: false, 
+                  titleCentered: true,
+                  formatButtonVisible: false,
                 ),
-                leftChevronVisible: false,
-                rightChevronVisible: false, 
-                titleCentered: true,
-                formatButtonVisible: false,
-              ),
-
-              daysOfWeekStyle: const DaysOfWeekStyle(
-                weekdayStyle: TextStyle(color: Colors.white60),
-                weekendStyle: TextStyle(color: Colors.white54)
-              ),
-
-              calendarStyle: const CalendarStyle(
-                isTodayHighlighted: false,
-                defaultTextStyle: TextStyle(color: Colors.white),
-                outsideTextStyle: TextStyle(color: Colors.black),
-                holidayTextStyle: TextStyle(color: Colors.white),
-                disabledTextStyle: TextStyle(color: Colors.black),
-                weekendTextStyle: TextStyle(color: Colors.white60),
-                withinRangeTextStyle: TextStyle(color: Colors.white),
-                selectedDecoration: BoxDecoration(
+              
+                daysOfWeekStyle: const DaysOfWeekStyle(
+                  weekdayStyle: TextStyle(color: Colors.white),
+                  weekendStyle: TextStyle(color: Colors.white60)
                 ),
-                markerDecoration: BoxDecoration(
-                color: Colors.amber,
-                shape: BoxShape.circle,
+              
+                calendarStyle: const CalendarStyle(
+                  isTodayHighlighted: false,
+                  defaultTextStyle: TextStyle(color: Colors.white),
+                  outsideTextStyle: TextStyle(color: Colors.black),
+                  holidayTextStyle: TextStyle(color: Colors.white),
+                  disabledTextStyle: TextStyle(color: Color.fromARGB(255, 69, 75, 78)),
+                  weekendTextStyle: TextStyle(color: Colors.white60),
+                  withinRangeTextStyle: TextStyle(color: Colors.white),
+                  selectedDecoration: BoxDecoration(
+                  ),
+                  markerDecoration: BoxDecoration(
+                  color: Colors.amber,
+                  shape: BoxShape.circle,
+                ),
+                ),
+              
+                focusedDay: now, 
+                firstDay: DateTime(now.year, now.month, 1), 
+                lastDay: DateTime(now.year, now.month + 1, 0),
+                    
+                onDaySelected: _onDaySelected,
+                eventLoader: (day) => _getBillsForDay(day),
               ),
-              ),
-
-              focusedDay: now, 
-              firstDay: DateTime(now.year, now.month, 1), 
-              lastDay: DateTime(now.year, now.month + 1, 0),
-      
-              onDaySelected: _onDaySelected,
-              eventLoader: (day) => _getBillsForDay(day),
             ),
           ),
 
@@ -154,7 +157,10 @@ class _SelectBillsState extends State<SelectBills> {
                         subtitle: Text(DateFormat('dd/MM/yyyy').format(bill.due.toDate().toLocal()),),
                         trailing: Text('\$${bill.amount.toStringAsFixed(2)}', style: TextStyle(fontSize: 14),),
                         onTap: () {
-                  
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: ((context) => AddBill(date: bill.due.toDate(), bills: widget.bills, isAdding: false))),
+                          );
                         },
                       ),
                       Divider(
