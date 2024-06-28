@@ -55,12 +55,12 @@ class AuthMethods {
             MaterialPageRoute(builder: ((context) => const GetStarted())),
             (route) => false
           );
-      }
-
-      Navigator.pushAndRemoveUntil(
+      } else {
+        Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => Navigation()),
           (route) => false);
+      }
     }
   }
 
