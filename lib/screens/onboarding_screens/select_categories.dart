@@ -13,7 +13,7 @@ class SelectCategories extends StatefulWidget {
 
 class _SelectCategoriesState extends State<SelectCategories> {
   
-  final List<String> _availableCategories = [
+  final List<String> _availableExpenseCategories = [
     'Food',
     'Groceries',
     'Transportation',
@@ -38,8 +38,19 @@ class _SelectCategoriesState extends State<SelectCategories> {
     'Outdoor Activities',
   ];
 
-  final Set<String> _selectedCategories = {};
-  final TextEditingController categoryController = TextEditingController();
+  final List<String> _availableIncomeCategories = [
+    'Reimbursement',
+    'Allowance',
+    'Bonus',
+    'Rebates',
+    'Petty Cash',
+    'Others',
+  ];
+
+  final Set<String> _selectedExpenseCategories = {};
+  final Set<String> _selectedIncomeCategories = {};
+  final TextEditingController expenseCategoryController = TextEditingController();
+  final TextEditingController incomeCategoryController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +77,7 @@ class _SelectCategoriesState extends State<SelectCategories> {
                 ),
           
                 Padding(
-                  padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
+                  padding: EdgeInsets.fromLTRB(20, 10, 20, 0),
                   child: Text(
                     'Choose some categories to start planning your budget',
                     style: TextStyle(
@@ -78,101 +89,236 @@ class _SelectCategoriesState extends State<SelectCategories> {
                   ),
                 ),
           
-                // Insert buttons here
                 Padding(
-                  padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
-                  child: Wrap(
-                    spacing: 10.0,
-                    runSpacing: 10.0,
-                    children: _availableCategories.map((category) {
-                      final isSelected = _selectedCategories.contains(category);
-                      return ChoiceChip(
-                        label: Text(category),
-                        selected: isSelected,
-                        onSelected: (selected) {
-                          setState(() {
-                            if (selected) {
-                              _selectedCategories.add(category);
-                            } else {
-                              _selectedCategories.remove(category);
-                            }
-                          });
-                        },
-                        selectedColor: mainColor,
-                        backgroundColor: Colors.grey[200],
-                        labelStyle: TextStyle(
-                          color: isSelected ? Colors.white : Colors.black,
-                        ),
-                        checkmarkColor: Colors.white,
-                      );
-                    }).toList(),
-                  ),
-                ),
-          
-                //Add in new categories
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: 10.0),
-                  child: Text(
-                    'Did not see your category?',
-                    style: TextStyle(
-                      color: mainColor,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-          
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20),
-                  child: Row(
+                  padding: EdgeInsets.fromLTRB(20, 5, 20, 20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: SizedBox(
-                          height: 40,
-                          child: TextField(
-                            controller: categoryController,
-                            decoration: InputDecoration(
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(20),
-                                borderSide: BorderSide(color: mainColor)
-                              ),
-                              labelText: 'Enter category',
-                              labelStyle: TextStyle(color: Colors.black),
-                              border: OutlineInputBorder(),
+                      // Expense Categories
+                      Row(
+                        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Expense Categories',
+                            style: TextStyle(
+                              color: mainColor,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
                             ),
-                            cursorColor: mainColor,
                           ),
-                        )
+                          IconButton(
+                            icon: Icon(Icons.add, color: mainColor),
+                            onPressed: () => _showAddCategoryDialog('expense'),
+                          ),
+                        ],
                       ),
-          
-                      const SizedBox(width: 10,),
-          
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          foregroundColor: Colors.white,
-                          backgroundColor: mainColor,
-                          elevation: 10.0,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20)
-                          )
-                        ),
-                        child: Text('Add'),
-                        onPressed: () {
-                          final newCategory = categoryController.text.trim();
-                          if (newCategory.isNotEmpty && !_availableCategories.contains(newCategory)) {
-                            setState(() {
-                              _availableCategories.add(newCategory);
-                              _selectedCategories.add(newCategory);
-                              categoryController.clear();
-                            });
-                          }
-                        },
-                      )
+                      Wrap(
+                        spacing: 10.0,
+                        runSpacing: 10.0,
+                        children: _availableExpenseCategories.map((category) {
+                          final isSelected = _selectedExpenseCategories.contains(category);
+                          return ChoiceChip(
+                            label: Text(category),
+                            selected: isSelected,
+                            onSelected: (selected) {
+                              setState(() {
+                                if (selected) {
+                                  _selectedExpenseCategories.add(category);
+                                } else {
+                                  _selectedExpenseCategories.remove(category);
+                                }
+                              });
+                            },
+                            selectedColor: mainColor,
+                            backgroundColor: Colors.grey[200],
+                            labelStyle: TextStyle(
+                              color: isSelected ? Colors.white : Colors.black,
+                            ),
+                            checkmarkColor: Colors.white,
+                          );
+                        }).toList(),
+                      ),
+
+                      const SizedBox(height: 10), // Add space between sections
+
+                      // Income Categories
+                      Row(
+                        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Income Categories',
+                            style: TextStyle(
+                              color: Colors.green,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.add, color: Colors.green),
+                            onPressed: () => _showAddCategoryDialog('income'),
+                          ),
+                        ],
+                      ),
+                      Wrap(
+                        spacing: 10.0,
+                        runSpacing: 10.0,
+                        children: _availableIncomeCategories.map((category) {
+                          final isSelected = _selectedIncomeCategories.contains(category);
+                          return ChoiceChip(
+                            label: Text(category),
+                            selected: isSelected,
+                            onSelected: (selected) {
+                              setState(() {
+                                if (selected) {
+                                  _selectedIncomeCategories.add(category);
+                                } else {
+                                  _selectedIncomeCategories.remove(category);
+                                }
+                              });
+                            },
+                            selectedColor: Colors.green,
+                            backgroundColor: Colors.grey[200],
+                            labelStyle: TextStyle(
+                              color: isSelected ? Colors.white : Colors.black,
+                            ),
+                            checkmarkColor: Colors.white,
+                          );
+                        }).toList(),
+                      ),
                     ],
-                    
                   ),
                 ),
+                const SizedBox(height: 100),
+          
+                // // Add in new expense categories
+                // Padding(
+                //   padding: EdgeInsets.symmetric(vertical: 10.0),
+                //   child: Text(
+                //     'Did not see your category?',
+                //     style: TextStyle(
+                //       color: mainColor,
+                //       fontSize: 18,
+                //       fontWeight: FontWeight.bold,
+                //     ),
+                //     textAlign: TextAlign.center,
+                //   ),
+                // ),
+          
+                // Padding(
+                //   padding: EdgeInsets.symmetric(horizontal: 20),
+                //   child: Row(
+                //     children: [
+                //       Expanded(
+                //         child: SizedBox(
+                //           height: 40,
+                //           child: TextField(
+                //             controller: expenseCategoryController,
+                //             decoration: InputDecoration(
+                //               focusedBorder: OutlineInputBorder(
+                //                 borderRadius: BorderRadius.circular(20),
+                //                 borderSide: BorderSide(color: mainColor)
+                //               ),
+                //               labelText: 'Enter expense category',
+                //               labelStyle: TextStyle(color: Colors.black),
+                //               border: OutlineInputBorder(),
+                //             ),
+                //             cursorColor: mainColor,
+                //           ),
+                //         )
+                //       ),
+          
+                //       const SizedBox(width: 10,),
+          
+                //       ElevatedButton(
+                //         style: ElevatedButton.styleFrom(
+                //           foregroundColor: Colors.white,
+                //           backgroundColor: mainColor,
+                //           elevation: 10.0,
+                //           shape: RoundedRectangleBorder(
+                //             borderRadius: BorderRadius.circular(20)
+                //           )
+                //         ),
+                //         child: Text('Add'),
+                //         onPressed: () {
+                //           final newCategory = expenseCategoryController.text.trim();
+                //           if (newCategory.isNotEmpty && !_availableExpenseCategories.contains(newCategory)) {
+                //             setState(() {
+                //               _availableExpenseCategories.add(newCategory);
+                //               _selectedExpenseCategories.add(newCategory);
+                //               expenseCategoryController.clear();
+                //             });
+                //           }
+                //         },
+                //       )
+                //     ],
+                    
+                //   ),
+                // ),
+
+                // // Add in new income categories
+                // Padding(
+                //   padding: EdgeInsets.symmetric(vertical: 10.0),
+                //   child: Text(
+                //     'Did not see your income category?',
+                //     style: TextStyle(
+                //       color: mainColor,
+                //       fontSize: 18,
+                //       fontWeight: FontWeight.bold,
+                //     ),
+                //     textAlign: TextAlign.center,
+                //   ),
+                // ),
+          
+                // Padding(
+                //   padding: EdgeInsets.symmetric(horizontal: 20),
+                //   child: Row(
+                //     children: [
+                //       Expanded(
+                //         child: SizedBox(
+                //           height: 40,
+                //           child: TextField(
+                //             controller: incomeCategoryController,
+                //             decoration: InputDecoration(
+                //               focusedBorder: OutlineInputBorder(
+                //                 borderRadius: BorderRadius.circular(20),
+                //                 borderSide: BorderSide(color: mainColor)
+                //               ),
+                //               labelText: 'Enter income category',
+                //               labelStyle: TextStyle(color: Colors.black),
+                //               border: OutlineInputBorder(),
+                //             ),
+                //             cursorColor: mainColor,
+                //           ),
+                //         )
+                //       ),
+          
+                //       const SizedBox(width: 10,),
+          
+                //       ElevatedButton(
+                //         style: ElevatedButton.styleFrom(
+                //           foregroundColor: Colors.white,
+                //           backgroundColor: mainColor,
+                //           elevation: 10.0,
+                //           shape: RoundedRectangleBorder(
+                //             borderRadius: BorderRadius.circular(20)
+                //           )
+                //         ),
+                //         child: Text('Add'),
+                //         onPressed: () {
+                //           final newCategory = incomeCategoryController.text.trim();
+                //           if (newCategory.isNotEmpty && !_availableIncomeCategories.contains(newCategory)) {
+                //             setState(() {
+                //               _availableIncomeCategories.add(newCategory);
+                //               _selectedIncomeCategories.add(newCategory);
+                //               incomeCategoryController.clear();
+                //             });
+                //           }
+                //         },
+                //       )
+                //     ],
+                    
+                //   ),
+                // ),
           
               ],
             ),
@@ -207,8 +353,11 @@ class _SelectCategoriesState extends State<SelectCategories> {
               ),
               child: const Text('Next'),
               onPressed: () {
-                if (_selectedCategories.isNotEmpty) {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => EditCategories(selectedCategories: _selectedCategories)));
+                if (_selectedExpenseCategories.isNotEmpty || _selectedIncomeCategories.isNotEmpty) {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => EditCategories(
+                    selectedExpenseCategories: _selectedExpenseCategories,
+                    selectedIncomeCategories: _selectedIncomeCategories,
+                  )));
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                     showCloseIcon: true,
@@ -225,6 +374,54 @@ class _SelectCategoriesState extends State<SelectCategories> {
           )
         ],
       ),
+    );
+  }
+
+  void _showAddCategoryDialog(String categoryType) {
+    final TextEditingController categoryController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Add New Category'),
+          content: TextField(
+            controller: categoryController,
+            decoration: InputDecoration(
+              hintText: 'Enter category name',
+            ),
+          ),
+          actions: [
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('Add'),
+              onPressed: () {
+                final newCategory = categoryController.text.trim();
+                if (newCategory.isNotEmpty) {
+                  setState(() {
+                    if (categoryType == 'expense') {
+                      if (!_availableExpenseCategories.contains(newCategory)) {
+                        _availableExpenseCategories.add(newCategory);
+                        _selectedExpenseCategories.add(newCategory);
+                      }
+                    } else {
+                      if (!_availableIncomeCategories.contains(newCategory)) {
+                        _availableIncomeCategories.add(newCategory);
+                        _selectedIncomeCategories.add(newCategory);
+                      }
+                    }
+                  });
+                  Navigator.of(context).pop();
+                }
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }

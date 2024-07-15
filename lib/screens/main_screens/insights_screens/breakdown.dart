@@ -364,7 +364,7 @@ Widget _buildNetFlow(DateTime month) {
   Future<int> getTotalBudgetCount(DateTime month) async {
     try {
       // Retrieve current month's budget categories
-      List<String> categories = await BudgetMethods().getCategoriesList(month);
+      List<String> categories = await BudgetMethods().getExpenseList(month);
 
       // Return the total number of categories
       return categories.length;

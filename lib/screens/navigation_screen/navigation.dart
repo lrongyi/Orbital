@@ -39,7 +39,7 @@ class _NavigationState extends State<Navigation> {
   }
 
   final screens = [Home(), Expenses(), Budgeting(), Settings()];
-  final appBarTitles = ['Home', 'Expenses', 'Budgeting', 'Settings'];
+  final appBarTitles = ['Home', 'Transactions', 'Budgeting', 'Settings'];
 
   @override
   Widget build(BuildContext context) {
@@ -127,7 +127,7 @@ class _NavigationState extends State<Navigation> {
               },
             ),
 
-            // Expenses
+            // Transactions
             ListTile(
               leading: const Icon(Icons.graphic_eq, color: Colors.white),
               title: const Text(

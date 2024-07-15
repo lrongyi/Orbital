@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
@@ -7,10 +9,15 @@ import 'package:ss/services/models/budget.dart';
 import 'package:ss/shared/main_screens_deco.dart';
 
 class EditCategories extends StatefulWidget {
-  final Set<String> selectedCategories;
+  final Set<String> selectedExpenseCategories;
+  final Set<String> selectedIncomeCategories;
 
-  const EditCategories({super.key, required this.selectedCategories});
-  
+  const EditCategories({
+    super.key,
+    required this.selectedExpenseCategories,
+    required this.selectedIncomeCategories,
+  });
+
   @override
   State<EditCategories> createState() => _EditCategoriesState();
 }
@@ -20,7 +27,7 @@ class _EditCategoriesState extends State<EditCategories> {
   TextEditingController categoryNameController = TextEditingController();
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final Map<String, TextEditingController> _budgetControllers = {};
-  Map<String, Color> _categoryColors = {};
+  final Map<String, Color> _categoryColors = {};
   Color _selectedColor = Colors.blue;
 
   // List of predefined colors for the Block Picker
@@ -32,7 +39,7 @@ class _EditCategoriesState extends State<EditCategories> {
     Colors.limeAccent,
     Colors.lime,
     Colors.lightGreen,
-    Colors.green, 
+    Colors.green,
     Colors.teal,
     Colors.cyan,
     Colors.lightBlue,
@@ -44,7 +51,7 @@ class _EditCategoriesState extends State<EditCategories> {
     Colors.pink,
     Colors.brown,
     Colors.grey,
-    Colors.black,        
+    Colors.black,
   ];
 
   Map<String, bool> _isIncomeMap = {};
@@ -55,7 +62,7 @@ class _EditCategoriesState extends State<EditCategories> {
     _initializeCategoryColors();
     _currentMonth = DateTime(DateTime.now().year, DateTime.now().month);
     for (var category in _categoryColors.keys) {
-      _budgetControllers[category] = TextEditingController(text: null);
+      _budgetControllers[category] = TextEditingController(text: '0');
       _isIncomeMap[category] = false;
     }
   }
@@ -75,105 +82,90 @@ class _EditCategoriesState extends State<EditCategories> {
                 fontSize: 18,
               ),
             ),
-            const SizedBox(width: 10,),
-            GestureDetector(
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              surfaceTintColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10.0),
-                                side: const BorderSide(
-                                  color: Colors.black,
-                                  width: 2.0
-                                )
-                              ),
-                              backgroundColor: Colors.white,
-                              icon: Icon(
-                                Icons.info_outline_rounded,
-                                color: mainColor,
-                                size: 50,
-                              ),
-                              content: const Text(
-                                'If you wish to have the category only be shown under Income, please check the "Income only" box. Otherwise, leave this unchecked to account for rebates.',
-                                style: TextStyle(color: Colors.black),
-                                textAlign: TextAlign.center,
-                              ),
-                              actions: [
-                                Center(
-                                  child: TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: Text(
-                                      'Close',
-                                      style: TextStyle(
-                                        color: mainColor,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                      },
-                      child: Icon(
-                        Icons.help_outline,
-                        color: Colors.grey[600],
-                        size: 20,
-                      ),
-                    ),
           ],
         ),
         backgroundColor: Colors.white,
       ),
       body: Container(
         color: Colors.white,
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
         child: Form(
           key: _formKey,
-          child: ListView.separated(
-            separatorBuilder: (context, index) => const Divider(),
-            itemCount: widget.selectedCategories.length,
-            itemBuilder: (context, index) {
-              final currentCategory = widget.selectedCategories.elementAt(index);
-              final color = _categoryColors[currentCategory] ?? Colors.grey; // Use a default color (grey) if null
-              return ListTile(
-                title: Text(currentCategory, style: TextStyle(fontSize: 18),),
-                leading: GestureDetector(
-                  onTap: () {
-                    _showColorPickerDialog((color) {
-                      setState(() {
-                        _selectedColor = color;
-                        _categoryColors[currentCategory] = _selectedColor;
-                      });
-                    });
-                  },
-                  child: CircleAvatar(
-                    backgroundColor: color,
-                  ),
-                ),
-                trailing: _amountWidget(currentCategory),
-                subtitle: Row(
+          child: ListView(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 15),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('Income only', style: TextStyle(fontSize: 12),),
-                    Checkbox(
-                      activeColor: mainColor,
-                      value: _isIncomeMap[currentCategory] ?? false, 
-                      onChanged: (bool? value) {
-                        setState(() {
-                          _isIncomeMap[currentCategory] = value ?? false;
-                        });
-                      }
+                    Text(
+                      'Expense Categories',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: mainColor,
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          'Budget',
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontSize: 15,
+                          )
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.info_outline),
+                          color: Colors.grey,
+                          iconSize: 20,
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return const AlertDialog(
+                                  content: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(Icons.info_outline, size: 50),
+                                      SizedBox(height: 20),
+                                      Text(
+                                        'This is to set your budget allocation for your expense categories. Default value is \$0.',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                        )
+                                      ),
+                                    ],
+                                  )
+                                );
+                              }
+                            );
+                          },
+                        )
+                      ],
+                    )
+                  ],
+                )                  
+              ),
+              _buildCategoryList(widget.selectedExpenseCategories, false),
+              const SizedBox(height: 20),
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 15),
+                child: Row(
+                  children: [
+                    Text(
+                      'Income Categories',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green,
+                      ),
                     ),
                   ],
-                ),
-              );
-            },
+                )                  
+              ),
+              _buildCategoryList(widget.selectedIncomeCategories, true),
+            ],
           ),
         ),
       ),
@@ -210,16 +202,16 @@ class _EditCategoriesState extends State<EditCategories> {
                   _budgetControllers.forEach(
                     (category, controller) {
                       budgetAllocations[category] = [
-                        double.parse(controller.text.trim()), // amount
+                        double.parse(controller.text.trim()),
                         true, // isRecurring
-                        _categoryColors[category]!.value.toString(), // color
+                        _categoryColors[category]!.value.toString(),
                         _isIncomeMap[category] ?? false,
                       ];
                     },
                   );
 
                   for (var entry in budgetAllocations.entries) {
-                    await BudgetMethods().addBudget(entry.key, entry.value[0], entry.value[1], entry.value[2], entry.value[3], _currentMonth); // replace with isIncome
+                    await BudgetMethods().addBudget(entry.key, entry.value[0], entry.value[1], entry.value[2], entry.value[3], _currentMonth);
                   }
 
                   Navigator.pushAndRemoveUntil(
@@ -243,19 +235,62 @@ class _EditCategoriesState extends State<EditCategories> {
       ),
     );
   }
-  
-  // Helper 1: To allow all categories to have an initial (different) color. 
-  // The first category will have the first color in the predefinedColors array,
-  // second category will have the second color and so forth
+
+  Widget _buildCategoryList(Set<String> categories, bool isIncomeCategories) {
+    return ListView.separated(
+      separatorBuilder: (context, index) => const Divider(),
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      itemCount: categories.length,
+      itemBuilder: (context, index) {
+        final currentCategory = categories.elementAt(index);
+        final color = _categoryColors[currentCategory] ?? Colors.grey;
+        if (isIncomeCategories) {
+          return _buildCategoryTile(currentCategory, color, true);
+        } else {
+          return _buildCategoryTile(currentCategory, color, false);
+        }
+        
+      },
+    );
+  }
+
+  Widget _buildCategoryTile(String category, Color color, bool isIncomeCategory) {
+    if (isIncomeCategory) {
+      _isIncomeMap[category] = true;
+    }
+    
+    return ListTile(
+      title: Text(category, style: TextStyle(fontSize: 16)),
+      leading: GestureDetector(
+        onTap: () {
+          _showColorPickerDialog((color) {
+            setState(() {
+              _selectedColor = color;
+              _categoryColors[category] = _selectedColor;
+            });
+          });
+        },
+        child: CircleAvatar(
+          backgroundColor: color,
+        ),
+      ),
+      trailing: isIncomeCategory ? null : _amountWidget(category),
+    );
+  }
+
   void _initializeCategoryColors() {
     int index = 0;
-    for (var category in widget.selectedCategories) {
+    for (var category in widget.selectedExpenseCategories) {
+      _categoryColors[category] = predefinedColors[index % predefinedColors.length];
+      index++;
+    }
+    for (var category in widget.selectedIncomeCategories) {
       _categoryColors[category] = predefinedColors[index % predefinedColors.length];
       index++;
     }
   }
 
-  // Helper 2: Color Picker Dialog Box
   void _showColorPickerDialog(Function(Color) onColorSelected) {
     showDialog(
       context: context,
@@ -315,7 +350,7 @@ class _EditCategoriesState extends State<EditCategories> {
         controller: _budgetControllers[category],
         decoration: InputDecoration(
           labelText: 'Amount',
-          labelStyle: TextStyle(color: mainColor, fontSize: 12,),
+          labelStyle: TextStyle(color: mainColor, fontSize: 12),
           focusedBorder: UnderlineInputBorder(
             borderSide: BorderSide(color: mainColor),
           ),

@@ -421,14 +421,22 @@ class _BudgetingState extends State<Budgeting> {
                     );
                   }
 
-                  List<MapEntry<String, dynamic>> allCategories = [];
-                  for (var budgetDoc in budgets) {
-                    Budget budget = budgetDoc.data() as Budget;
-                    // budget.categories.forEach((category, details) { 
-                    //   allCategories.add(MapEntry(category, details[0] as double));
-                    // });
-                    allCategories.addAll(budget.categories.entries);
-                  }
+                  List<MapEntry<String, List<dynamic>>> allCategories = [];
+                      for (var budgetDoc in budgets) {
+                        Budget budget = budgetDoc.data() as Budget;
+                        budget.categories.forEach((category, details) {
+                          // if-block required to just filter expense categories (i.e. check isIncome == false)
+                          if (details[3] == false) {
+                            allCategories
+                              .add(MapEntry(category, [
+                                details[0] as double,   // amount
+                                details[1],             // isRecurring
+                                details[2]              // color
+                                ]
+                                ));
+                          }                       
+                        });
+                      }
 
                   return ListView.separated(
                     itemCount: allCategories.length,
@@ -443,7 +451,7 @@ class _BudgetingState extends State<Budgeting> {
                       double amount = entry.value[0];
                       bool isBudgetRecurring = entry.value[1];
                       Color color = Color(int.parse(entry.value[2]));
-                      bool isIncome = entry.value[3];
+                      // bool isIncome = entry.value[3];
 
                       return ListTile(
                         // Update the budget

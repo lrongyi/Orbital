@@ -311,7 +311,7 @@ class _HomeState extends State<Home> {
 
               // ListView: User categories and spending
               Expanded(
-                child: StreamBuilder(
+                child: StreamBuilder<QuerySnapshot>(
                     stream: BudgetMethods()
                         .getBudgetsByMonth(monthNotifier._currentMonth),
                     builder: (BuildContext context,
@@ -340,13 +340,16 @@ class _HomeState extends State<Home> {
                       for (var budgetDoc in budgets) {
                         Budget budget = budgetDoc.data() as Budget;
                         budget.categories.forEach((category, details) {
-                          allCategories
+                          // if-block required to just filter expense categories (i.e. check isIncome == false)
+                          if (details[3] == false) {
+                            allCategories
                               .add(MapEntry(category, [
                                 details[0] as double,   // amount
                                 details[1],             // isRecurring
                                 details[2]              // color
                                 ]
                                 ));
+                          }                       
                         });
                       }
 

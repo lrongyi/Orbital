@@ -264,7 +264,7 @@ class _AddingEntryState extends State<AddingEntry> {
       children: [
         Expanded(
           child: StreamBuilder(
-              stream: isExpense ? BudgetMethods().getCategoriesByMonth(selectDate) : BudgetMethods().getIncomeListByMonth(selectDate),
+              stream: isExpense ? BudgetMethods().getExpenseListByMonth(selectDate) : BudgetMethods().getIncomeListByMonth(selectDate),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return const Center(child: CircularProgressIndicator());
@@ -340,14 +340,14 @@ class _AddingEntryState extends State<AddingEntry> {
                 color: isExpense ? mainColor : incomeColor,
               ),
               const SizedBox(width: 20,),
-              const Text(
-                'New Category',
+              Text(
+                isExpense ? 'New Expense Category' : 'New Income Category',
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(width: 40,),
+              const SizedBox(width: 25,),
               IconButton(
                 onPressed: () {
                   addCategoryController.clear();
@@ -369,6 +369,7 @@ class _AddingEntryState extends State<AddingEntry> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                // name
                 TextFormField(
                   cursorColor: isExpense ? mainColor : incomeColor,
                   validator: (value) {
@@ -389,68 +390,66 @@ class _AddingEntryState extends State<AddingEntry> {
                     ),
                   ),
                 ),
-                TextFormField(
-                  cursorColor: isExpense ? mainColor : incomeColor,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Enter Amount';
-                    }
-                    return null;
-                  },
-                  controller: budgetAmountController,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    hintText: 'Budget Allocation',
-                    prefixIcon: const Icon(
-                      Icons.money_rounded,
-                      color: Colors.black,
-                    ),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: isExpense ? mainColor : incomeColor)
+                // Budget allocation only for expenses
+                if (isExpense) ...[
+                  TextFormField(
+                    cursorColor: mainColor,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Enter Amount';
+                      }
+                      return null;
+                    },
+                    controller: budgetAmountController,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      hintText: 'Budget Allocation',
+                      prefixIcon: const Icon(
+                        Icons.money_rounded,
+                        color: Colors.black,
+                      ),
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: mainColor),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(
-                  height: 15.0,
-                ),
+                  const SizedBox(height: 15.0),
+                ],
                 // Color picker
-                Row(
-                  children: [
-                    const Text(
-                      'Color:',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    GestureDetector(
-                      onTap: () {
-                        _showColorPickerDialog((color) {
-                          setState(() {
-                            _selectedColor = color;
-                          });
-                        });
-                      },
-                      child: Container(
-                        width: 30,
-                        height: 30,
-                        decoration: BoxDecoration(
-                          color: _selectedColor,
-                          borderRadius: BorderRadius.circular(5),
-                          border: Border.all(
-                            color: Colors.grey,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(
-                  height: 15.0,
-                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
+                    Row(
+                      children: [
+                        const Text(
+                          'Color:',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        GestureDetector(
+                          onTap: () {
+                            _showColorPickerDialog((color) {
+                              setState(() {
+                                _selectedColor = color;
+                              });
+                            });
+                          },
+                          child: Container(
+                            width: 30,
+                            height: 30,
+                            decoration: BoxDecoration(
+                              color: _selectedColor,
+                              borderRadius: BorderRadius.circular(5),
+                              border: Border.all(
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),            
                     Row(
                       children: [
                         const Text('Recurring'),
@@ -465,22 +464,44 @@ class _AddingEntryState extends State<AddingEntry> {
                         ),
                       ],
                     ),
-                    Row(
-                      children: [
-                        const Text('Income'),
-                        Checkbox(
-                          activeColor: isExpense ? mainColor : incomeColor,
-                          value: isIncome,
-                          onChanged: (bool? value) {
-                            setState(() {
-                              isIncome = value ?? false;
-                            });
-                          },
-                        ),
-                      ],
-                    ),
                   ],
-                )
+                ),
+                const SizedBox(
+                  height: 15.0,
+                ),
+                // Row(
+                //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //   children: [
+                //     Row(
+                //       children: [
+                //         const Text('Recurring'),
+                //         Checkbox(
+                //           activeColor: isExpense ? mainColor : incomeColor,
+                //           value: isRecurring,
+                //           onChanged: (bool? value) {
+                //             setState(() {
+                //               isRecurring = value ?? false;
+                //             });
+                //           },
+                //         ),
+                //       ],
+                //     ),
+                //     Row(
+                //       children: [
+                //         const Text('Income'),
+                //         Checkbox(
+                //           activeColor: isExpense ? mainColor : incomeColor,
+                //           value: isIncome,
+                //           onChanged: (bool? value) {
+                //             setState(() {
+                //               isIncome = value ?? false;
+                //             });
+                //           },
+                //         ),
+                //       ],
+                //     ),
+                //   ],
+                // )
               ],
             ),
           ),
@@ -498,7 +519,7 @@ class _AddingEntryState extends State<AddingEntry> {
                       amount = double.parse(budgetAmountController.text).abs();
                       color = _selectedColor.value.toString();
                     });
-                    BudgetMethods().addBudget(category, amount, isRecurring, color, isIncome, _currentMonth); // last argument change to isIncome
+                    BudgetMethods().addBudget(category, amount, isRecurring, color, !isExpense, _currentMonth); // last argument change to isIncome
                     Navigator.of(context).pop();
                     // Navigator.pushReplacement(
                     //   context,
