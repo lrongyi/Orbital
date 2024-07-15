@@ -70,4 +70,12 @@ class BillMethods {
 
     return amount;
   }
+
+  Future<int> getNumberOfUnpaidBills() async {
+    QuerySnapshot<Bill> query = await getBillsRef(UserMethods().getCurrentUserId())
+      .where('isPaid', isEqualTo: false)
+      .get();
+
+    return query.size;
+  }
 }

@@ -1,15 +1,20 @@
 // ignore_for_file: prefer_const_constructors
 
+import 'dart:ffi';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:ss/screens/main_screens/bill_screens/billing.dart';
 import 'package:ss/screens/main_screens/expenses_screens/editing_entry.dart';
 import 'package:ss/screens/main_screens/home_screens/home.dart';
 import 'package:ss/screens/navigation_screen/navigation.dart';
+import 'package:ss/services/bill_methods.dart';
 import 'package:ss/services/budget_methods.dart';
 import 'package:ss/services/expense_methods.dart';
+import 'package:ss/services/models/bill.dart';
 import 'package:ss/services/models/budget.dart';
 import 'package:ss/services/models/expense.dart';
 import 'package:ss/services/user_methods.dart';
@@ -90,7 +95,60 @@ class _ExpensesState extends State<Expenses> {
                 // Card. See helper 1
                 _expensesCard(monthNotifier._currentMonth),
 
-                const SizedBox(height: 20),
+                const SizedBox(height: 10),
+
+                FutureBuilder<int>(
+                  future: BillMethods().getNumberOfUnpaidBills(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                
+                    if (snapshot.hasError) {
+                      return const Center(child: Text('Error loading unpaid bills'));
+                    }
+                
+                    int unpaidCount = snapshot.data ?? 0;
+                
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 16, left: 40, right: 40),
+                      decoration: BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.5),
+                            spreadRadius: 2,
+                            blurRadius: 5,
+                            offset: const Offset(0, 3), // changes position of shadow
+                          ),
+                        ],
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: unpaidCount == 0 ? Colors.green : Colors.amber,
+                          width: 2,
+                        ),
+                        // color: unpaidCount == 0 ? Colors.greenAccent : Colors.orange,
+                        color: Colors.white,
+                      ),
+                      child: ListTile(
+                        title: Text(
+                          unpaidCount == 1 
+                          ? 'You have $unpaidCount unpaid bill.'
+                          : 'You have $unpaidCount unpaid bills.',
+                            style: TextStyle(color: Colors.black),
+                        ),
+                        leading: unpaidCount == 0 
+                        ? Icon(Icons.check, color: Colors.green)
+                        : Icon(Icons.lightbulb, color: Colors.amber),
+                        tileColor: Colors.white,
+                        // subtitle: TextButton(child: Text('View your bills'), onPressed: () {}),
+                        trailing: IconButton(icon: Icon(Icons.arrow_forward), onPressed: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => Billing()));
+                        },),
+                        onTap: () {},
+                      ),
+                    );
+                  },
+                ),
 
                 // Header for Transaction History and Amount
                 const Padding(
