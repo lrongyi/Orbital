@@ -1,10 +1,10 @@
+// ignore_for_file: sized_box_for_whitespace, use_key_in_widget_constructors
+
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:ss/screens/main_screens/insights_screens/insights.dart';
@@ -22,7 +22,7 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  DateTime _currentMonth = DateTime.now();
+  final DateTime _currentMonth = DateTime.now();
 
   @override
   Widget build(BuildContext context) {
@@ -40,14 +40,14 @@ class _HomeState extends State<Home> {
                 thickness: 1,
               ),
 
-              // date picker
+              // Date picker
               Container(
                 color: mainColor,
                 height: 50,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // back arrow
+                    // Back arrow
                     IconButton(
                       icon: const Icon(
                         Icons.arrow_left,
@@ -58,7 +58,7 @@ class _HomeState extends State<Home> {
                       },
                     ),
 
-                    // the date itself
+                    // Date itself
                     Text(
                       DateFormat.yMMMM().format(monthNotifier.currentMonth),
                       style: const TextStyle(
@@ -67,7 +67,7 @@ class _HomeState extends State<Home> {
                       ),
                     ),
 
-                    // right arrow
+                    // Right arrow
                     IconButton(
                       icon: const Icon(
                         Icons.arrow_right,
@@ -92,18 +92,6 @@ class _HomeState extends State<Home> {
                       child: Container(
                         height: 300,
                         width: MediaQuery.of(context).size.width,
-                        // decoration: BoxDecoration(
-                        //   color: Colors.white,
-                        //   borderRadius: BorderRadius.circular(10),
-                        //   boxShadow: [
-                        //     BoxShadow(
-                        //       color: Colors.grey.withOpacity(0.5),
-                        //       spreadRadius: 5,
-                        //       blurRadius: 7,
-                        //       offset: const Offset(0, 3),
-                        //     ),
-                        //   ],
-                        // ),
                         child: Padding(
                           padding: const EdgeInsets.all(16),
                           child: StreamBuilder(
@@ -144,8 +132,6 @@ class _HomeState extends State<Home> {
                                               category)
                                           .then((spending) {
                                         if (spending > 0) {
-                                          // Color color = colorManager
-                                          //     .getColorForCategory(category);
                                           return PieChartSectionData(
                                             color: color,
                                             value: spending,
@@ -228,11 +214,8 @@ class _HomeState extends State<Home> {
                                   builder: (BuildContext context, snapshot) {
                                     if (snapshot.hasError) {
                                       return Text(
-                                          'Error: ${snapshot.error}'); // Display error message if any
+                                          'Error: ${snapshot.error}'); 
                                     } else {
-                                      // double budget =
-                                      //     snapshot.data?.toDouble() ??
-                                      //         0.0; // Default to 0.0 if no data
                                       return StreamBuilder(
                                           stream: ExpenseMethods()
                                               .getMonthlySpendingStream(
@@ -241,7 +224,7 @@ class _HomeState extends State<Home> {
                                               spendingSnapshot) {
                                             if (snapshot.hasError) {
                                               return Text(
-                                                  'Error: ${snapshot.error}'); // Display error message if any
+                                                  'Error: ${snapshot.error}'); 
                                             } else {
                                               double totalSpending =
                                                   spendingSnapshot.data
@@ -252,11 +235,6 @@ class _HomeState extends State<Home> {
                                                 style: const TextStyle(
                                                   fontSize: 32,
                                                   fontWeight: FontWeight.bold,
-                                                  // color: totalSpending > budget
-                                                  //     ? Colors.red
-                                                  //     : totalSpending < 0
-                                                  //         ? Colors.green
-                                                  //         : Colors.black,
                                                   color: Colors.black,
                                                 ),
                                               );
@@ -382,7 +360,7 @@ class _HomeState extends State<Home> {
                               leading: CircleAvatar(
                                 backgroundColor:
                                     color,
-                                child: Icon(Icons.food_bank, color: Colors.white, size: 20),
+                                child: const Icon(Icons.food_bank, color: Colors.white, size: 20),
                               ),
 
                               // Category

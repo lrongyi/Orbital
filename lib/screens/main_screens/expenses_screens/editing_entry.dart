@@ -377,7 +377,7 @@ class _EditingEntryState extends State<EditingEntry> {
                       color: isExpense ? mainColor : incomeColor,
                     )
                   ),
-                  value: categoryController.text.isEmpty
+                  value: categoryController.text.isEmpty || !categories.contains(categoryController.text)
                       ? null
                       : categoryController.text,
                   onChanged: (newValue) {

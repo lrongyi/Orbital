@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, use_build_context_synchronously
 
 import 'dart:ffi';
 
@@ -43,6 +43,7 @@ class _ExpensesState extends State<Expenses> {
       child: Consumer<MonthNotifier>(
         builder: (context, monthNotifier, _) {
           return Scaffold(
+            resizeToAvoidBottomInset: false,           
             backgroundColor: Colors.white,
             body: Column(
               children: [
@@ -126,21 +127,19 @@ class _ExpensesState extends State<Expenses> {
                           color: unpaidCount == 0 ? Colors.green : Colors.amber,
                           width: 2,
                         ),
-                        // color: unpaidCount == 0 ? Colors.greenAccent : Colors.orange,
                         color: Colors.white,
                       ),
                       child: ListTile(
                         title: Text(
                           unpaidCount == 1 
-                          ? 'You have $unpaidCount unpaid bill.'
-                          : 'You have $unpaidCount unpaid bills.',
+                          ? 'You have $unpaidCount unpaid bill'
+                          : 'You have $unpaidCount unpaid bills',
                             style: TextStyle(color: Colors.black),
                         ),
                         leading: unpaidCount == 0 
                         ? Icon(Icons.check, color: Colors.green)
                         : Icon(Icons.lightbulb, color: Colors.amber),
                         tileColor: Colors.white,
-                        // subtitle: TextButton(child: Text('View your bills'), onPressed: () {}),
                         trailing: IconButton(icon: Icon(Icons.arrow_forward), onPressed: () {
                           Navigator.push(context, MaterialPageRoute(builder: (context) => Billing()));
                         },),
@@ -149,6 +148,8 @@ class _ExpensesState extends State<Expenses> {
                     );
                   },
                 ),
+
+                const SizedBox(height: 10),
 
                 // Header for Transaction History and Amount
                 const Padding(
@@ -597,85 +598,85 @@ class _ExpensesState extends State<Expenses> {
 
   // Helper 2: Change Salary Dialog
   void _showChangeSalaryDialog(BuildContext context) async {
-  double currentSalary = await UserMethods().getSalaryAsync();
-  TextEditingController _salaryController = TextEditingController(text: currentSalary.toString());
+    double currentSalary = await UserMethods().getSalaryAsync();
+    TextEditingController _salaryController = TextEditingController(text: currentSalary.toString());
 
-  showDialog(
-    context: context,
-    builder: (context) {
-      return AlertDialog(
-        backgroundColor: Colors.white,
-        surfaceTintColor: Colors.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10), 
-          side: const BorderSide(
-            color: Colors.black,
-            width: 2.0,
-          )
-        ),
-        title: Row(
-          children: [
-            Icon(
-              Icons.update_rounded,
-              color: incomeColor,
-            ),
-            const SizedBox(width: 30,),
-            Text('Update Salary'),
-            const SizedBox(width: 30,),
-            IconButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              }, 
-              icon: Icon(
-                Icons.close,
-                color: Colors.black,
-              )
-            )
-          ],
-        ),
-        content: TextFormField(
-          cursorColor: mainColor,
-          controller: _salaryController,
-          keyboardType: TextInputType.number,
-          decoration: InputDecoration(
-            hintText: 'Enter new salary',
-            focusedBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: mainColor)
-            ),
-            prefixIcon: const Icon(
-              Icons.monetization_on_outlined,
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          surfaceTintColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10), 
+            side: const BorderSide(
               color: Colors.black,
-            ),
+              width: 2.0,
+            )
           ),
-        ),
-        actions: [
-          Center(
-            child: TextButton(
-              style: TextButton.styleFrom(
-                backgroundColor: incomeColor,
-                foregroundColor: Colors.white
+          title: Row(
+            children: [
+              Icon(
+                Icons.update_rounded,
+                color: incomeColor,
               ),
-              onPressed: () async {
-                // Implement salary update logic here
-                String userInput = _salaryController.text;
-                if (userInput.isNotEmpty) {
-                  double? newSalary = double.tryParse(userInput);
-                  if (newSalary != null && newSalary != currentSalary) {
-                    String userId = UserMethods().getCurrentUserId();
-                    await UserMethods().updateUserSalary(userId, newSalary);
-                  }
-                }
-                Navigator.pushAndRemoveUntil(context, 
-                    MaterialPageRoute(builder: (context) => Navigation(state: 1)), (route) => false);
-              },
-              child: Text('Save'),
+              const SizedBox(width: 30,),
+              Text('Update Salary'),
+              const SizedBox(width: 30,),
+              IconButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                }, 
+                icon: Icon(
+                  Icons.close,
+                  color: Colors.black,
+                )
+              )
+            ],
+          ),
+          content: TextFormField(
+            cursorColor: mainColor,
+            controller: _salaryController,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              hintText: 'Enter new salary',
+              focusedBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: mainColor)
+              ),
+              prefixIcon: const Icon(
+                Icons.monetization_on_outlined,
+                color: Colors.black,
+              ),
             ),
           ),
-        ],
-      );
-    },
-  );
-}
+          actions: [
+            Center(
+              child: TextButton(
+                style: TextButton.styleFrom(
+                  backgroundColor: incomeColor,
+                  foregroundColor: Colors.white
+                ),
+                onPressed: () async {
+                  // Implement salary update logic here
+                  String userInput = _salaryController.text;
+                  if (userInput.isNotEmpty) {
+                    double? newSalary = double.tryParse(userInput);
+                    if (newSalary != null && newSalary != currentSalary) {
+                      String userId = UserMethods().getCurrentUserId();
+                      await UserMethods().updateUserSalary(userId, newSalary);
+                    }
+                  }
+                  Navigator.pushAndRemoveUntil(context, 
+                      MaterialPageRoute(builder: (context) => Navigation(state: 1)), (route) => false);
+                },
+                child: Text('Save'),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
 
 

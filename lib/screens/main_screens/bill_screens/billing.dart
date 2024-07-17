@@ -345,7 +345,7 @@ class _BillingState extends State<Billing> {
                                             ),
                                               onPressed: () {
                                                 BillMethods().updateBill(billId, bill.copyWith(amount: newAmount, isPaid: isBillPaid));
-                                                Navigator.of(context).pop();
+                                                Navigator.of(context).pop();                                                                                             
                                               },
                                               child: const Text(
                                                 'Save',
