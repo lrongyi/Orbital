@@ -77,7 +77,7 @@ class _SelectCategoriesState extends State<SelectCategories> {
                 ),
           
                 Padding(
-                  padding: EdgeInsets.fromLTRB(20, 10, 20, 0),
+                  padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
                   child: Text(
                     'Choose some categories to start planning your budget',
                     style: TextStyle(
@@ -90,7 +90,7 @@ class _SelectCategoriesState extends State<SelectCategories> {
                 ),
           
                 Padding(
-                  padding: EdgeInsets.fromLTRB(20, 5, 20, 20),
+                  padding: const EdgeInsets.fromLTRB(20, 5, 20, 20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -145,7 +145,7 @@ class _SelectCategoriesState extends State<SelectCategories> {
                       Row(
                         // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
+                          const Text(
                             'Income Categories',
                             style: TextStyle(
                               color: Colors.green,
@@ -154,7 +154,7 @@ class _SelectCategoriesState extends State<SelectCategories> {
                             ),
                           ),
                           IconButton(
-                            icon: Icon(Icons.add, color: Colors.green),
+                            icon: const Icon(Icons.add, color: Colors.green),
                             onPressed: () => _showAddCategoryDialog('income'),
                           ),
                         ],
@@ -325,54 +325,69 @@ class _SelectCategoriesState extends State<SelectCategories> {
           );
         }
       ),
-      bottomSheet: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          TextButton(
-            child: const Text(
-              'Skip',
-              style: TextStyle(
-                color: Colors.blue,
-                fontSize: 16,
-              ),
-            ),
-            onPressed: () {
-              Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: ((context) => Navigation(state: 0))),
-                    (route) => false
-                  );
-            },
+      bottomSheet: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 0),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(
+            color: mainColor,
+            width: 1,
           ),
-          SizedBox(
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white,
-                backgroundColor: mainColor,
-                elevation: 10.0  
+          // borderRadius: const BorderRadius.only(
+          //   topLeft: Radius.circular(20),
+          //   topRight: Radius.circular(20),
+          // )
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            TextButton(
+              child: const Text(
+                'Skip',
+                style: TextStyle(
+                  color: Colors.blue,
+                  fontSize: 16,
+                ),
               ),
-              child: const Text('Next'),
               onPressed: () {
-                if (_selectedExpenseCategories.isNotEmpty || _selectedIncomeCategories.isNotEmpty) {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => EditCategories(
-                    selectedExpenseCategories: _selectedExpenseCategories,
-                    selectedIncomeCategories: _selectedIncomeCategories,
-                  )));
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                    showCloseIcon: true,
-                    content: Text(
-                      'Add some categories',
-                      style: TextStyle(fontSize: 18.0),
-                    ),
-                    backgroundColor: Colors.red,
-                    )
-                  );
-                }
+                Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: ((context) => Navigation(state: 0))),
+                      (route) => false
+                    );
               },
             ),
-          )
-        ],
+            SizedBox(
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: mainColor,
+                  elevation: 10.0  
+                ),
+                child: const Text('Next'),
+                onPressed: () {
+                  if (_selectedExpenseCategories.isNotEmpty || _selectedIncomeCategories.isNotEmpty) {
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => EditCategories(
+                      selectedExpenseCategories: _selectedExpenseCategories,
+                      selectedIncomeCategories: _selectedIncomeCategories,
+                    )));
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      showCloseIcon: true,
+                      content: Text(
+                        'Add some categories',
+                        style: TextStyle(fontSize: 18.0),
+                      ),
+                      backgroundColor: Colors.red,
+                      )
+                    );
+                  }
+                },
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
@@ -383,22 +398,22 @@ class _SelectCategoriesState extends State<SelectCategories> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Add New Category'),
+          title: const Text('Add New Category'),
           content: TextField(
             controller: categoryController,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               hintText: 'Enter category name',
             ),
           ),
           actions: [
             TextButton(
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: Text('Add'),
+              child: const Text('Add'),
               onPressed: () {
                 final newCategory = categoryController.text.trim();
                 if (newCategory.isNotEmpty) {

@@ -26,12 +26,36 @@ class _BudgetingState extends State<Budgeting> {
   double amount = 0.0;
   bool isRecurring = false;
   bool isIncome = false;
+  Color _selectedColor = Colors.blue;
 
   @override
   void initState() {
     super.initState();
     _currentMonth = DateTime(DateTime.now().year, DateTime.now().month);
   }
+
+  final List<Color> predefinedColors = [
+    Colors.red,
+    Colors.orange,
+    Colors.amber,
+    Colors.yellowAccent,
+    Colors.limeAccent,
+    Colors.lime,
+    Colors.lightGreen,
+    Colors.green,
+    Colors.teal,
+    Colors.cyan,
+    Colors.lightBlue,
+    Colors.blue,
+    Colors.indigo,
+    Colors.deepPurple,
+    Colors.purple,
+    Colors.pinkAccent,
+    Colors.pink,
+    Colors.brown,
+    Colors.grey,
+    Colors.black,
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -232,6 +256,7 @@ class _BudgetingState extends State<Budgeting> {
                                               categoryController.clear();
                                               budgetController.clear();
                                               Navigator.of(context).pop();
+                                              _selectedColor = Colors.blue;
                                             },
                                             icon: const Icon(Icons.close,
                                               color: Colors.black,
@@ -300,7 +325,38 @@ class _BudgetingState extends State<Budgeting> {
                                               children: [
                                                 Row(
                                                   children: [
-                                                    Text('Recurring',),
+                                                    const Text(
+                                                      'Color:',
+                                                      style: TextStyle(
+                                                        fontWeight: FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                    const SizedBox(width: 10),
+                                                    GestureDetector(
+                                                      onTap: () {
+                                                        _showColorPickerDialog((color) {
+                                                          setState(() {
+                                                            _selectedColor = color;
+                                                          });
+                                                        });
+                                                      },
+                                                      child: Container(
+                                                        width: 30,
+                                                        height: 30,
+                                                        decoration: BoxDecoration(
+                                                          color: _selectedColor,
+                                                          borderRadius: BorderRadius.circular(5),
+                                                          border: Border.all(
+                                                            color: Colors.grey,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),            
+                                                Row(
+                                                  children: [
+                                                    const Text('Recurring'),
                                                     Checkbox(
                                                       activeColor: mainColor,
                                                       value: isRecurring,
@@ -312,22 +368,8 @@ class _BudgetingState extends State<Budgeting> {
                                                     ),
                                                   ],
                                                 ),
-                                                Row(
-                                                  children: [
-                                                    Text('Income only'),
-                                                    Checkbox(
-                                                      activeColor: mainColor,
-                                                      value: isIncome,
-                                                      onChanged: (bool? value) {
-                                                        setState(() {
-                                                          isIncome = value ?? false;
-                                                        });
-                                                      },
-                                                    ),
-                                                  ],
-                                                ),
                                               ],
-                                            )
+                                            ),
                                           ],
                                         ),
                                       ),
@@ -343,7 +385,7 @@ class _BudgetingState extends State<Budgeting> {
                                                   category = categoryController.text;
                                                   amount = double.parse(budgetController.text).abs();
                                                 });
-                                                BudgetMethods().addBudget(category, amount, isRecurring, Colors.black.value.toString(), isIncome, monthNotifier.currentMonth); // Need to give it a color
+                                                BudgetMethods().addBudget(category, amount, isRecurring, _selectedColor.value.toString(), isIncome, monthNotifier.currentMonth); // Need to give it a color
                                                 Navigator.of(context).pop();
                                               }
                                                           
@@ -711,6 +753,50 @@ class _BudgetingState extends State<Budgeting> {
           );
         },
       ),
+    );
+  }
+
+  void _showColorPickerDialog(Function(Color) onColorSelected) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          backgroundColor: Colors.white,
+          title: Text(
+            'Select Color',
+            style: TextStyle(
+              color: mainColor,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: SingleChildScrollView(
+            child: BlockPicker(
+              pickerColor: _selectedColor,
+              onColorChanged: (Color color) {
+                onColorSelected(color);
+              },
+              availableColors: predefinedColors,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'Done',
+                style: TextStyle(
+                  color: mainColor,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

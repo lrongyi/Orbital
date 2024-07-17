@@ -22,6 +22,7 @@ class _SignUpState extends State<SignUp> {
   String errorMessage = '';
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  TextEditingController confirmPasswordController = TextEditingController();
   TextEditingController nameController = TextEditingController();
   final _formkey = GlobalKey<FormState>();
 
@@ -109,6 +110,32 @@ class _SignUpState extends State<SignUp> {
                                 decoration:
                                     inputDeco.copyWith(
                                       hintText: 'Password',
+                                      icon: Icon(
+                                        Icons.lock_outline_rounded,
+                                        color: mainColor,
+                                      )
+                                    ),
+                              ),
+                            ),
+                            sizedBoxSpacer,
+                            Container(
+                              padding: spaceBetweenForms,
+                              decoration: textFieldDeco,
+                              child: TextFormField(
+                                obscureText: true,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please re-enter password';
+                                  }
+                                  if (value != passwordController.text) {
+                                    return 'Passwords do not match';
+                                  }
+                                  return null;
+                                },
+                                controller: confirmPasswordController,
+                                decoration:
+                                    inputDeco.copyWith(
+                                      hintText: 'Confirm Password',
                                       icon: Icon(
                                         Icons.lock_outline_rounded,
                                         color: mainColor,

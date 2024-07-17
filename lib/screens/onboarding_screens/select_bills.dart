@@ -155,7 +155,7 @@ class _SelectBillsState extends State<SelectBills> {
                         ),
                         title: Text(bill.name),
                         subtitle: Text(DateFormat('dd/MM/yyyy').format(bill.due.toDate().toLocal()),),
-                        trailing: Text('\$${bill.amount.toStringAsFixed(2)}', style: TextStyle(fontSize: 14),),
+                        trailing: Text('\$${bill.amount.toStringAsFixed(2)}', style: const TextStyle(fontSize: 14),),
                         onTap: () {
                           Navigator.push(
                             context,
@@ -184,46 +184,61 @@ class _SelectBillsState extends State<SelectBills> {
         ],
       ),
 
-      bottomSheet: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          TextButton(
-            child: const Text(
-              'Skip',
-              style: TextStyle(
-                color: Colors.blue,
-                fontSize: 16,
-              ),
-            ),
-            onPressed: () {
-              Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: ((context) => SelectCategories())),
-                    (route) => false
-                  );
-            },
+      bottomSheet: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 0),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(
+            color: mainColor,
+            width: 1,
           ),
-          SizedBox(
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white,
-                backgroundColor: mainColor,
-                elevation: 10.0  
+          // borderRadius: const BorderRadius.only(
+          //   topLeft: Radius.circular(20),
+          //   topRight: Radius.circular(20),
+          // )
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            TextButton(
+              child: const Text(
+                'Skip',
+                style: TextStyle(
+                  color: Colors.blue,
+                  fontSize: 16,
+                ),
               ),
-              child: const Text('Next'),
               onPressed: () {
-                for (var bill in widget.bills) {
-                  BillMethods().addBill(bill);
-                }
                 Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: ((context) => SelectCategories())),
-                    (route) => false
-                  );
+                      context,
+                      MaterialPageRoute(builder: ((context) => const SelectCategories())),
+                      (route) => false
+                    );
               },
             ),
-          )
-        ],
+            SizedBox(
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: mainColor,
+                  elevation: 10.0  
+                ),
+                child: const Text('Next'),
+                onPressed: () {
+                  for (var bill in widget.bills) {
+                    BillMethods().addBill(bill);
+                  }
+                  Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: ((context) => const SelectCategories())),
+                      (route) => false
+                    );
+                },
+              ),
+            )
+          ],
+        ),
       ),
     );
   }

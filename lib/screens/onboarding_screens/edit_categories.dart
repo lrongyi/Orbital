@@ -169,69 +169,84 @@ class _EditCategoriesState extends State<EditCategories> {
           ),
         ),
       ),
-      bottomSheet: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          TextButton(
-            child: const Text(
-              'Skip',
-              style: TextStyle(
-                color: Colors.blue,
-                fontSize: 16,
-              ),
-            ),
-            onPressed: () {
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: ((context) => Navigation(state: 0))),
-                (route) => false,
-              );
-            },
+      bottomSheet: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 0),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(
+            color: mainColor,
+            width: 1,
           ),
-          SizedBox(
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white,
-                backgroundColor: mainColor,
-                elevation: 10.0,
+          // borderRadius: const BorderRadius.only(
+          //   topLeft: Radius.circular(20),
+          //   topRight: Radius.circular(20),
+          // )
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            TextButton(
+              child: const Text(
+                'Skip',
+                style: TextStyle(
+                  color: Colors.blue,
+                  fontSize: 16,
+                ),
               ),
-              child: const Text('Submit'),
-              onPressed: () async {
-                if (_formKey.currentState!.validate()) {
-                  final Map<String, List<dynamic>> budgetAllocations = {};
-                  _budgetControllers.forEach(
-                    (category, controller) {
-                      budgetAllocations[category] = [
-                        double.parse(controller.text.trim()),
-                        true, // isRecurring
-                        _categoryColors[category]!.value.toString(),
-                        _isIncomeMap[category] ?? false,
-                      ];
-                    },
-                  );
-
-                  for (var entry in budgetAllocations.entries) {
-                    await BudgetMethods().addBudget(entry.key, entry.value[0], entry.value[1], entry.value[2], entry.value[3], _currentMonth);
-                  }
-
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: ((context) => Navigation(state: 0))),
-                    (route) => false,
-                  );
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Fill in all fields'),
-                      backgroundColor: Colors.red,
-                      showCloseIcon: true,
-                    ),
-                  );
-                }
+              onPressed: () {
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: ((context) => Navigation(state: 0))),
+                  (route) => false,
+                );
               },
             ),
-          )
-        ],
+            SizedBox(
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: mainColor,
+                  elevation: 10.0,
+                ),
+                child: const Text('Submit'),
+                onPressed: () async {
+                  if (_formKey.currentState!.validate()) {
+                    final Map<String, List<dynamic>> budgetAllocations = {};
+                    _budgetControllers.forEach(
+                      (category, controller) {
+                        budgetAllocations[category] = [
+                          double.parse(controller.text.trim()),
+                          true, // isRecurring
+                          _categoryColors[category]!.value.toString(),
+                          _isIncomeMap[category] ?? false,
+                        ];
+                      },
+                    );
+        
+                    for (var entry in budgetAllocations.entries) {
+                      await BudgetMethods().addBudget(entry.key, entry.value[0], entry.value[1], entry.value[2], entry.value[3], _currentMonth);
+                    }
+        
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: ((context) => Navigation(state: 0))),
+                      (route) => false,
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Fill in all fields'),
+                        backgroundColor: Colors.red,
+                        showCloseIcon: true,
+                      ),
+                    );
+                  }
+                },
+              ),
+            )
+          ],
+        ),
       ),
     );
   }

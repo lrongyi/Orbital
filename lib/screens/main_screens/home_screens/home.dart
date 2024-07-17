@@ -187,9 +187,22 @@ class _HomeState extends State<Home> {
                                         );
                                       }
 
+                                      List<PieChartSectionData> sections = snapshot.data!;
+
+                                      if (sections.isEmpty) {
+                                        // Show a grey-out pie chart if no data
+                                        sections = [
+                                          PieChartSectionData(
+                                            color: Colors.grey[200]!,
+                                            value: 1,
+                                            title: '',
+                                          ),
+                                        ];
+                                      }
+
                                       return PieChart(
                                         PieChartData(
-                                          sections: snapshot.data!,
+                                          sections: sections,
                                           centerSpaceRadius: 80,
                                           sectionsSpace: 2,
                                         ),

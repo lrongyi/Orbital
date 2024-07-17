@@ -357,7 +357,7 @@ class _EditingEntryState extends State<EditingEntry> {
       children: [
         Expanded(
           child: StreamBuilder(
-              stream: isExpense ? BudgetMethods().getIncomeListByMonth(selectDate) : BudgetMethods().getExpenseListByMonth(selectDate),
+              stream: isExpense ? BudgetMethods().getExpenseListByMonth(selectDate) : BudgetMethods().getIncomeListByMonth(selectDate),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return const Center(child: CircularProgressIndicator());
