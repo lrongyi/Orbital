@@ -391,7 +391,8 @@ class _HomeState extends State<Home> {
                   .add(MapEntry(category, [
                     details[0] as double,   // amount
                     details[1],             // isRecurring
-                    details[2]              // color
+                    details[2],
+                    details[3]              // color
                     ]
                   ));
               }                       
@@ -411,18 +412,18 @@ class _HomeState extends State<Home> {
               double amount = entry.value[0];
               bool isRecurring = entry.value[1];
               Color color = Color(int.parse(entry.value[2]));
-              // bool isIncome = entry.value[3]; doesn't work for some reason
+              bool isIncome = entry.value[3]; 
                 
               return ListTile(
                 // Circle Avatar
                 leading: GestureDetector(
                   onTap: () {
                     setState(() {
-                        _selectedColor = color;
-                      });
+                      _selectedColor = color;
+                    });
                     _showColorPickerDialog(_selectedColor!, (newColor) {
                       _selectedColor = newColor;
-                      BudgetMethods().updateBudget(category, amount, isRecurring, newColor.value.toString(), false, month);
+                      BudgetMethods().updateBudget(category, amount, isRecurring, newColor.value.toString(), isIncome, month);
                     });
                   },
                   child: CircleAvatar(

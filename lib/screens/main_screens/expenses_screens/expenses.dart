@@ -559,6 +559,7 @@ class _ExpensesState extends State<Expenses> {
                   double amount = budget.categories[expense.category]![0];
                   bool isRecurring = budget.categories[expense.category]![1];
                   Color color = Color(int.parse(budget.categories[expense.category]![2]));
+                  bool isIncome = budget.categories[expense.category]![3];
 
                   return Padding(
                     padding: const EdgeInsets.symmetric(
@@ -574,7 +575,7 @@ class _ExpensesState extends State<Expenses> {
                           });
                           _showColorPickerDialog(_selectedColor!, (newColor) {
                             _selectedColor = newColor;
-                            BudgetMethods().updateBudget(expense.category!, amount, isRecurring, newColor.value.toString(), false, month);
+                            BudgetMethods().updateBudget(expense.category!, amount, isRecurring, newColor.value.toString(), isIncome, month);
                           });
                         },
                         child: CircleAvatar(
