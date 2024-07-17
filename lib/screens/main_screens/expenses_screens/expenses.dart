@@ -1,20 +1,15 @@
 // ignore_for_file: prefer_const_constructors, use_build_context_synchronously
 
-import 'dart:ffi';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:ss/screens/main_screens/bill_screens/billing.dart';
 import 'package:ss/screens/main_screens/expenses_screens/editing_entry.dart';
-import 'package:ss/screens/main_screens/home_screens/home.dart';
 import 'package:ss/screens/navigation_screen/navigation.dart';
 import 'package:ss/services/bill_methods.dart';
 import 'package:ss/services/budget_methods.dart';
 import 'package:ss/services/expense_methods.dart';
-import 'package:ss/services/models/bill.dart';
 import 'package:ss/services/models/budget.dart';
 import 'package:ss/services/models/expense.dart';
 import 'package:ss/services/user_methods.dart';

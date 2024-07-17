@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:ss/screens/onboarding_screens/salary.dart';
-import 'package:ss/shared/authentication_deco.dart';
 import 'package:ss/shared/main_screens_deco.dart';
 
 class GetStarted extends StatefulWidget {

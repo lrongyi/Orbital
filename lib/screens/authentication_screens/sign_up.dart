@@ -1,11 +1,7 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:ss/screens/main_screens/expenses_screens/stats.dart';
 import 'package:ss/screens/authentication_screens/log_in.dart';
-import 'package:ss/screens/navigation_screen/navigation.dart';
 import 'package:ss/services/auth.dart';
 import 'package:ss/shared/authentication_deco.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:ss/shared/main_screens_deco.dart';
 
 class SignUp extends StatefulWidget {

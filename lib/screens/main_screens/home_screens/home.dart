@@ -1,7 +1,5 @@
 // ignore_for_file: sized_box_for_whitespace, use_key_in_widget_constructors
 
-import 'dart:math';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
