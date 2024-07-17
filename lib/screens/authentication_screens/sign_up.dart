@@ -32,7 +32,7 @@ class _SignUpState extends State<SignUp> {
         backgroundColor: Colors.white,
         body: Container(
             padding: const EdgeInsets.only(
-              top: 100,
+              top: 75,
               left: 20,
               right: 20,
             ),

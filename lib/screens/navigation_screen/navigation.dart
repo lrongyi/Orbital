@@ -174,7 +174,8 @@ class _NavigationState extends State<Navigation> {
                 style: TextStyle(color: Colors.white),
               ),
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => Billing()));
+                // int number not impt, only if expenses screen then set previousContext = 1. this is to allow auto updates
+                Navigator.push(context, MaterialPageRoute(builder: (context) => Billing(previousContext: 0,))); 
 
               },
             ),

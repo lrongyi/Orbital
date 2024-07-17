@@ -28,7 +28,7 @@ class _EditCategoriesState extends State<EditCategories> {
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final Map<String, TextEditingController> _budgetControllers = {};
   final Map<String, Color> _categoryColors = {};
-  Color _selectedColor = Colors.blue;
+  Color? _selectedColor;
 
   // List of predefined colors for the Block Picker
   final List<Color> predefinedColors = [
@@ -108,7 +108,7 @@ class _EditCategoriesState extends State<EditCategories> {
                     ),
                     Row(
                       children: [
-                        Text(
+                        const Text(
                           'Budget',
                           style: TextStyle(
                             color: Colors.grey,
@@ -116,7 +116,7 @@ class _EditCategoriesState extends State<EditCategories> {
                           )
                         ),
                         IconButton(
-                          icon: Icon(Icons.info_outline),
+                          icon: const Icon(Icons.info_outline),
                           color: Colors.grey,
                           iconSize: 20,
                           onPressed: () {
@@ -255,7 +255,7 @@ class _EditCategoriesState extends State<EditCategories> {
     return ListView.separated(
       separatorBuilder: (context, index) => const Divider(),
       shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
+      physics: const NeverScrollableScrollPhysics(),
       itemCount: categories.length,
       itemBuilder: (context, index) {
         final currentCategory = categories.elementAt(index);
@@ -276,13 +276,16 @@ class _EditCategoriesState extends State<EditCategories> {
     }
     
     return ListTile(
-      title: Text(category, style: TextStyle(fontSize: 16)),
+      title: Text(category, style: const TextStyle(fontSize: 16)),
       leading: GestureDetector(
         onTap: () {
-          _showColorPickerDialog((color) {
+          setState(() {
+            _selectedColor = color;
+            
+          });
+          _showColorPickerDialog(_selectedColor!, (newColor) {
             setState(() {
-              _selectedColor = color;
-              _categoryColors[category] = _selectedColor;
+              _categoryColors[category] = newColor;
             });
           });
         },
@@ -306,7 +309,7 @@ class _EditCategoriesState extends State<EditCategories> {
     }
   }
 
-  void _showColorPickerDialog(Function(Color) onColorSelected) {
+  void _showColorPickerDialog(Color initialColor, Function(Color) onColorSelected) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -324,7 +327,7 @@ class _EditCategoriesState extends State<EditCategories> {
           ),
           content: SingleChildScrollView(
             child: BlockPicker(
-              pickerColor: _selectedColor,
+              pickerColor: initialColor,
               onColorChanged: (Color color) {
                 onColorSelected(color);
               },

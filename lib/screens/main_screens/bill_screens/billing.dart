@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:ss/screens/main_screens/expenses_screens/expenses.dart';
 import 'package:ss/screens/navigation_screen/navigation.dart';
 import 'package:ss/services/bill_methods.dart';
 import 'package:ss/services/models/bill.dart';
@@ -10,7 +11,8 @@ import 'package:ss/shared/main_screens_deco.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class Billing extends StatefulWidget {
-  const Billing({super.key});
+  final int previousContext;  // 1 = Expenses(), else = all other screens
+  const Billing({super.key, required this.previousContext});
 
   @override
   State<Billing> createState() => _BillingState();
@@ -83,7 +85,11 @@ class _BillingState extends State<Billing> {
             color: Colors.white,
           ),
           onPressed: () {
-            Navigator.pop(context);
+            if (widget.previousContext == 1) {
+              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => Navigation(state: 1)), (route) => false);
+            } else {
+              Navigator.pop(context);
+            }
           }
         ),
         

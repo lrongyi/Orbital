@@ -143,7 +143,6 @@ class _SelectCategoriesState extends State<SelectCategories> {
 
                       // Income Categories
                       Row(
-                        // mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           const Text(
                             'Income Categories',
@@ -189,137 +188,6 @@ class _SelectCategoriesState extends State<SelectCategories> {
                   ),
                 ),
                 const SizedBox(height: 100),
-          
-                // // Add in new expense categories
-                // Padding(
-                //   padding: EdgeInsets.symmetric(vertical: 10.0),
-                //   child: Text(
-                //     'Did not see your category?',
-                //     style: TextStyle(
-                //       color: mainColor,
-                //       fontSize: 18,
-                //       fontWeight: FontWeight.bold,
-                //     ),
-                //     textAlign: TextAlign.center,
-                //   ),
-                // ),
-          
-                // Padding(
-                //   padding: EdgeInsets.symmetric(horizontal: 20),
-                //   child: Row(
-                //     children: [
-                //       Expanded(
-                //         child: SizedBox(
-                //           height: 40,
-                //           child: TextField(
-                //             controller: expenseCategoryController,
-                //             decoration: InputDecoration(
-                //               focusedBorder: OutlineInputBorder(
-                //                 borderRadius: BorderRadius.circular(20),
-                //                 borderSide: BorderSide(color: mainColor)
-                //               ),
-                //               labelText: 'Enter expense category',
-                //               labelStyle: TextStyle(color: Colors.black),
-                //               border: OutlineInputBorder(),
-                //             ),
-                //             cursorColor: mainColor,
-                //           ),
-                //         )
-                //       ),
-          
-                //       const SizedBox(width: 10,),
-          
-                //       ElevatedButton(
-                //         style: ElevatedButton.styleFrom(
-                //           foregroundColor: Colors.white,
-                //           backgroundColor: mainColor,
-                //           elevation: 10.0,
-                //           shape: RoundedRectangleBorder(
-                //             borderRadius: BorderRadius.circular(20)
-                //           )
-                //         ),
-                //         child: Text('Add'),
-                //         onPressed: () {
-                //           final newCategory = expenseCategoryController.text.trim();
-                //           if (newCategory.isNotEmpty && !_availableExpenseCategories.contains(newCategory)) {
-                //             setState(() {
-                //               _availableExpenseCategories.add(newCategory);
-                //               _selectedExpenseCategories.add(newCategory);
-                //               expenseCategoryController.clear();
-                //             });
-                //           }
-                //         },
-                //       )
-                //     ],
-                    
-                //   ),
-                // ),
-
-                // // Add in new income categories
-                // Padding(
-                //   padding: EdgeInsets.symmetric(vertical: 10.0),
-                //   child: Text(
-                //     'Did not see your income category?',
-                //     style: TextStyle(
-                //       color: mainColor,
-                //       fontSize: 18,
-                //       fontWeight: FontWeight.bold,
-                //     ),
-                //     textAlign: TextAlign.center,
-                //   ),
-                // ),
-          
-                // Padding(
-                //   padding: EdgeInsets.symmetric(horizontal: 20),
-                //   child: Row(
-                //     children: [
-                //       Expanded(
-                //         child: SizedBox(
-                //           height: 40,
-                //           child: TextField(
-                //             controller: incomeCategoryController,
-                //             decoration: InputDecoration(
-                //               focusedBorder: OutlineInputBorder(
-                //                 borderRadius: BorderRadius.circular(20),
-                //                 borderSide: BorderSide(color: mainColor)
-                //               ),
-                //               labelText: 'Enter income category',
-                //               labelStyle: TextStyle(color: Colors.black),
-                //               border: OutlineInputBorder(),
-                //             ),
-                //             cursorColor: mainColor,
-                //           ),
-                //         )
-                //       ),
-          
-                //       const SizedBox(width: 10,),
-          
-                //       ElevatedButton(
-                //         style: ElevatedButton.styleFrom(
-                //           foregroundColor: Colors.white,
-                //           backgroundColor: mainColor,
-                //           elevation: 10.0,
-                //           shape: RoundedRectangleBorder(
-                //             borderRadius: BorderRadius.circular(20)
-                //           )
-                //         ),
-                //         child: Text('Add'),
-                //         onPressed: () {
-                //           final newCategory = incomeCategoryController.text.trim();
-                //           if (newCategory.isNotEmpty && !_availableIncomeCategories.contains(newCategory)) {
-                //             setState(() {
-                //               _availableIncomeCategories.add(newCategory);
-                //               _selectedIncomeCategories.add(newCategory);
-                //               incomeCategoryController.clear();
-                //             });
-                //           }
-                //         },
-                //       )
-                //     ],
-                    
-                //   ),
-                // ),
-          
               ],
             ),
           );
@@ -398,7 +266,22 @@ class _SelectCategoriesState extends State<SelectCategories> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Add New Category'),
+          backgroundColor: Colors.white,
+          surfaceTintColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10), 
+            side: const BorderSide(
+              color: Colors.black,
+              width: 2.0,
+            )
+          ),
+          title: const Text(
+            'Add New Category',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            )
+          ),
           content: TextField(
             controller: categoryController,
             decoration: const InputDecoration(

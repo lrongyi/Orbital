@@ -47,337 +47,29 @@ class _ExpensesState extends State<Expenses> {
             backgroundColor: Colors.white,
             body: Column(
               children: [
-                const Divider(
-                  height: 1,
-                  thickness: 1,
-                  color: Colors.grey,
-                ),
+                const Divider(height: 1, thickness: 1, color: Colors.grey),
 
                 // Select month
-                Container(
-                  color: mainColor,
-                  height: 50,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // back arrow
-                      IconButton(
-                        icon: const Icon(
-                          Icons.arrow_left,
-                          color: Colors.white,
-                        ),
-                        onPressed: () {
-                          monthNotifier.decrementMonth();
-                        },
-                      ),
-                      // the date itself
-                      Text(
-                        DateFormat.yMMMM().format(monthNotifier.currentMonth),
-                        style: const TextStyle(
-                          fontSize: 18,
-                          color: Colors.white,
-                        ),
-                      ),
-                      // right arrow
-                      IconButton(
-                        icon: const Icon(
-                          Icons.arrow_right,
-                          color: Colors.white,
-                        ),
-                        onPressed: () {
-                          monthNotifier.incrementMonth();
-                        },
-                      ),
-                    ],
-                  ),
-                ),
+                _monthPicker(monthNotifier),
 
                 const SizedBox(height: 20),
-                // Card. See helper 1
+
+                // Expenses card
                 _expensesCard(monthNotifier._currentMonth),
 
                 const SizedBox(height: 10),
 
-                FutureBuilder<int>(
-                  future: BillMethods().getNumberOfUnpaidBills(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-                
-                    if (snapshot.hasError) {
-                      return const Center(child: Text('Error loading unpaid bills'));
-                    }
-                
-                    int unpaidCount = snapshot.data ?? 0;
-                
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 16, left: 40, right: 40),
-                      decoration: BoxDecoration(
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.5),
-                            spreadRadius: 2,
-                            blurRadius: 5,
-                            offset: const Offset(0, 3), // changes position of shadow
-                          ),
-                        ],
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: unpaidCount == 0 ? Colors.green : Colors.amber,
-                          width: 2,
-                        ),
-                        color: Colors.white,
-                      ),
-                      child: ListTile(
-                        title: Text(
-                          unpaidCount == 1 
-                          ? 'You have $unpaidCount unpaid bill'
-                          : 'You have $unpaidCount unpaid bills',
-                            style: TextStyle(color: Colors.black),
-                        ),
-                        leading: unpaidCount == 0 
-                        ? Icon(Icons.check, color: Colors.green)
-                        : Icon(Icons.lightbulb, color: Colors.amber),
-                        tileColor: Colors.white,
-                        trailing: IconButton(icon: Icon(Icons.arrow_forward), onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => Billing()));
-                        },),
-                        onTap: () {},
-                      ),
-                    );
-                  },
-                ),
+                _unpaidBillsTile(),
 
                 const SizedBox(height: 10),
 
                 // Header for Transaction History and Amount
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // transaction history text
-                      Text(
-                        'Transaction History',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      // amount text
-                      Text(
-                        'Amount',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                _header('Transaction History', 'Amount'),
 
                 const SizedBox(height: 20),
 
                 // List of expenses
-                Expanded(
-                  child: StreamBuilder<QuerySnapshot>(
-                    stream: ExpenseMethods().getExpensesByMonth(monthNotifier.currentMonth),
-                    builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                      if (!snapshot.hasData) {
-                        return const Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      }
-
-                      final expenses = snapshot.data!.docs;
-
-                      if (expenses.isEmpty) {
-                        return const Center(
-                          child: Text('No Expenses Found'),
-                        );
-                      }
-
-                      return ListView.separated(
-                        separatorBuilder: (context, index) => const Divider(),
-                        itemCount: expenses.length,
-                        itemBuilder: (context, index) {
-                          Expense expense = expenses[index].data() as Expense;
-                          String expenseId = expenses[index].id;
-                          // double amount = expense.amount;
-                          return StreamBuilder<QuerySnapshot>(
-                            stream: BudgetMethods().getBudgetsByMonth(
-                                  monthNotifier._currentMonth),
-                            builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                              if (!snapshot.hasData) {
-                                return const CircularProgressIndicator();
-                              }
-
-                              final budgets = snapshot.data!.docs;
-
-                              Budget budget = budgets[0].data() as Budget;
-                              Color color = Color(int.parse(budget.categories[expense.category]![2]));
-
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 5,
-                                  horizontal: 5,
-                                ),
-                                child: ListTile(
-                                  // Icon
-                                  leading: CircleAvatar(
-                                    backgroundColor: color,
-                                    child: Icon(Icons.food_bank, color: Colors.white, size: 20),
-                                  ),
-                                  // List Tile
-                                  title: Text(
-                                    expense.category ?? '',
-                                    style: const TextStyle(fontSize: 20.0),
-                                  ),
-                                  subtitle: Row(
-                                    children: [
-                                      Text(
-                                        DateFormat("EEE, dd-MM-yy")
-                                            .format(expense.date.toDate()),
-                                        style: const TextStyle(fontSize: 13.0),
-                                      ),
-                                      const SizedBox(width: 15.0),
-                                      Text(
-                                        expense.note ?? '',
-                                        style: const TextStyle(fontSize: 12.0),
-                                      ),
-                                    ],
-                                  ),
-                                  trailing: expense.amount < 0
-                                      ? Text(
-                                          '-\$${expense.amount.abs().toStringAsFixed(2)}',
-                                          style: TextStyle(
-                                            fontSize: 18.0,
-                                            color: expense.amount > 0
-                                                ? Colors.green
-                                                : Colors.red,
-                                          ),
-                                        )
-                                      : Text(
-                                          '+\$${expense.amount.toStringAsFixed(2)}',
-                                          style: TextStyle(
-                                            fontSize: 18.0,
-                                            color: expense.amount > 0
-                                                ? Colors.green
-                                                : Colors.red,
-                                          ),
-                                        ),
-                                  // See description
-                                  onTap: () {
-                                    String? description = expense.description;
-                                    showDialog(
-                                      context: context,
-                                      builder: (context) {
-                                        return AlertDialog(
-                                          surfaceTintColor: Colors.white,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(10), 
-                                            side: const BorderSide(
-                                              color: Colors.black,
-                                              width: 2.0,
-                                            )
-                                          ),
-                                          backgroundColor: expense.amount > 0
-                                              ? Colors.green[50]
-                                              : Colors.red[50],
-                                          title: Text(expense.amount > 0 
-                                            ? 'Income Description'
-                                            : 'Expense Description',
-                                            style: const TextStyle(
-                                              color: Colors.black,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 20,
-                                            ),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                          content: ClipRRect(
-                                            borderRadius: BorderRadius.circular(10),
-                                            child: Container(
-                                              padding: const EdgeInsets.all(10.0),
-                                              color: Colors.white,                                 
-                                              constraints: BoxConstraints(
-                                                minHeight: 150,
-                                                maxWidth: MediaQuery.of(context).size.width * 0.5,
-                                              ),
-                                              child: Text(
-                                                description == '' ? 'No description provided' : description ?? '',
-                                                style: const TextStyle(
-                                                  color: Colors.black,
-                                                  fontSize: 16,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                          actions: [
-                                            Center(
-                                              child: TextButton(
-                                                style: TextButton.styleFrom(
-                                                  backgroundColor: expense.amount > 0 ? incomeColor : mainColor
-                                                ),
-                                                onPressed: () {
-                                                  Navigator.of(context).pop();
-                                                },
-                                                child: const Text(
-                                                  'Close',
-                                                  style: TextStyle(
-                                                    color: Colors.white
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        );
-                                      },
-                                    );
-                                  },
-                                  // Edit or Delete expense
-                                  onLongPress: () {
-                                    if (expense.amount < 0) {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              EditingEntry(
-                                                isExpense: true,
-                                                expenseId: expenseId, 
-                                                date: expense.date.toDate(), 
-                                                amount: expense.amount, 
-                                                category: expense.category, 
-                                                note: expense.note, 
-                                                description: expense.description,
-                                              ),
-                                        ),
-                                      );
-                                    } else {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              EditingEntry(
-                                                isExpense: false,
-                                                expenseId: expenseId, 
-                                                date: expense.date.toDate(), 
-                                                amount: expense.amount, 
-                                                category: expense.category, 
-                                                note: expense.note, 
-                                                description: expense.description,
-                                              ),
-                                        ),
-                                      );    
-                                    }                                 
-                                  },
-                                ),
-                              );
-                            },
-                          );
-                        },
-                      );
-                    },
-                  ),
-                ),
+                _userExpenses(monthNotifier._currentMonth),
               ],
             ),
           );
@@ -386,7 +78,48 @@ class _ExpensesState extends State<Expenses> {
     );
   }
 
-  // Helper 1: Expenses Card
+  Widget _monthPicker(MonthNotifier monthNotifier) {
+    return Container(
+      color: mainColor,
+      height: 50,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // Back arrow
+          IconButton(
+            icon: const Icon(
+              Icons.arrow_left,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              monthNotifier.decrementMonth();
+            },
+          ),
+
+          // Date itself
+          Text(
+            DateFormat.yMMMM().format(monthNotifier.currentMonth),
+            style: const TextStyle(
+              fontSize: 18,
+              color: Colors.white,
+            ),
+          ),
+
+          // Right arrow
+          IconButton(
+            icon: const Icon(
+              Icons.arrow_right,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              monthNotifier.incrementMonth();
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _expensesCard(DateTime time) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -596,7 +329,84 @@ class _ExpensesState extends State<Expenses> {
     );
   }
 
-  // Helper 2: Change Salary Dialog
+  Widget _unpaidBillsTile() {
+    return FutureBuilder<int>(
+      future: BillMethods().getNumberOfUnpaidBills(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+    
+        if (snapshot.hasError) {
+          return const Center(child: Text('Error loading unpaid bills'));
+        }
+    
+        int unpaidCount = snapshot.data ?? 0;
+    
+        return Container(
+          margin: const EdgeInsets.only(bottom: 16, left: 40, right: 40),
+          decoration: BoxDecoration(
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.5),
+                spreadRadius: 2,
+                blurRadius: 5,
+                offset: const Offset(0, 3), // changes position of shadow
+              ),
+            ],
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: unpaidCount == 0 ? Colors.green : Colors.amber,
+              width: 2,
+            ),
+            color: Colors.white,
+          ),
+          child: ListTile(
+            title: Text(
+              unpaidCount == 1 
+              ? 'You have $unpaidCount unpaid bill'
+              : 'You have $unpaidCount unpaid bills',
+                style: TextStyle(color: Colors.black),
+            ),
+            leading: unpaidCount == 0 
+            ? Icon(Icons.check, color: Colors.green)
+            : Icon(Icons.lightbulb, color: Colors.amber),
+            tileColor: Colors.white,
+            trailing: IconButton(icon: Icon(Icons.arrow_forward), onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => Billing(previousContext: 1,)));
+            },),
+            onTap: () {},
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _header(String first, String second) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // transaction history text
+          Text(
+            first,
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          // amount text
+          Text(
+            second,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showChangeSalaryDialog(BuildContext context) async {
     double currentSalary = await UserMethods().getSalaryAsync();
     TextEditingController _salaryController = TextEditingController(text: currentSalary.toString());
@@ -675,6 +485,207 @@ class _ExpensesState extends State<Expenses> {
           ],
         );
       },
+    );
+  }
+
+  Widget _userExpenses(DateTime month) {
+    return Expanded(
+      child: StreamBuilder<QuerySnapshot>(
+        stream: ExpenseMethods().getExpensesByMonth(month),
+        builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (!snapshot.hasData) {
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+
+          final expenses = snapshot.data!.docs;
+
+          if (expenses.isEmpty) {
+            return const Center(
+              child: Text('No expenses found'),
+            );
+          }
+
+          return ListView.separated(
+            separatorBuilder: (context, index) => const Divider(),
+            itemCount: expenses.length,
+            itemBuilder: (context, index) {
+              Expense expense = expenses[index].data() as Expense;
+              String expenseId = expenses[index].id;
+              // double amount = expense.amount;
+              return StreamBuilder<QuerySnapshot>(
+                stream: BudgetMethods().getBudgetsByMonth(month),
+                builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                  if (!snapshot.hasData) {
+                    return const CircularProgressIndicator();
+                  }
+
+                  final budgets = snapshot.data!.docs;
+
+                  Budget budget = budgets[0].data() as Budget;
+                  Color color = Color(int.parse(budget.categories[expense.category]![2]));
+
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 5,
+                      horizontal: 5,
+                    ),
+                    child: ListTile(
+                      // Icon
+                      leading: CircleAvatar(
+                        backgroundColor: color,
+                        child: Icon(Icons.food_bank, color: Colors.white, size: 20),
+                      ),
+                      // List Tile
+                      title: Text(
+                        expense.category ?? '',
+                        style: const TextStyle(fontSize: 20.0),
+                      ),
+                      subtitle: Row(
+                        children: [
+                          Text(
+                            DateFormat("EEE, dd-MM-yy").format(expense.date.toDate()),
+                            style: const TextStyle(fontSize: 13.0),
+                          ),
+                          const SizedBox(width: 15.0),
+                          Text(
+                            expense.note ?? '',
+                            style: const TextStyle(fontSize: 12.0),
+                          ),
+                        ],
+                      ),
+                      trailing: expense.amount < 0
+                          ? Text(
+                              '-\$${expense.amount.abs().toStringAsFixed(2)}',
+                              style: TextStyle(
+                                fontSize: 18.0,
+                                color: expense.amount > 0
+                                    ? Colors.green
+                                    : Colors.red,
+                              ),
+                            )
+                          : Text(
+                              '+\$${expense.amount.toStringAsFixed(2)}',
+                              style: TextStyle(
+                                fontSize: 18.0,
+                                color: expense.amount > 0
+                                    ? Colors.green
+                                    : Colors.red,
+                              ),
+                            ),
+                      // See description
+                      onTap: () {
+                        String? description = expense.description;
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              surfaceTintColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10), 
+                                side: const BorderSide(
+                                  color: Colors.black,
+                                  width: 2.0,
+                                )
+                              ),
+                              backgroundColor: expense.amount > 0
+                                  ? Colors.green[50]
+                                  : Colors.red[50],
+                              title: Text(expense.amount > 0 
+                                ? 'Income Description'
+                                : 'Expense Description',
+                                style: const TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              content: ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: Container(
+                                  padding: const EdgeInsets.all(10.0),
+                                  color: Colors.white,                                 
+                                  constraints: BoxConstraints(
+                                    minHeight: 150,
+                                    maxWidth: MediaQuery.of(context).size.width * 0.5,
+                                  ),
+                                  child: Text(
+                                    description == '' ? 'No description provided' : description ?? '',
+                                    style: const TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              actions: [
+                                Center(
+                                  child: TextButton(
+                                    style: TextButton.styleFrom(
+                                      backgroundColor: expense.amount > 0 ? incomeColor : mainColor
+                                    ),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text(
+                                      'Close',
+                                      style: TextStyle(
+                                        color: Colors.white
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                      // Edit or Delete expense
+                      onLongPress: () {
+                        if (expense.amount < 0) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  EditingEntry(
+                                    isExpense: true,
+                                    expenseId: expenseId, 
+                                    date: expense.date.toDate(), 
+                                    amount: expense.amount, 
+                                    category: expense.category, 
+                                    note: expense.note, 
+                                    description: expense.description,
+                                  ),
+                            ),
+                          );
+                        } else {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  EditingEntry(
+                                    isExpense: false,
+                                    expenseId: expenseId, 
+                                    date: expense.date.toDate(), 
+                                    amount: expense.amount, 
+                                    category: expense.category, 
+                                    note: expense.note, 
+                                    description: expense.description,
+                                  ),
+                            ),
+                          );    
+                        }                                 
+                      },
+                    ),
+                  );
+                },
+              );
+            },
+          );
+        },
+      ),
     );
   }
 
