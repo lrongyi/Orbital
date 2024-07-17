@@ -28,7 +28,7 @@ class _BudgetingState extends State<Budgeting> {
   double amount = 0.0;
   bool isRecurring = false;
   bool isIncome = false;
-  Color _selectedColor = Colors.blue;
+  Color? _selectedColor;
 
   @override
   void initState() {
@@ -239,6 +239,9 @@ class _BudgetingState extends State<Budgeting> {
               color: Colors.white,
               // Allocate new budget
               onPressed: () {
+                setState(() {
+                  _selectedColor = Colors.blue;
+                });
                 showDialog(
                     context: context,
                     builder: (context) {
@@ -353,9 +356,9 @@ class _BudgetingState extends State<Budgeting> {
                                           const SizedBox(width: 10),
                                           GestureDetector(
                                             onTap: () {
-                                              _showColorPickerDialog((color) {
+                                              _showColorPickerDialog(_selectedColor!, (newColor) {
                                                 setState(() {
-                                                  _selectedColor = color;
+                                                  _selectedColor = newColor;
                                                 });
                                               });
                                             },
@@ -404,7 +407,8 @@ class _BudgetingState extends State<Budgeting> {
                                         category = categoryController.text;
                                         amount = double.parse(budgetController.text).abs();
                                       });
-                                      BudgetMethods().addBudget(category, amount, isRecurring, _selectedColor.value.toString(), isIncome, month); 
+                                      BudgetMethods().addBudget(category, amount, isRecurring, _selectedColor!.value.toString(), isIncome, month);
+                                      _selectedColor = Colors.blue; 
                                       Navigator.of(context).pop();
                                     }
                                                 
@@ -434,7 +438,7 @@ class _BudgetingState extends State<Budgeting> {
     );
   }
 
-  void _showColorPickerDialog(Function(Color) onColorSelected) {
+  void _showColorPickerDialog(Color initialColor, Function(Color) onColorSelected) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -452,7 +456,7 @@ class _BudgetingState extends State<Budgeting> {
           ),
           content: SingleChildScrollView(
             child: BlockPicker(
-              pickerColor: _selectedColor,
+              pickerColor: initialColor,
               onColorChanged: (Color color) {
                 onColorSelected(color);
               },
@@ -752,10 +756,21 @@ class _BudgetingState extends State<Budgeting> {
                 children: [
                   Row(
                     children: [
-                      CircleAvatar(
-                        backgroundColor: color,
-                        child: const Icon(Icons.food_bank, color: Colors.white, size: 20),
-                    ),
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                        _selectedColor = color;
+                      });
+                      _showColorPickerDialog(_selectedColor!, (newColor) {
+                        _selectedColor = newColor;
+                        BudgetMethods().updateBudget(category, amount, isRecurring, newColor.value.toString(), false, month);
+                      });
+                        },
+                        child: CircleAvatar(
+                          backgroundColor: color,
+                          child: const Icon(Icons.food_bank, color: Colors.white, size: 20),
+                                            ),
+                      ),
                       const SizedBox(width: 16),
                       Text(category),
                     ],

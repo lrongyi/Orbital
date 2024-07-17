@@ -2,6 +2,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:ss/screens/main_screens/bill_screens/billing.dart';
@@ -24,12 +25,36 @@ class Expenses extends StatefulWidget {
 
 class _ExpensesState extends State<Expenses> {
   DateTime _currentMonth = DateTime.now();
+  Color? _selectedColor;
 
   @override
   void initState() {
     super.initState();
     _currentMonth = DateTime(DateTime.now().year, DateTime.now().month);
   }
+
+  final List<Color> predefinedColors = [
+    Colors.red,
+    Colors.orange,
+    Colors.amber,
+    Colors.yellowAccent,
+    Colors.limeAccent,
+    Colors.lime,
+    Colors.lightGreen,
+    Colors.green,
+    Colors.teal,
+    Colors.cyan,
+    Colors.lightBlue,
+    Colors.blue,
+    Colors.indigo,
+    Colors.deepPurple,
+    Colors.purple,
+    Colors.pinkAccent,
+    Colors.pink,
+    Colors.brown,
+    Colors.grey,
+    Colors.black,
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -518,7 +543,21 @@ class _ExpensesState extends State<Expenses> {
 
                   final budgets = snapshot.data!.docs;
 
+                  if (snapshot.hasError) {
+                    return const Center(
+                      child: Text('Error fetching data'),
+                    );
+                  }
+
+                  if (budgets.isEmpty) {
+                    return const Center(
+                      child: Text('No categories found'),
+                    );
+                  }
+
                   Budget budget = budgets[0].data() as Budget;
+                  double amount = budget.categories[expense.category]![0];
+                  bool isRecurring = budget.categories[expense.category]![1];
                   Color color = Color(int.parse(budget.categories[expense.category]![2]));
 
                   return Padding(
@@ -528,9 +567,20 @@ class _ExpensesState extends State<Expenses> {
                     ),
                     child: ListTile(
                       // Icon
-                      leading: CircleAvatar(
-                        backgroundColor: color,
-                        child: Icon(Icons.food_bank, color: Colors.white, size: 20),
+                      leading: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _selectedColor = color;
+                          });
+                          _showColorPickerDialog(_selectedColor!, (newColor) {
+                            _selectedColor = newColor;
+                            BudgetMethods().updateBudget(expense.category!, amount, isRecurring, newColor.value.toString(), false, month);
+                          });
+                        },
+                        child: CircleAvatar(
+                          backgroundColor: color,
+                          child: Icon(Icons.food_bank, color: Colors.white, size: 20),
+                        ),
                       ),
                       // List Tile
                       title: Text(
@@ -684,7 +734,49 @@ class _ExpensesState extends State<Expenses> {
     );
   }
 
-
+  void _showColorPickerDialog(Color initialColor, Function(Color) onColorSelected) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          backgroundColor: Colors.white,
+          title: Text(
+            'Select Color',
+            style: TextStyle(
+              color: mainColor,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: SingleChildScrollView(
+            child: BlockPicker(
+              pickerColor: initialColor,
+              onColorChanged: (Color color) {
+                onColorSelected(color);
+              },
+              availableColors: predefinedColors,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'Done',
+                style: TextStyle(
+                  color: mainColor,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
 }
 

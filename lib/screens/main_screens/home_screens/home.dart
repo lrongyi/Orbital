@@ -381,6 +381,7 @@ class _HomeState extends State<Home> {
           }
 
           List<MapEntry<String, List<dynamic>>> allCategories = [];
+          
           for (var budgetDoc in budgets) {
             Budget budget = budgetDoc.data() as Budget;
             budget.categories.forEach((category, details) {
