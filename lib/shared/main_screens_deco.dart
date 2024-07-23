@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
 Color mainColor = const Color.fromARGB(255, 88, 33, 33);
 Color lighterMainColor = const Color.fromARGB(209, 160, 51, 51);

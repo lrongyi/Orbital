@@ -5,10 +5,14 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:intl/intl.dart';
 import 'package:ss/screens/navigation_screen/navigation.dart';
 import 'package:ss/services/budget_methods.dart';
+import 'package:ss/services/category_methods.dart';
 import 'package:ss/services/expense_methods.dart';
+import 'package:ss/services/models/budget.dart';
+import 'package:ss/services/models/category.dart';
 import 'package:ss/services/models/expense.dart';
 import 'package:ss/shared/adding_deco.dart';
 import 'package:ss/shared/main_screens_deco.dart';
+import 'package:uuid/uuid.dart';
 
 class EditingEntry extends StatefulWidget {
   
@@ -357,29 +361,23 @@ class _EditingEntryState extends State<EditingEntry> {
       children: [
         Expanded(
           child: StreamBuilder(
-              stream: isExpense ? BudgetMethods().getIncomeListByMonth(selectDate) : BudgetMethods().getCategoriesByMonth(selectDate),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                List<String> categories = snapshot.data!;
-
-                return DropdownButtonFormField(
-                  dropdownColor: Colors.white,
-                  decoration: InputDecoration(
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: isExpense ? mainColor : incomeColor)
-                    ),
-                    hintText: 'Category',
-                    prefixIcon: Icon(
-                      Icons.category_rounded,
-                      color: isExpense ? mainColor : incomeColor,
-                    )
+            
+            stream: BudgetMethods().getCategoriesByMonth(selectDate),
+          
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return const Center(child: CircularProgressIndicator());
+              }   
+          
+              List<String> categories = snapshot.data!;
+          
+              return DropdownButtonFormField(
+                  decoration: const InputDecoration(
+                    hintText: 'Select Category',
+                    
                   ),
-                  value: categoryController.text.isEmpty
-                      ? null
-                      : categoryController.text,
+                
+                  value: categoryController.text.isEmpty ? null : categoryController.text,
                   onChanged: (newValue) {
                     setState(() {
                       categoryController.text = newValue!;
@@ -569,61 +567,37 @@ class _EditingEntryState extends State<EditingEntry> {
                         ),
                       ),
                       actions: [
-                        Center(
-                          child: TextButton(
-                            style: TextButton.styleFrom(
-                              backgroundColor: isExpense ? mainColor : incomeColor
-                            ),
-                              // Save
-                            onPressed: () {
-                              if (_formKey.currentState!.validate()) {
-                                setState(() {
-                                  category = addCategoryController.text;
-                                  amount =
-                                      double.parse(budgetAmountController.text)
-                                          .abs();
-                                  color = _selectedColor.value.toString();
-                                });
-                                BudgetMethods().addBudget(
-                                    category, amount, isRecurring, color, isIncome, _currentMonth); // last argument change to isIncome
-                                Navigator.of(context).pop();
-                                Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => widget.isExpense
-                                        ? EditingEntry(
-                                          isExpense: true,
-                                          expenseId: widget.expenseId,
-                                          date: widget.date,
-                                          amount: widget.amount,
-                                          category: widget.category,
-                                          description: widget.description,
-                                          note: widget.note,
-                                        )
-                                        : EditingEntry(
-                                          isExpense: false,
-                                          expenseId: widget.expenseId,
-                                          date: widget.date,
-                                          amount: widget.amount,
-                                          category: widget.category,
-                                          description: widget.description,
-                                          note: widget.note,
-                                        )
-                                  )
-                                );
-                                // Navigator.of(context).pop();
-                              }
-                        
-                              setState(() {
-                                addCategoryController.clear();
-                                budgetAmountController.clear();
-                                _selectedColor = Colors.blue;
-                              });
-                            },
-                            child: const Text(
-                              'Save',
-                              style: TextStyle(color: Colors.white),
-                            )),
+                        TextButton(
+                          onPressed: () {
+                            addCategoryController.clear();
+                            budgetAmountController.clear();
+                            Navigator.of(context).pop();
+                          },
+                    
+                          child: const Text('Cancel', style: TextStyle(color: Colors.black),)
+                        ),
+                    
+                        // Bug here
+                        TextButton(
+                          onPressed: () {
+                            if (_formKey.currentState!.validate()) {
+                                    setState(() {
+                                      category = addCategoryController.text;
+                                      amount = double.parse(budgetAmountController.text).abs();
+                                    });
+                                    BudgetMethods().addBudget(category, amount, isRecurring);
+                                    Navigator.of(context).pop();
+                                  }
+                           
+                            setState(() {
+                              addCategoryController.clear();
+                              budgetAmountController.clear();
+                            });
+                          }, 
+                          child: const Text(
+                            'Save',
+                            style: TextStyle(color: Colors.black),
+                          )
                         )
                       ],
                     );

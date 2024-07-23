@@ -39,6 +39,8 @@ class MyApp extends StatelessWidget {
       // home: Navigation(),
       // home: SelectBills(bills: [],)
       // home: Billing(),
+      // home: Billing()
+      // home: SelectCategories(),
     );
   }
 }
