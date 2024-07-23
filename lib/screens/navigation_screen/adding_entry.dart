@@ -37,7 +37,7 @@ class _AddingEntryState extends State<AddingEntry> {
   double amount = 0.0;
   String color = '';
   bool isRecurring = false;
-  bool isIncome = false;
+  bool? isIncome;
   Color _selectedColor = Colors.blue;
   DateTime _currentMonth = DateTime.now();
 
@@ -268,155 +268,258 @@ class _AddingEntryState extends State<AddingEntry> {
       children: [
         Expanded(
           child: StreamBuilder(
-            
-            stream: BudgetMethods().getCategoriesByMonth(selectDate),
-          
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                return const Center(child: CircularProgressIndicator());
-              }   
-          
-              List<String> categories = snapshot.data!;
-          
-              return DropdownButtonFormField(
-                dropdownColor: Colors.white,
-                decoration: const InputDecoration(
-                  hintText: 'Select Category',
-                  
-                ),
-              
-                value: categoryController.text.isEmpty ? null : categoryController.text,
-                onChanged: (newValue) {
-                  setState(() {
-                    categoryController.text = newValue!;
-                  });
-                },
-              
-                items: categories.map<DropdownMenuItem<String>>((String category) {
-                  return DropdownMenuItem(
-                    value: category,
-                    child: Text(
-                      category,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.normal,
-                      ),
+              stream: isExpense ? BudgetMethods().getExpenseListByMonth(selectDate) : BudgetMethods().getIncomeListByMonth(selectDate),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                List<String> categories = snapshot.data!;
+
+                return DropdownButtonFormField(
+                  dropdownColor: Colors.white,
+                  decoration: InputDecoration(
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: isExpense ? mainColor : incomeColor)
                     ),
-                  );
-                }).toList(),
-              );
-            }
-          ),
+                    hintText: 'Category',
+                    prefixIcon: Icon(
+                      Icons.category_rounded,
+                      color: isExpense ? mainColor : incomeColor,
+                    ) 
+                  ),
+                  value: categoryController.text.isEmpty
+                      ? null
+                      : categoryController.text,
+                  onChanged: (newValue) {
+                    setState(() {
+                      categoryController.text = newValue!;
+                    });
+                  },
+                  items: categories
+                      .map<DropdownMenuItem<String>>((String category) {
+                    return DropdownMenuItem(
+                      value: category,
+                      child: Text(
+                        category,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                );
+              }),
         ),
         // Add a category button
         IconButton(
           icon: Icon(Icons.add, size: 25, color: isExpense ? mainColor : incomeColor,),
           onPressed: () {
-            showDialog(
-              context: context, 
-              builder: (context) {
-                return StatefulBuilder(
-                  builder: (context, setState) {
-                    return AlertDialog(
-                      shape: const BeveledRectangleBorder(borderRadius: BorderRadius.zero),
-                      backgroundColor: Colors.white,
-                      title: const Text(
-                        'New Category',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    
-                      content: Form(
-                        key: _formKey,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            TextFormField(
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Enter Category';
-                                } 
-                                return null;
-                              },
-                              controller: addCategoryController,
-                              decoration: const InputDecoration(labelText: 'Category'),
-                            ),
-                            TextFormField(
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'Enter Amount';
-                                } 
-                                return null;
-                              },
-                              controller: budgetAmountController,
-                              keyboardType: TextInputType.number,
-                              decoration: const InputDecoration(labelText: 'Budget Allocation'),
-                            ),
-                            const SizedBox(height: 15.0,),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Text(
-                                  'Recurring',
-                                ),
-                                Switch(
-                                  activeColor: mainColor,
-                                  value: isRecurring,
-                                  onChanged: (bool value) {
-                                    setState(() {
-                                      isRecurring = value;
-                                    });
-                                  },
-                                ),
-                              ],
-                            )
-                          ],
-                        ),
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            addCategoryController.clear();
-                            budgetAmountController.clear();
-                            Navigator.of(context).pop();
-                          },
-                    
-                          child: const Text('Cancel', style: TextStyle(color: Colors.black),)
-                        ),
-
-
-                        // Bug here
-                        TextButton(
-                          onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              setState(() {
-                                category = addCategoryController.text;
-                                amount = double.parse(budgetAmountController.text).abs();
-                              });
-                              BudgetMethods().addBudget(category, amount, isRecurring);
-                              Navigator.of(context).pop();
-                            }
-                           
-                            setState(() {
-                              addCategoryController.clear();
-                              budgetAmountController.clear();
-                            });
-                          }, 
-                          child: const Text(
-                            'Save',
-                            style: TextStyle(color: Colors.black),
-                          )
-                        )
-                      ],
-                    );
-                  }
-                );
-              }
-            );
+            _showAddCategoryDialog(isExpense);
           },
         )
       ],
+    );
+  }
+
+  void _showAddCategoryDialog(bool isExpense) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(builder: (context, setState) {
+          return AlertDialog(
+            surfaceTintColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10), 
+              side: const BorderSide(
+                color: Colors.black,
+                width: 2.0,
+              )
+            ),
+            backgroundColor: Colors.white,
+            title: Row(
+              children: [
+                Icon(
+                  Icons.category_rounded,
+                  color: isExpense ? mainColor : incomeColor,
+                ),
+                const SizedBox(width: 20,),
+                Text(
+                  isExpense ? 'New Expense Category' : 'New Income Category',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(width: 25,),
+                IconButton(
+                  onPressed: () {
+                    addCategoryController.clear();
+                    budgetAmountController.clear();
+                    setState(() {
+                      _selectedColor = Colors.blue;
+                    });
+                    Navigator.of(context).pop();
+                  }, 
+                  icon: const Icon(
+                    Icons.close,
+                    color: Colors.black,
+                  )
+                )
+              ],
+            ),
+            content: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // name
+                  TextFormField(
+                    cursorColor: isExpense ? mainColor : incomeColor,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Enter Category';
+                      }
+                      return null;
+                    },
+                    controller: addCategoryController,
+                    decoration: InputDecoration(
+                      hintText: 'Name',
+                      prefixIcon: const Icon(
+                        Icons.abc_rounded,
+                        color: Colors.black,
+                      ),
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: isExpense ? mainColor : incomeColor)
+                      ),
+                    ),
+                  ),
+                  // Budget allocation only for expenses
+                  if (isExpense) ...[
+                    TextFormField(
+                      cursorColor: mainColor,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Enter Amount';
+                        }
+                        return null;
+                      },
+                      controller: budgetAmountController,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        hintText: 'Budget Allocation',
+                        prefixIcon: const Icon(
+                          Icons.money_rounded,
+                          color: Colors.black,
+                        ),
+                        focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: mainColor),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 15.0),
+                  ],
+                  // Color picker
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          const Text(
+                            'Color:',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          GestureDetector(
+                            onTap: () {
+                              _showColorPickerDialog((color) {
+                                setState(() {
+                                  _selectedColor = color;
+                                });
+                              });
+                            },
+                            child: Container(
+                              width: 30,
+                              height: 30,
+                              decoration: BoxDecoration(
+                                color: _selectedColor,
+                                borderRadius: BorderRadius.circular(5),
+                                border: Border.all(
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),            
+                      Row(
+                        children: [
+                          const Text('Recurring'),
+                          Checkbox(
+                            activeColor: isExpense ? mainColor : incomeColor,
+                            value: isRecurring,
+                            onChanged: (bool? value) {
+                              setState(() {
+                                isRecurring = value ?? false;
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 15.0,
+                  ),
+                ],
+              ),
+            ),
+            actions: [ 
+              Center(
+                child: TextButton(
+                  style: TextButton.styleFrom(
+                    backgroundColor: isExpense ? mainColor : incomeColor
+                  ),
+                  // Save
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      setState(() {
+                        if (!isExpense) {
+                          category = addCategoryController.text;
+                          amount = 0;
+                          color = _selectedColor.value.toString();
+                          isIncome = true;
+
+                        } else {
+                          category = addCategoryController.text;
+                          amount = double.parse(budgetAmountController.text).abs();
+                          color = _selectedColor.value.toString();
+                          isIncome = false;
+                        }                     
+                      });
+                      BudgetMethods().addBudget(category, amount, isRecurring, color, isIncome!, _currentMonth); 
+                      Navigator.of(context).pop();
+                      setState(() {});  // acts as a hot reload
+                    }
+                
+                    setState(() {
+                      addCategoryController.clear();
+                      budgetAmountController.clear();
+                      _selectedColor = Colors.blue;
+                    });
+                  },
+                  child: const Text(
+                    'Save',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              )
+            ],
+          );
+        });
+      },
     );
   }
 
@@ -435,7 +538,6 @@ class _AddingEntryState extends State<AddingEntry> {
             description: descriptionController.text,
           );
           ExpenseMethods().addExpense(expense);
-          // Navigator.popUntil(context, (context) => context.isFirst);
           Navigator.pushReplacement(context,
               MaterialPageRoute(builder: (context) => Navigation(state: 0)));
         },

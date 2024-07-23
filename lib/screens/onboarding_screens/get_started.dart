@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:ss/screens/onboarding_screens/salary.dart';
-import 'package:ss/shared/authentication_deco.dart';
 import 'package:ss/shared/main_screens_deco.dart';
 
 class GetStarted extends StatefulWidget {
@@ -20,18 +19,22 @@ class _GetStartedState extends State<GetStarted> {
         child: Center(
           child: Column(
             children: [
+              const SizedBox(
+                height: 25,
+              ),
+
               Text(
                 'Welcome to Savings Squad',
                 style: TextStyle(
                   color: mainColor,
-                  fontSize: 35,
+                  fontSize: 28,
                   fontWeight: FontWeight.bold,
                 ),
                 textAlign: TextAlign.center,
               ),
 
               SizedBox(
-                width: MediaQuery.of(context).size.width * 0.8,
+                width: MediaQuery.of(context).size.width * 0.6,
                 child: Image.asset(
                   "assets/ss_red.png",
                 ),

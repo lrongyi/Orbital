@@ -1,11 +1,7 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:ss/screens/main_screens/expenses_screens/stats.dart';
 import 'package:ss/screens/authentication_screens/log_in.dart';
-import 'package:ss/screens/navigation_screen/navigation.dart';
 import 'package:ss/services/auth.dart';
 import 'package:ss/shared/authentication_deco.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:ss/shared/main_screens_deco.dart';
 
 class SignUp extends StatefulWidget {
@@ -22,6 +18,7 @@ class _SignUpState extends State<SignUp> {
   String errorMessage = '';
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  TextEditingController confirmPasswordController = TextEditingController();
   TextEditingController nameController = TextEditingController();
   final _formkey = GlobalKey<FormState>();
 
@@ -31,7 +28,7 @@ class _SignUpState extends State<SignUp> {
         backgroundColor: Colors.white,
         body: Container(
             padding: const EdgeInsets.only(
-              top: 100,
+              top: 75,
               left: 20,
               right: 20,
             ),
@@ -109,6 +106,32 @@ class _SignUpState extends State<SignUp> {
                                 decoration:
                                     inputDeco.copyWith(
                                       hintText: 'Password',
+                                      icon: Icon(
+                                        Icons.lock_outline_rounded,
+                                        color: mainColor,
+                                      )
+                                    ),
+                              ),
+                            ),
+                            sizedBoxSpacer,
+                            Container(
+                              padding: spaceBetweenForms,
+                              decoration: textFieldDeco,
+                              child: TextFormField(
+                                obscureText: true,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please re-enter password';
+                                  }
+                                  if (value != passwordController.text) {
+                                    return 'Passwords do not match';
+                                  }
+                                  return null;
+                                },
+                                controller: confirmPasswordController,
+                                decoration:
+                                    inputDeco.copyWith(
+                                      hintText: 'Confirm Password',
                                       icon: Icon(
                                         Icons.lock_outline_rounded,
                                         color: mainColor,

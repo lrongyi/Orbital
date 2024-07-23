@@ -10,7 +10,8 @@ import 'package:ss/shared/main_screens_deco.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class Billing extends StatefulWidget {
-  const Billing({super.key});
+  final int previousContext;  // 1 = Expenses(), else = all other screens
+  const Billing({super.key, required this.previousContext});
 
   @override
   State<Billing> createState() => _BillingState();
@@ -83,7 +84,11 @@ class _BillingState extends State<Billing> {
             color: Colors.white,
           ),
           onPressed: () {
-            Navigator.pop(context);
+            if (widget.previousContext == 1) {
+              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => Navigation(state: 1)), (route) => false);
+            } else {
+              Navigator.pop(context);
+            }
           }
         ),
         
@@ -345,7 +350,7 @@ class _BillingState extends State<Billing> {
                                             ),
                                               onPressed: () {
                                                 BillMethods().updateBill(billId, bill.copyWith(amount: newAmount, isPaid: isBillPaid));
-                                                Navigator.of(context).pop();
+                                                Navigator.of(context).pop();                                                                                             
                                               },
                                               child: const Text(
                                                 'Save',

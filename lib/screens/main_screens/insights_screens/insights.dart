@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -6,9 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:ss/screens/main_screens/insights_screens/breakdown.dart';
 import 'package:ss/services/budget_methods.dart';
 import 'package:ss/services/expense_methods.dart';
-import 'package:ss/services/goal_methods.dart';
 import 'package:ss/services/models/budget.dart';
-import 'package:ss/services/models/goal.dart';
 import 'package:ss/shared/main_screens_deco.dart';
 
 class Insights extends StatefulWidget {
@@ -108,7 +105,7 @@ class _InsightsState extends State<Insights> {
                             builder: (context) {
                               return const AlertDialog(
                                 backgroundColor: Colors.white,
-                                shape: const BeveledRectangleBorder(borderRadius: BorderRadius.zero),                         
+                                shape: BeveledRectangleBorder(borderRadius: BorderRadius.zero),                         
                                 content: Text(
                                 'This is a comparison chart of your monthly spending over the last 5 months'
                                 ),

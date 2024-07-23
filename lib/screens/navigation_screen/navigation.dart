@@ -39,7 +39,7 @@ class _NavigationState extends State<Navigation> {
   }
 
   final screens = [Home(), Expenses(), Budgeting(), Settings()];
-  final appBarTitles = ['Home', 'Expenses', 'Budgeting', 'Settings'];
+  final appBarTitles = ['Home', 'Transactions', 'Budgeting', 'Settings'];
 
   @override
   Widget build(BuildContext context) {
@@ -127,7 +127,7 @@ class _NavigationState extends State<Navigation> {
               },
             ),
 
-            // Expenses
+            // Transactions
             ListTile(
               leading: const Icon(Icons.graphic_eq, color: Colors.white),
               title: const Text(
@@ -174,7 +174,8 @@ class _NavigationState extends State<Navigation> {
                 style: TextStyle(color: Colors.white),
               ),
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => Billing()));
+                // int number not impt, only if expenses screen then set previousContext = 1. this is to allow auto updates
+                Navigator.push(context, MaterialPageRoute(builder: (context) => Billing(previousContext: 0,))); 
 
               },
             ),

@@ -32,22 +32,46 @@ class BudgetMethods {
     return getBudgetRef(UserMethods().getCurrentUserId()).where('month', isGreaterThanOrEqualTo: startOfMonth).where('month', isLessThan: endOfMonth).snapshots().asBroadcastStream();
   }
 
-  // Stream<List<String>> getCategoriesByMonth(DateTime time) async* {
-  //   yield await getCategoriesList(time);
-  // }
+  Stream<List<String>> getExpenseListByMonth(DateTime time) async* {
+    yield await getExpenseList(time);
+  }
 
-  // Future<List<String>> getCategoriesList(DateTime time) async {
-  //   DateTime firstOfMonth = DateTime(time.year, time.month, 1);
-  //   DateTime nextMonth = time.month != 12 ? DateTime(time.year, time.month + 1, 1) : DateTime(time.year + 1, 1, 1);
-  //   Timestamp firstOfMonthTS = Timestamp.fromDate(firstOfMonth);
-  //   Timestamp nextMonthTS = Timestamp.fromDate(nextMonth);
+  Future<List<String>> getExpenseList(DateTime time) async {
+    DateTime firstOfMonth = DateTime(time.year, time.month, 1);
+    DateTime nextMonth = time.month != 12 ? DateTime(time.year, time.month + 1, 1) : DateTime(time.year + 1, 1, 1);
+    Timestamp firstOfMonthTS = Timestamp.fromDate(firstOfMonth);
+    Timestamp nextMonthTS = Timestamp.fromDate(nextMonth);
 
   //   QuerySnapshot<Budget> query = await getBudgetRef(UserMethods().getCurrentUserId()).where('month', isGreaterThanOrEqualTo: firstOfMonthTS).where('month', isLessThan: nextMonthTS).get();
 
     if (query.docs.isNotEmpty) {
       DocumentSnapshot<Budget> budgetDoc = query.docs.first;
       Budget existingBudget = budgetDoc.data()!;
-      return existingBudget.categories.keys.toList();
+      return existingBudget.categories.keys.where((key) => existingBudget.categories[key]![3] == false).toList();
+    } else {
+      return List.empty();
+    }
+  }
+
+  Stream<List<String>> getIncomeListByMonth(DateTime time) async* {
+    yield await getIncomeList(time);
+  }
+ 
+  Future<List<String>> getIncomeList(DateTime time) async {
+    DateTime firstOfMonth = DateTime(time.year, time.month, 1);
+    DateTime nextMonth = time.month != 12 ? DateTime(time.year, time.month + 1, 1) : DateTime(time.year + 1, 1, 1);
+    Timestamp firstOfMonthTS = Timestamp.fromDate(firstOfMonth);
+    Timestamp nextMonthTS = Timestamp.fromDate(nextMonth);
+
+    QuerySnapshot<Budget> query = await getBudgetRef(UserMethods().getCurrentUserId())
+      .where('month', isGreaterThanOrEqualTo: firstOfMonthTS)
+      .where('month', isLessThan: nextMonthTS)
+      .get();
+
+    if (query.docs.isNotEmpty) {
+      DocumentSnapshot<Budget> budgetDoc = query.docs.first;
+      Budget existingBudget = budgetDoc.data()!;
+      return existingBudget.categories.keys.where((key) => existingBudget.categories[key]![3] == true).toList(); // false means Income, true means Expense
     } else {
       return List.empty();
     }

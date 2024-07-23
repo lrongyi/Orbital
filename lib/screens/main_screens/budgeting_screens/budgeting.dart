@@ -1,3 +1,5 @@
+// ignore_for_file: sized_box_for_whitespace
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -29,12 +31,36 @@ class _BudgetingState extends State<Budgeting> {
   double amount = 0.0;
   bool isRecurring = false;
   bool isIncome = false;
+  Color? _selectedColor;
 
   @override
   void initState() {
     super.initState();
     _currentMonth = DateTime(DateTime.now().year, DateTime.now().month);
   }
+
+  final List<Color> predefinedColors = [
+    Colors.red,
+    Colors.orange,
+    Colors.amber,
+    Colors.yellowAccent,
+    Colors.limeAccent,
+    Colors.lime,
+    Colors.lightGreen,
+    Colors.green,
+    Colors.teal,
+    Colors.cyan,
+    Colors.lightBlue,
+    Colors.blue,
+    Colors.indigo,
+    Colors.deepPurple,
+    Colors.purple,
+    Colors.pinkAccent,
+    Colors.pink,
+    Colors.brown,
+    Colors.grey,
+    Colors.black,
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -44,641 +70,766 @@ class _BudgetingState extends State<Budgeting> {
         builder: (context, monthNotifier, _) {
           return Column(
             children: [
-              const Divider(
-                color: Colors.grey,
-                height: 1,
-                thickness: 1,
+              const Divider(color: Colors.grey, height: 1, thickness: 1,
               ),
-           
-              Container(  // Month selector
-                color: mainColor,
-                height: 50,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton( // Previous month arrow
-                      icon: const Icon(
-                        Icons.arrow_left,
-                        color: Colors.white,
-                      ),
-                      onPressed: () {
-                        monthNotifier.decrementMonth();
-                      },
-                    ),
 
-                    Text( // Date text
-                      DateFormat.yMMMM().format(monthNotifier.currentMonth),
-                      style: const TextStyle(
-                        fontSize: 18,
-                        color: Colors.white,
-                      ),
-                    ),
-
-                    IconButton( // Next month arrow
-                      icon: const Icon(
-                        Icons.arrow_right,
-                        color: Colors.white,
-                      ),
-                      onPressed: () {
-                        monthNotifier.incrementMonth();
-                      },
-                    ),
-                  ],
-                ),
-              ),
+              // Month picker
+              _monthPicker(monthNotifier),
 
               const SizedBox(height: 20),
 
-              Container(  // Money left to spend + budget
-                height: 200,
-                width: MediaQuery.of(context).size.width,
-                child: Column(
-                  children: [
-                    FutureBuilder<double>(
-                      future: BudgetMethods().getMonthlyBudgetAsync(
-                          monthNotifier._currentMonth),
-                      builder: (BuildContext context,
-                          AsyncSnapshot<double> snapshot) {
-                        if (snapshot.hasError) {
-                          return Text(
-                              'Error: ${snapshot.error}'); // Display error message if any
-                        } else {
-                          double budgetTotal = snapshot.data?.toDouble() ??
-                              0.0; // Default to 0.0 if no data
-                          return Text(
-                            '\$${budgetTotal.toStringAsFixed(2)}',
-                            style: const TextStyle(
-                              fontSize: 60,
-                              color: Colors.blue,
-                            ),
-                          );
-                        }
-                      }
-                    ),
-                    //money left to spend
-                    FutureBuilder<double>(
-                        future: ExpenseMethods()
-                            .getRemainingMonthly(monthNotifier._currentMonth),
-                        builder: (BuildContext context,
-                            AsyncSnapshot<double> snapshot) {
-                          if (snapshot.hasError) {
-                            return Text(
-                                'Error: ${snapshot.error}'); // Display error message if any
-                          } else {
-                            double moneyLeftToSpend =
-                                snapshot.data?.toDouble() ??
-                                    0.0; // Default to 0.0 if no data
-                            if (moneyLeftToSpend < 0) {
-                              return RichText(
-                                text: TextSpan(
-                                  children: [
-                                    TextSpan(
-                                      text: '\$${moneyLeftToSpend.abs().toStringAsFixed(2)}\n',
-                                      style: const TextStyle(
-                                        fontSize: 60,
-                                        color: Colors.red,
-                                      ),
-                                    ),
-                                    const TextSpan(
-                                      text: 'Overspent',
-                                      style: TextStyle(
-                                        fontSize: 30,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                                  ]
-                                ),
-                                textAlign: TextAlign.center,
-                              );
-                            } else {
-                              return RichText(
-                                text: TextSpan(
-                                  children: [
-                                    TextSpan(
-                                      text: '\$${moneyLeftToSpend.abs().toStringAsFixed(2)}\n',
-                                      style: const TextStyle(
-                                        fontSize: 60,
-                                        color: Colors.green
-                                      ),
-                                    ),
-                                    const TextSpan(
-                                      text: 'Left to spend',
-                                      style: TextStyle(
-                                        fontSize: 30,
-                                        color: Colors.grey,
-                                      ),
-                                    )
-                                  ]
-                                ),
-                                textAlign: TextAlign.center,
-                              );
-                            }
-                          }
-                        }),
-                    // const Text('Left to spend',
-                    //     style: TextStyle(
-                    //       fontSize: 30,
-                    //       color: Colors.grey,
-                    //     )),
-                    
-                  ],
-                )
-              ),
+              // Money spent + Budget
+              _budgetAndMoneySpentDisplay(monthNotifier._currentMonth),
 
-              // add budget button
-              Padding(
-                padding: const EdgeInsets.only(top: 10, right: 8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    MaterialButton(
-                        shape: const RoundedRectangleBorder(
-                          side: BorderSide(color: Colors.black),
-                          borderRadius: BorderRadius.all(Radius.circular(20))
-                        ),
-                        color: Colors.white,
-                        // Allocate new budget
-                        onPressed: () {
-                          showDialog(
-                              context: context,
-                              builder: (context) {
-                                return StatefulBuilder(
-                                  builder: (context, setState) {
-                                    return AlertDialog(
-                                      surfaceTintColor: Colors.white,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10), 
-                                        side: const BorderSide(
-                                          color: Colors.black,
-                                          width: 2.0,
-                                        )
-                                      ),
-                                      backgroundColor: Colors.white,
-                                      title: Row(
-                                        children: [
-                                          Icon(
-                                            Icons.monetization_on_rounded,
-                                            color: incomeColor,
-                                          ),
-                                          const SizedBox(width: 20,),
-                                          const Text(
-                                            'Add Budget',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18,
-                                              color: Colors.black
-                                            ),
-                                          ),
-                                          const SizedBox(width: 75,),
-                                          IconButton(
-                                            onPressed: () {
-                                              categoryController.clear();
-                                              budgetController.clear();
-                                              Navigator.of(context).pop();
-                                            },
-                                            icon: const Icon(Icons.close,
-                                              color: Colors.black,
-                                            ),
-                                          )
-                                        ],
-                                      ),
-                                      content: Form(
-                                        key: _formKey,
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            TextFormField(
-                                              cursorColor: mainColor,
-                                              validator: (value) {
-                                                if (value == null || value.isEmpty) {
-                                                  return 'Enter Category';
-                                                } 
-                                                return null;
-                                              },
-                                              controller: categoryController,
-                                              decoration: InputDecoration(
-                                                focusedBorder: UnderlineInputBorder(
-                                                  borderSide: BorderSide(color: mainColor)
-                                                ),
-                                                hintText: 'Category',
-                                                hintStyle: const TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.w300),
-                                                prefixIcon: const Icon(
-                                                  applyTextScaling: true,
-                                                  Icons.category_rounded,
-                                                  color: Colors.black,
-                                                )
-                                              ),
-                                            ),
-
-                                            TextFormField(
-                                              cursorColor: mainColor,
-                                              validator: (value) {
-                                                if (value == null || value.isEmpty) {
-                                                  return 'Enter Amount';
-                                                } 
-                                                return null;
-                                              },
-                                              controller: budgetController,
-                                              decoration: InputDecoration(
-                                                focusedBorder: UnderlineInputBorder(
-                                                  borderSide: BorderSide(color: mainColor)
-                                                ),
-                                                hintText: 'Budget Allocation',
-                                                hintStyle: const TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.w300),
-                                                prefixIcon: const Icon(
-                                                  applyTextScaling: true,
-                                                  Icons.money_rounded,
-                                                  color: Colors.black,
-                                                )
-                                              ),
-                                              keyboardType: const TextInputType
-                                                  .numberWithOptions(
-                                                decimal: true,
-                                              ),
-                                            ),
-                                    
-                                            const SizedBox(height: 15.0,),
-                                            Row(
-                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                              children: [
-                                                Row(
-                                                  children: [
-                                                    Text('Recurring',),
-                                                    Checkbox(
-                                                      activeColor: mainColor,
-                                                      value: isRecurring,
-                                                      onChanged: (bool? value) {
-                                                        setState(() {
-                                                          isRecurring = value ?? false;
-                                                        });
-                                                      },
-                                                    ),
-                                                  ],
-                                                ),
-                                                Row(
-                                                  children: [
-                                                    Text('Income only'),
-                                                    Checkbox(
-                                                      activeColor: mainColor,
-                                                      value: isIncome,
-                                                      onChanged: (bool? value) {
-                                                        setState(() {
-                                                          isIncome = value ?? false;
-                                                        });
-                                                      },
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
-                                            )
-                                          ],
-                                        ),
-                                      ),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () {
-                                            categoryController.clear();
-                                            budgetController.clear();
-                                            Navigator.of(context).pop();
-                                          },
-                                          child: const Text('Cancel',
-                                            style: TextStyle(
-                                              color: Colors.black,
-                                            )
-                                          ),
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            if (_formKey.currentState!.validate()) {
-                                              setState(() {
-                                                category = categoryController.text;
-                                                amount = double.parse(budgetController.text).abs();
-                                              });
-                                              BudgetMethods().addBudget(category, amount, isRecurring);
-                                              Navigator.of(context).pop();
-                                            }
-                                                        
-                                            setState(() {
-                                              categoryController.clear();
-                                              budgetController.clear();
-                                            });
-                                          },
-                                          child: const Text('Save',
-                                            style: TextStyle(
-                                              color: Colors.black,
-                                            )
-                                          ),
-                                        ),
-                                      ],
-                                    );
-                                  }
-                                );
-                              });
-                        },
-                        child: const Text(
-                          'Add Budget',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                          ),
-                        ))
-                  ],
-                ),
-              ),
+              // Add budget button
+              _addBudgetButton(context, monthNotifier._currentMonth),
 
               // Row to show the Categories label
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 10.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Categories',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 19,
-                        )),
-                    Text('Spending / Budget',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.grey,
-                        ))
-                  ],
-                ),
-              ),
+              _header('Categories', 'Spending / Budget'),
 
               const SizedBox(height: 20),
 
-              //List view of the categories itself
-              Expanded(
-                child: StreamBuilder<QuerySnapshot>(
-                  stream: BudgetMethods().getBudgetsByMonth(monthNotifier._currentMonth),
-                  builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                    if (!snapshot.hasData) {
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    }
-
-                    if (snapshot.hasError) {
-                      return const Center(
-                        child: Text('Error fetching data'),
-                      );
-                    }
-
-                    final budgets = snapshot.data!.docs;
-
-                    if (budgets.isEmpty) {
-                      return const Center(
-                        child: Text('No Budget Found'),
-                      );
-                    }
-
-                    // Create a list of pairs of document ID and budget
-                    List<MapEntry<String, Budget>> budgetList = budgets.map((doc) {
-                      return MapEntry(doc.id, Budget.fromJson(doc.data() as Map<String, dynamic>));
-                    }).toList();
-
-                    return FutureBuilder<List<Category>>(
-                      future: CategoryMethods().getAllCategoriesAsList(),
-                      builder: (context, categorySnapshot) {
-                        if (!categorySnapshot.hasData) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        }
-
-                        if (categorySnapshot.hasError) {
-                          return const Center(
-                            child: Text('Error fetching categories'),
-                          );
-                        }
-
-                        final List<Category> categories = categorySnapshot.data!;
-                        
-                        // Bug to fix: this assumes the categoryId for entry.value.categoryId to be the same as the cat.id but no it is not
-                        // since cat.id is Uuid but budget.categoryId is docRef 
-                        // I think can still work we just change this docRef into a category again then get the id
-                        // The reason i'm doing this roundabout way is because the UpdateCategory button will not work if it was Uuid
-                        // since updateCategory assumes the id 
-                        List<MapEntry<Budget, Category>> budgetCategory/Entries = budgetList.map((entry) {
-                          final category = categories.firstWhere((cat) => cat.id == entry.value.categoryId);
-                          return MapEntry(entry.value, category); 
-                        }).toList();
-
-                       
-
-                  return ListView.separated(
-                    itemCount: allCategories.length,
-                    separatorBuilder: (context, index) => const Divider(),
-                    itemBuilder: (context, index) {
-                      // Budget budget = budgets[index].data() as Budget;
-                      // String budgetId = budgets[index].id;
-                      // Map<String, double> categories = budget.categories;
-
-                      var entry = allCategories[index];
-                      String category = entry.key;
-                      double amount = entry.value[0];
-                      bool isBudgetRecurring = entry.value[1];
-
-                      return ListTile(
-                        // Update the budget
-                        onTap: () {
-                          showDialog(
-                              context: context,
-                              builder: (context) {
-                                double newAmount = amount;
-                                return StatefulBuilder(
-                                  builder: (context, setState) {
-                                    return AlertDialog(
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(0), 
-                                      ),
-                                      backgroundColor:Colors.white,
-                                      title: const Text('Change Budget',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 18,
-                                          )),
-                                      content: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          TextFormField(
-                                            initialValue: amount.toStringAsFixed(2),
-                                            keyboardType:
-                                                const TextInputType.numberWithOptions(
-                                                    decimal: true),
-                                          
-                                            // Update budget as value is changed
-                                            onChanged: (value) {
-                                              newAmount =
-                                                  double.tryParse(value) ?? amount;
-                                              BudgetMethods().updateBudget(category, newAmount, isBudgetRecurring);
-                                            },
-                                          ),
-                                          const SizedBox(height: 15.0,),
-                                          Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              const Text(
-                                                'Recurring',
-                                              ),
-                                              Switch(
-                                                activeColor: mainColor,
-                                                value: isBudgetRecurring,
-                                                onChanged: (bool value) {
-                                                  setState(() {
-                                                    isBudgetRecurring = value;
-                                                    BudgetMethods().updateBudget(category, newAmount, isBudgetRecurring);
-                                                  });
-                                                },
-                                              ),
-                                            ],
-                                          ),
-                                        ]
-                                      ),
-                                      actions: [
-                                        // save button
-                                        TextButton(
-                                            onPressed: () {
-                                              Navigator.of(context).pop();
-                                            },
-                                            child: const Text(
-                                              'Save',
-                                              style: TextStyle(
-                                                color: Colors.black,
-                                              ),
-                                            )),
-                                      ],
-                                    );
-                                  }
-                                );
-                              });
-                        },
-
-                        // Delete budget
-                        onLongPress: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return AlertDialog(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(0), 
-                                ),
-                                backgroundColor: Colors.white,
-                                title: const Text(
-                                  'Delete Budget'
-                                ),
-                                // content: const Text(
-                                //   'Are you sure you want to delete this budget?'
-                                // ),
-                                content: const Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text('Are you sure you want to delete this budget?'),
-                                    Text(
-                                      'You cannot undo this action!',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                      )
-                                    ),
-                                  ]
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: const Text(
-                                      'Cancel',
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                  ),
-                                  TextButton(
-                                    onPressed: () {
-                                      BudgetMethods().deleteBudget(category);
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: const Text(
-                                      'Delete',
-                                      style: TextStyle(
-                                        color: Colors.red,
-                                      ),
-                                    ),
-                                  ),
-                                ]
-                              );
-                            }
-                          );
-                        },
-                        title: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(category),
-                            FutureBuilder<double>(
-                                future: ExpenseMethods()
-                                    .getMonthlySpendingCategorized(
-                                        monthNotifier._currentMonth, category),
-                                builder: (BuildContext context,
-                                    AsyncSnapshot<double> snapshot) {
-                                  if (snapshot.hasError) {
-                                    return Text(
-                                        '${snapshot.error}'); // Display error message if any
-                                  } else {
-                                    double catSpending = snapshot.data ?? 0.0;
-
-                                          return Text.rich(
-                                            TextSpan(
-                                              text: catSpending < 0 ? '-\$' : '\$',
-                                              style: TextStyle(
-                                                color: catSpending <= amount
-                                                    ? Colors.green
-                                                    : Colors.red,
-                                              ),
-                                              children: [
-                                                TextSpan(
-                                                  text: catSpending < 0
-                                                      ? catSpending
-                                                          .abs()
-                                                          .toStringAsFixed(2)
-                                                      : catSpending.toStringAsFixed(2),
-                                                  style: TextStyle(
-                                                    color: catSpending <= amount
-                                                        ? Colors.green
-                                                        : Colors.red,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                                TextSpan(
-                                                  text:
-                                                      ' / \$${amount.toStringAsFixed(2)}',
-                                                  style: const TextStyle(
-                                                    color: Colors.black, // Default color
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          );
-                                        }
-                                      }),
-                                ],
-                              ),
-                            );
-                          },
-                        );
-                      },
-                    );
-                  },
-                ),
-              )
-
+              // List view of the categories itself
+              _userBudgets(monthNotifier._currentMonth),
             ],
           );
         },
       ),
     );
+  }
+
+  Widget _monthPicker(MonthNotifier monthNotifier) {
+    return Container(
+      color: mainColor,
+      height: 50,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // Back arrow
+          IconButton(
+            icon: const Icon(
+              Icons.arrow_left,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              monthNotifier.decrementMonth();
+            },
+          ),
+
+          // Date itself
+          Text(
+            DateFormat.yMMMM().format(monthNotifier.currentMonth),
+            style: const TextStyle(
+              fontSize: 18,
+              color: Colors.white,
+            ),
+          ),
+
+          // Right arrow
+          IconButton(
+            icon: const Icon(
+              Icons.arrow_right,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              monthNotifier.incrementMonth();
+            },
+          ),
+        ],
+      ),
+    );
+  }
+  
+  Widget _budgetAndMoneySpentDisplay(DateTime month) {
+    return Container(  // Money left to spend + budget
+      height: 200,
+      width: MediaQuery.of(context).size.width,
+      child: Column(
+        children: [
+          FutureBuilder<double>(
+            future: BudgetMethods().getMonthlyBudgetAsync(month),
+            builder: (BuildContext context, AsyncSnapshot<double> snapshot) {
+              if (snapshot.hasError) {
+                // Display error message if any
+                return Text('Error: ${snapshot.error}'); 
+              } else {
+                // Default to 0.0 if no data
+                double budgetTotal = snapshot.data?.toDouble() ?? 0.0; 
+                return Text(
+                  '\$${budgetTotal.toStringAsFixed(2)}',
+                  style: const TextStyle(
+                    fontSize: 60,
+                    color: Colors.blue,
+                  ),
+                );
+              }
+            }
+          ),
+          //money left to spend
+          FutureBuilder<double>(
+            future: ExpenseMethods().getRemainingMonthly(month),
+            builder: (BuildContext context, AsyncSnapshot<double> snapshot) {
+              if (snapshot.hasError) {
+                // Display error message if any
+                return Text('Error: ${snapshot.error}'); 
+              } else {
+                // Default to 0.0 if no data
+                double moneyLeftToSpend = snapshot.data?.toDouble() ?? 0.0; 
+                if (moneyLeftToSpend < 0) {
+                  return RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: '\$${moneyLeftToSpend.abs().toStringAsFixed(2)}\n',
+                          style: const TextStyle(
+                            fontSize: 60,
+                            color: Colors.red,
+                          ),
+                        ),
+                        const TextSpan(
+                          text: 'Overspent',
+                          style: TextStyle(
+                            fontSize: 30,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ]
+                    ),
+                    textAlign: TextAlign.center,
+                  );
+                } else {
+                  return RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: '\$${moneyLeftToSpend.abs().toStringAsFixed(2)}\n',
+                          style: const TextStyle(
+                            fontSize: 60,
+                            color: Colors.green
+                          ),
+                        ),
+                        const TextSpan(
+                          text: 'Left to spend',
+                          style: TextStyle(
+                            fontSize: 30,
+                            color: Colors.grey,
+                          ),
+                        )
+                      ]
+                    ),
+                    textAlign: TextAlign.center,
+                  );
+                }
+              }
+            }
+          ),         
+        ],
+      )
+    );
+  }
+
+  Widget _addBudgetButton(BuildContext context, DateTime month) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 10, right: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          MaterialButton(
+              shape: const RoundedRectangleBorder(
+                side: BorderSide(color: Colors.black),
+                borderRadius: BorderRadius.all(Radius.circular(20))
+              ),
+              color: Colors.white,
+              // Allocate new budget
+              onPressed: () {
+                setState(() {
+                  _selectedColor = Colors.blue;
+                });
+                showDialog(
+                    context: context,
+                    builder: (context) {
+                      return StatefulBuilder(
+                        builder: (context, setState) {
+                          return AlertDialog(
+                            surfaceTintColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10), 
+                              side: const BorderSide(
+                                color: Colors.black,
+                                width: 2.0,
+                              )
+                            ),
+                            backgroundColor: Colors.white,
+                            title: Row(
+                              children: [
+                                Icon(
+                                  Icons.monetization_on_rounded,
+                                  color: incomeColor,
+                                ),
+                                const SizedBox(width: 20,),
+                                const Text(
+                                  'Add Budget',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
+                                    color: Colors.black
+                                  ),
+                                ),
+                                const SizedBox(width: 75,),
+                                IconButton(
+                                  onPressed: () {
+                                    categoryController.clear();
+                                    budgetController.clear();
+                                    Navigator.of(context).pop();
+                                    _selectedColor = Colors.blue;
+                                  },
+                                  icon: const Icon(Icons.close,
+                                    color: Colors.black,
+                                  ),
+                                )
+                              ],
+                            ),
+                            content: Form(
+                              key: _formKey,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  TextFormField(
+                                    cursorColor: mainColor,
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Enter Category';
+                                      } 
+                                      return null;
+                                    },
+                                    controller: categoryController,
+                                    decoration: InputDecoration(
+                                      focusedBorder: UnderlineInputBorder(
+                                        borderSide: BorderSide(color: mainColor)
+                                      ),
+                                      hintText: 'Category',
+                                      hintStyle: const TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.w300),
+                                      prefixIcon: const Icon(
+                                        applyTextScaling: true,
+                                        Icons.category_rounded,
+                                        color: Colors.black,
+                                      )
+                                    ),
+                                  ),
+
+                                  TextFormField(
+                                    cursorColor: mainColor,
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Enter Amount';
+                                      } 
+                                      return null;
+                                    },
+                                    controller: budgetController,
+                                    decoration: InputDecoration(
+                                      focusedBorder: UnderlineInputBorder(
+                                        borderSide: BorderSide(color: mainColor)
+                                      ),
+                                      hintText: 'Budget Allocation',
+                                      hintStyle: const TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.w300),
+                                      prefixIcon: const Icon(
+                                        applyTextScaling: true,
+                                        Icons.money_rounded,
+                                        color: Colors.black,
+                                      )
+                                    ),
+                                    keyboardType: const TextInputType
+                                        .numberWithOptions(
+                                      decimal: true,
+                                    ),
+                                  ),
+                          
+                                  const SizedBox(height: 15.0,),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          const Text(
+                                            'Color:',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 10),
+                                          GestureDetector(
+                                            onTap: () {
+                                              _showColorPickerDialog(_selectedColor!, (newColor) {
+                                                setState(() {
+                                                  _selectedColor = newColor;
+                                                });
+                                              });
+                                            },
+                                            child: Container(
+                                              width: 30,
+                                              height: 30,
+                                              decoration: BoxDecoration(
+                                                color: _selectedColor,
+                                                borderRadius: BorderRadius.circular(5),
+                                                border: Border.all(
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),            
+                                      Row(
+                                        children: [
+                                          const Text('Recurring'),
+                                          Checkbox(
+                                            activeColor: mainColor,
+                                            value: isRecurring,
+                                            onChanged: (bool? value) {
+                                              setState(() {
+                                                isRecurring = value ?? false;
+                                              });
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            actions: [
+                              Center(
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: mainColor,
+                                  ),
+                                  onPressed: () {
+                                    if (_formKey.currentState!.validate()) {
+                                      setState(() {
+                                        category = categoryController.text;
+                                        amount = double.parse(budgetController.text).abs();
+                                      });
+                                      BudgetMethods().addBudget(category, amount, isRecurring, _selectedColor!.value.toString(), isIncome, month);
+                                      _selectedColor = Colors.blue; 
+                                      Navigator.of(context).pop();
+                                    }
+                                                
+                                    setState(() {
+                                      categoryController.clear();
+                                      budgetController.clear();
+                                    });
+                                  },
+                                  child: const Text('Save', style: TextStyle(color: Colors.white),),
+                                ),
+                              ),
+                            ],
+                          );
+                        }
+                      );
+                    });
+              },
+              child: const Text(
+                'Add Budget',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+              ))
+        ],
+      ),
+    );
+  }
+
+  void _showColorPickerDialog(Color initialColor, Function(Color) onColorSelected) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          backgroundColor: Colors.white,
+          title: Text(
+            'Select Color',
+            style: TextStyle(
+              color: mainColor,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          content: SingleChildScrollView(
+            child: BlockPicker(
+              pickerColor: initialColor,
+              onColorChanged: (Color color) {
+                onColorSelected(color);
+              },
+              availableColors: predefinedColors,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'Done',
+                style: TextStyle(
+                  color: mainColor,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _header(String first, String second) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(first,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 19,
+            )
+          ),
+          Text(second,
+            style: const TextStyle(
+              fontSize: 13,
+              color: Colors.grey,
+            )
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _userBudgets(DateTime month) {
+    return Expanded(
+      child: StreamBuilder<QuerySnapshot>(
+      stream: BudgetMethods()
+          .getBudgetsByMonth(month),
+      builder: (BuildContext context,
+          AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (!snapshot.hasData) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+
+        final budgets = snapshot.data!.docs;
+
+        if (snapshot.hasError) {
+          return const Center(
+            child: Text('Error fetching data'),
+          );
+        }
+
+        if (budgets.isEmpty) {
+          return const Center(
+            child: Text('No budgets found'),
+          );
+        }
+
+        List<MapEntry<String, List<dynamic>>> allCategories = [];
+       
+        for (var budgetDoc in budgets) {
+          Budget budget = budgetDoc.data() as Budget;
+          budget.categories.forEach((category, details) {
+            // if-block required to just filter expense categories (i.e. check isIncome == false)
+            if (details[3] == false) {
+              allCategories.add(MapEntry(category, [
+                  details[0] as double,   // amount
+                  details[1],             // isRecurring
+                  details[2]              // color
+                  ]
+              ));
+            }                       
+          });
+        }
+
+        return ListView.separated(
+          itemCount: allCategories.length,
+          separatorBuilder: (context, index) => const Divider(),
+          itemBuilder: (context, index) {
+            // Budget budget = budgets[index].data() as Budget;
+            // String budgetId = budgets[index].id;
+            // Map<String, double> categories = budget.categories;
+
+            var entry = allCategories[index];
+            String category = entry.key;
+            double amount = entry.value[0];
+            bool isBudgetRecurring = entry.value[1];
+            Color color = Color(int.parse(entry.value[2]));
+            // bool isIncome = entry.value[3];
+
+            return ListTile(
+              // Update the budget
+              onTap: () {
+                showDialog(
+                    context: context,
+                    builder: (context) {
+                      double newAmount = amount;
+                      return StatefulBuilder(
+                        builder: (context, setState) {
+                          return AlertDialog(
+                            surfaceTintColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10), 
+                              side: const BorderSide(
+                                color: Colors.black,
+                                width: 2.0,
+                              )
+                            ),
+                            backgroundColor: Colors.white,
+                            title: Row(
+                              children: [
+                                Icon(
+                                  Icons.price_change_outlined,
+                                  color: incomeColor
+                                ),
+                                const SizedBox(width: 20,),
+                                const Text(
+                                  'Change Budget',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
+                                  )
+                                ),
+                                const SizedBox(width: 50,),
+                                IconButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  }, 
+                                  icon: const Icon(
+                                    Icons.close,
+                                    color: Colors.black,
+                                  )
+                                )
+                              ],
+                            ),
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                TextFormField(
+                                  cursorColor: mainColor,
+                                  initialValue: amount.toStringAsFixed(2),
+                                  keyboardType:
+                                      const TextInputType.numberWithOptions(
+                                          decimal: true),
+                                  decoration: InputDecoration(
+                                      focusedBorder: UnderlineInputBorder(
+                                        borderSide: BorderSide(color: mainColor)
+                                      ),
+                                      hintText: 'Budget Allocation',
+                                      hintStyle: const TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.w300),
+                                      prefixIcon: const Icon(
+                                        applyTextScaling: true,
+                                        Icons.money_rounded,
+                                        color: Colors.black,
+                                      )
+                                    ),
+                                  // Update budget as value is changed
+                                  onChanged: (value) {
+                                    newAmount =
+                                        double.tryParse(value) ?? amount;
+                                    BudgetMethods().updateBudget(category, newAmount, isBudgetRecurring, entry.value[2], isIncome, month);
+                                  },
+                                ),
+                                const SizedBox(height: 15.0,),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    const Text(
+                                      'Recurring',
+                                    ),
+                                    Switch(
+                                      activeColor: mainColor,
+                                      value: isBudgetRecurring,
+                                      onChanged: (bool value) {
+                                        setState(() {
+                                          isBudgetRecurring = value;
+                                          BudgetMethods().updateBudget(category, newAmount, isBudgetRecurring, entry.value[2], isIncome, month);
+                                        });
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ]
+                            ),
+                            actions: [
+                              // save button
+                              Center(
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: mainColor,
+                                  ),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: const Text('Save', style: TextStyle(color: Colors.white),),
+                                ),
+                              ),
+                            ],
+                          );
+                        }
+                      );
+                    });
+              },
+
+              // Delete budget
+              onLongPress: () {
+                showDialog(
+                  context: context,
+                  builder: (context) {
+                    return AlertDialog(
+                      surfaceTintColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10), 
+                        side: const BorderSide(
+                          color: Colors.black,
+                          width: 2.0,
+                        )
+                      ),
+                      backgroundColor: Colors.white,
+                      title: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Delete Budget'
+                          ),
+                          const SizedBox(width: 50,),
+                          IconButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                            icon: const Icon(
+                              Icons.close,
+                              color: Colors.black,
+                            ),
+                          )
+                        ],
+                      ),
+                      content: const Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Are you sure you want to delete this budget?'),
+                          Text(
+                            'You cannot undo this action!',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            )
+                          ),
+                        ]
+                      ),
+                      actions: [
+                        Center(
+                          child: TextButton(
+                            onPressed: () {
+                              BudgetMethods().deleteBudget(category, month);
+                              Navigator.of(context).pop();
+                              setState(() {});
+                            },
+                            style: ButtonStyle(
+                              side: MaterialStateProperty.resolveWith((states) => const BorderSide(
+                                color: Colors.red,
+                                width: 1.5, 
+                              )),
+                            ),
+                            child: const Text(
+                              'Delete',
+                              style: TextStyle(
+                                color: Colors.red,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ]
+                    );
+                  }
+                );
+              },
+              title: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                        _selectedColor = color;
+                      });
+                      _showColorPickerDialog(_selectedColor!, (newColor) {
+                        _selectedColor = newColor;
+                        BudgetMethods().updateBudget(category, amount, isRecurring, newColor.value.toString(), false, month);
+                      });
+                        },
+                        child: CircleAvatar(
+                          backgroundColor: color,
+                          child: const Icon(Icons.food_bank, color: Colors.white, size: 20),
+                                            ),
+                      ),
+                      const SizedBox(width: 16),
+                      Text(category),
+                    ],
+                  ),
+                  FutureBuilder<double>(
+                      future: ExpenseMethods().getMonthlySpendingCategorized(month, category),
+                      builder: (BuildContext context,
+                          AsyncSnapshot<double> snapshot) {
+                        if (snapshot.hasError) {
+                          return Text(
+                              '${snapshot.error}'); // Display error message if any
+                        } else {
+                          double catSpending = snapshot.data ?? 0.0;
+
+                          return Text.rich(
+                            TextSpan(
+                              text: catSpending < 0
+                              ? '-\$'
+                              : '\$',
+                              style: TextStyle(
+                                color: catSpending <= amount
+                                    ? Colors.green
+                                    : Colors.red,
+                              ),
+                              children: [
+                                TextSpan(
+                                  text: catSpending < 0
+                                  ? catSpending.abs().toStringAsFixed(2)
+                                  : catSpending.toStringAsFixed(2),
+                                  style: TextStyle(
+                                    color: catSpending <= amount
+                                        ? Colors.green
+                                        : Colors.red,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                TextSpan(
+                                  text:
+                                      ' / \$${amount.toStringAsFixed(2)}',
+                                  style: const TextStyle(
+                                    color:
+                                        Colors.black, // Default color
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+                      }),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    ));
   }
 }
 

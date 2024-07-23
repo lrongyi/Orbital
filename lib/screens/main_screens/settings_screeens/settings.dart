@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:ss/shared/main_screens_deco.dart';
 
 class Settings extends StatefulWidget {
   const Settings({super.key});
