@@ -2,9 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Budget {
   Timestamp month;
-  double amount;
-  String categoryId;
-  // bool isRecurring;
+  double monthlyBudget;
+  Map<String, List<dynamic>> categories;
 
   Budget(
       {required this.month,
@@ -36,7 +35,7 @@ class Budget {
     return {
       'month': month,
       'monthlyBudget': monthlyBudget,
-      'categories': categories 
+      'categories': categories
     };
   }
 }

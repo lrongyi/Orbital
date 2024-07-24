@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:ss/services/models/user_model.dart';
+import 'package:ss/services/models/user.dart';
 
 const String EXPENSE_COLLECTION = 'Expenses';
 const String USER_COLLECTION = 'User';

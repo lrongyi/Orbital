@@ -12,13 +12,12 @@ import 'package:ss/services/user_methods.dart';
 import 'package:ss/shared/main_screens_deco.dart';
 
 class AuthMethods {
-  final FirebaseAuth auth = FirebaseAuth.instance;
+  FirebaseAuth auth = FirebaseAuth.instance;
 
   User? getCurrentUser() {
     return auth.currentUser;
   }
 
-  // Needs fixing
   signInWithGoogle(BuildContext context) async {
     final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
     final GoogleSignIn googleSignIn = GoogleSignIn();
