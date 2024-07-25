@@ -5,17 +5,29 @@ import 'package:mockito/mockito.dart';
 import 'package:ss/services/auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart' as mockito;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-class MockFirebaseAuth extends Mock implements FirebaseAuth{}
-class MockUser extends Mock implements User{}
-class MockUserCredential extends Mock implements UserCredential{}
+class MockFirebaseAuth extends Mock implements FirebaseAuth {}
+class MockUser extends Mock implements User {}
+class MockUserCredential extends Mock implements UserCredential {}
 
-//needs fixing
+// Unable to work 'PlatformException'
 
-void main() async {
+void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+
+  setUpAll(() async {
+    // Ensure Firebase is initialized before tests run
+    await dotenv.load(fileName: ".env");
+    await Firebase.initializeApp(
+      options: FirebaseOptions(
+        apiKey: dotenv.env['API_KEY']!,
+        appId: dotenv.env['APP_ID']!, 
+        messagingSenderId: dotenv.env['MESSAGING_SENDER_ID']!, 
+        projectId: dotenv.env['PROJECT_ID']!,
+      )
+    );
+  });
 
   late MockFirebaseAuth mockFirebaseAuth;
   late AuthMethods authMethods;
@@ -35,15 +47,15 @@ void main() async {
       when(mockUser.email).thenReturn('test@example.com');
       when(mockUserCredential.user).thenReturn(mockUser);
 
-      // Mocking Google Sign-In flow
       final credential = GoogleAuthProvider.credential(idToken: 'idToken', accessToken: 'accessToken');
       when(mockFirebaseAuth.signInWithCredential(credential)).thenAnswer((_) async => mockUserCredential);
 
-      // Call the method to be tested
       await authMethods.signInWithGoogle(MockBuildContext());
 
-      // Verify the interactions and assertions
       verify(mockFirebaseAuth.signInWithCredential(credential)).called(1);
+
+      final currentUser = mockFirebaseAuth.currentUser;
+      expect(currentUser, mockUser);
     });
 
     test('Login', () async {
@@ -60,9 +72,12 @@ void main() async {
         password: testPassword,
       )).thenAnswer((_) async => mockUserCredential);
 
-      await authMethods.login(MockBuildContext(), 'test@example.com', 'password');
+      await authMethods.login(MockBuildContext(), testEmail, testPassword);
 
-      verify(mockFirebaseAuth.signInWithEmailAndPassword(email: 'test@example.com', password: 'password')).called(1);
+      verify(mockFirebaseAuth.signInWithEmailAndPassword(email: testEmail, password: testPassword)).called(1);
+
+      final currentUser = mockFirebaseAuth.currentUser;
+      expect(currentUser, mockUser);
     });
 
     test('Registration', () async {
@@ -70,7 +85,7 @@ void main() async {
       final mockUser = MockUser();
 
       when(mockUserCredential.user).thenReturn(mockUser);
-      
+
       const testEmail = 'test@example.com';
       const testPassword = 'password';
       const testName = 'Test User';
@@ -83,18 +98,40 @@ void main() async {
       await authMethods.registration(MockBuildContext(), testName, testEmail, testPassword);
 
       verify(mockFirebaseAuth.createUserWithEmailAndPassword(email: testEmail, password: testPassword)).called(1);
+
+      final currentUser = mockFirebaseAuth.currentUser;
+      expect(currentUser, mockUser);
     });
 
     test('Reset Password', () async {
-      await authMethods.resetPassword(MockBuildContext(), 'test@example.com');
+      const testEmail = 'test@example.com';
 
-      verify(mockFirebaseAuth.sendPasswordResetEmail(email: 'test@example.com')).called(1);
+      await authMethods.resetPassword(MockBuildContext(), testEmail);
+
+      verify(mockFirebaseAuth.sendPasswordResetEmail(email: testEmail)).called(1);
     });
 
     test('Sign Out', () async {
+      final mockUser = MockUser();
+      final mockUserCredential = MockUserCredential();
+
+      when(mockUserCredential.user).thenReturn(mockUser);
+      when(mockFirebaseAuth.signInWithEmailAndPassword(
+        email: 'test@example.com',
+        password: 'password',
+      )).thenAnswer((_) async => mockUserCredential);
+
+      await authMethods.login(MockBuildContext(), 'test@example.com', 'password');
+
+      final currentUser = mockFirebaseAuth.currentUser;
+      expect(currentUser, mockUser);
+
       await authMethods.signOut(MockBuildContext());
 
       verify(mockFirebaseAuth.signOut()).called(1);
+
+      final signedOutUser = mockFirebaseAuth.currentUser;
+      expect(signedOutUser, isNull);
     });
   });
 }
