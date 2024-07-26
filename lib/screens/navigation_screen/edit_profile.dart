@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:ss/services/auth.dart';
 import 'package:ss/services/user_methods.dart';
@@ -11,6 +13,9 @@ class EditProfile extends StatefulWidget {
 }
 
 class _EditProfileState extends State<EditProfile> {
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController newPasswordController = TextEditingController();
+  final TextEditingController confirmPasswordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -37,14 +42,12 @@ class _EditProfileState extends State<EditProfile> {
         centerTitle: true,
       ),
 
-
       body: Container(
         color: Colors.white,
         padding: const EdgeInsets.all(40),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-
             // Profile Picture
             CircleAvatar(
               backgroundColor: mainColor,
@@ -56,28 +59,17 @@ class _EditProfileState extends State<EditProfile> {
                   Icons.person,
                   size: 50,
                   color: mainColor,
-                )
-                // backgroundImage: AssetImage('assets/profile_picture.png'), 
-                // child: Text(
-                //   'U',
-                //   style: TextStyle(
-                //     fontSize: 40,
-                //     fontWeight: FontWeight.bold,
-                //     color: Colors.black,
-                //   )
-                // )
+                ),
               ),
             ),
             const SizedBox(height: 20),
 
             // Username
             FutureBuilder(
-              
-              future: UserMethods().getUserNameAsync(), 
-              
+              future: UserMethods().getUserNameAsync(),
               builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
                 if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}'); // Display error message if any
+                  return Text('Error: ${snapshot.error}');
                 } else {
                   return Text(
                     'Username: ${snapshot.data ?? ''}',
@@ -87,7 +79,7 @@ class _EditProfileState extends State<EditProfile> {
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
                     ),
-                  ); // Display the user name
+                  );
                 }
               },
             ),
@@ -96,12 +88,10 @@ class _EditProfileState extends State<EditProfile> {
 
             // Email
             FutureBuilder(
-              
-              future: UserMethods().getEmailAsync(), 
-              
+              future: UserMethods().getEmailAsync(),
               builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
                 if (snapshot.hasError) {
-                  return Text('Error: ${snapshot.error}'); // Display error message if any
+                  return Text('Error: ${snapshot.error}');
                 } else {
                   return Text(
                     'Email: ${snapshot.data ?? ''}',
@@ -111,7 +101,7 @@ class _EditProfileState extends State<EditProfile> {
                       fontWeight: FontWeight.bold,
                       color: Colors.black,
                     ),
-                  ); // Display the user name
+                  );
                 }
               },
             ),
@@ -148,76 +138,92 @@ class _EditProfileState extends State<EditProfile> {
                     final newNameController = TextEditingController();
 
                     return AlertDialog(
+                      surfaceTintColor: Colors.white,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(0), 
+                        borderRadius: BorderRadius.circular(10),
+                        side: const BorderSide(
+                          color: Colors.black,
+                          width: 2.0,
+                        )
                       ),
                       backgroundColor: Colors.white,
-                      title: const Text(
-                        'Change Username',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,                       
-                        ),
+                      title: Row(
+                        children: [
+                          Icon(
+                            Icons.account_box_rounded,
+                            color: incomeColor,
+                          ),
+                          const SizedBox(width: 20,),
+                          const Text(
+                            'Change Username',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                              color: Colors.black
+                            ),
+                          ),
+                          const SizedBox(width: 35,),
+                          IconButton(
+                            onPressed: () {
+                              newNameController.clear();
+                              Navigator.of(context).pop();
+                            },
+                            icon: const Icon(Icons.close,
+                              color: Colors.black,
+                            ),
+                          )
+                        ],
                       ),
-                      content: TextFormField(
-                        controller: newNameController,
-                        decoration: const InputDecoration(
-                          labelText: 'New Username',
+                      content: Form(
+                        key: _formKey,
+                        child: TextFormField(
+                          cursorColor: mainColor,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Enter New Username';
+                            }
+                            return null;
+                          },
+                          controller: newNameController,
+                          decoration: InputDecoration(
+                            focusedBorder: UnderlineInputBorder(
+                              borderSide: BorderSide(color: mainColor)
+                            ),
+                            hintText: 'New Username',
+                            hintStyle: const TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.w300),
+                            prefixIcon: const Icon(
+                              applyTextScaling: true,
+                              Icons.published_with_changes,
+                              color: Colors.black,
+                            )
+                          ),
                         ),
                       ),
                       actions: [
-                        // cancel button
-                        TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                          child: const Text(
-                            'Cancel',
-                            style: TextStyle(
-                              color: Colors.black,
+                        Center(
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: mainColor,
                             ),
-                          ),
-                        ),
-                        // save button
-                        TextButton(
-                          onPressed: () {
-                            String newName = newNameController.text;
-                            if (newName.isNotEmpty) {
-                              AuthMethods().changeDisplayName(newName);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Username changed successfully!',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                    )
+                            onPressed: () {
+                              String newName = newNameController.text;
+                              if (_formKey.currentState!.validate()) {
+                                AuthMethods().changeDisplayName(newName);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      'Username changed successfully!',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                      )
                                     ),
-                                ),
-                              );
-                              Navigator.of(context).pop();
-                              
-
-                            } else {
-                              // shows error message to prevent empty text form field input
-                              Navigator.of(context).pop();
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  backgroundColor: Colors.red,
-                                  content: Text(
-                                    'Username cannot be empty',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                    )
-                                    ),
-                                ),
-                              );
-                            }
-                          },
-                          child: const Text(
-                            'Save',
-                            style: TextStyle(
-                              color: Colors.black,
-                            ),
+                                  ),
+                                );
+                                Navigator.of(context).pop();
+                                setState(() {});
+                              }
+                            },
+                            child: const Text('Save', style: TextStyle(color: Colors.white),),
                           ),
                         ),
                       ]
@@ -250,113 +256,92 @@ class _EditProfileState extends State<EditProfile> {
                     final oldPasswordController = TextEditingController();
 
                     return AlertDialog(
+                      surfaceTintColor: Colors.white,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(0), 
+                        borderRadius: BorderRadius.circular(10),
+                        side: const BorderSide(
+                          color: Colors.black,
+                          width: 2.0,
+                        )
                       ),
                       backgroundColor: Colors.white,
-                      title: const Text(
-                        'Change Password',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                          fontSize: 18,
-                        )                       
-                      ),
-                      content: Column(
-                        mainAxisSize: MainAxisSize.min,
+                      title: Row(
                         children: [
-                          TextFormField(
-                            controller: emailController,
-                            decoration: const InputDecoration(
-                              labelText: 'Email',
+                          Icon(
+                            Icons.account_box_rounded,
+                            color: incomeColor,
+                          ),
+                          const SizedBox(width: 20,),
+                          const Text(
+                            'Change Password',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                              color: Colors.black
                             ),
                           ),
-                          TextFormField(
-                            controller: oldPasswordController,
-                            decoration: const InputDecoration(
-                              labelText: 'Current Password',
+                          const SizedBox(width: 35,),
+                          IconButton(
+                            onPressed: () {
+                              newPasswordController.clear();
+                              confirmPasswordController.clear();
+                              emailController.clear();
+                              oldPasswordController.clear();
+                              Navigator.of(context).pop();
+                            },
+                            icon: const Icon(Icons.close,
+                              color: Colors.black,
                             ),
-                            obscureText: true,
-                          ),
-                          TextFormField(
-                            controller: newPasswordController,
-                            decoration: const InputDecoration(
-                              labelText: 'New Password',
-                            ),
-                            obscureText: true,
-                          ),
-                          TextFormField(
-                            controller: confirmPasswordController,
-                            decoration: const InputDecoration(
-                              labelText: 'Confirm Password',
-                            ),
-                            obscureText: true,
-                          ),
+                          )
                         ],
                       ),
-                      actions: [
-                        // cancel button
-                        TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                          child: const Text(
-                            'Cancel',
-                            style: TextStyle(
-                              color: Colors.black,
+                      content: Form(
+                        key: _formKey,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            _customTextFormField('Email', emailController),
+                            _customTextFormField('Current Password', oldPasswordController, 
+                            isPasswordField: true
                             ),
-                          ),
+                            _customTextFormField('New Password', newPasswordController, 
+                            comparisonController: confirmPasswordController, 
+                            isPasswordField: true
+                            ),
+                            _customTextFormField('Confirm Password', confirmPasswordController, 
+                            comparisonController: newPasswordController, 
+                            isPasswordField: true
+                            ),
+                          ],
                         ),
-                        // save button
-                        TextButton(
-                          onPressed: () {
-                            String newPassword = newPasswordController.text;
-                            String confirmPassword = confirmPasswordController.text;
-                            String email = emailController.text;
-                            String oldPassword = oldPasswordController.text;
-
-                            if (newPassword.isEmpty || confirmPassword.isEmpty) {
-                              // show an error message if any input is empty
-                              Navigator.of(context).pop();
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  backgroundColor: Colors.red,
-                                  content: Text(
-                                    'Password fields cannot be empty'
-                                  ),
-                                ),
-                              );
-                            } else if (newPassword != confirmPassword) {
-                              // show an error message if passwords do not match
-                              Navigator.of(context).pop();
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  backgroundColor: Colors.red,
-                                  content: Text(
-                                    'Passwords do not match',
-                                  ),
-                                ),
-                              );
-                            } else {
-                              AuthMethods().changePassword(email, oldPassword, newPassword);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Password changed successfully!',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                    )
-                                    ),
-                                ),
-                              );
-                              Navigator.of(context).pop();
-                            }
-                          },
-                          child: const Text(
-                            'Save',
-                            style: TextStyle(
-                              color: Colors.black,
+                      ),
+                      actions: [
+                        Center(
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: mainColor,
                             ),
+                            onPressed: () {
+                              String newPassword = newPasswordController.text;
+                              String email = emailController.text;
+                              String oldPassword = oldPasswordController.text;
+
+                              if (_formKey.currentState!.validate()) {
+                                AuthMethods().changePassword(email, oldPassword, newPassword);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      'Password changed successfully!',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                      )
+                                    ),
+                                  ),
+                                );
+                                Navigator.of(context).pop();
+                              }
+                            },
+                            child: const Text('Save', style: TextStyle(color: Colors.white),),
                           ),
                         ),
                       ],
@@ -373,6 +358,34 @@ class _EditProfileState extends State<EditProfile> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _customTextFormField(String name, TextEditingController controller, {TextEditingController? comparisonController, bool? isPasswordField}) {
+    return TextFormField(
+      obscureText: isPasswordField ?? false,
+      cursorColor: mainColor,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Enter $name';
+        } else if (comparisonController != null && value != comparisonController.text) {
+          return 'Passwords do not match';
+        }
+        return null;
+      },
+      controller: controller,
+      decoration: InputDecoration(
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: mainColor)
+        ),
+        hintText: name,
+        hintStyle: const TextStyle(color: Colors.black, fontWeight: FontWeight.w300),
+        prefixIcon: const Icon(
+          applyTextScaling: true,
+          Icons.lock_outline,
+          color: Colors.black,
+        )
       ),
     );
   }

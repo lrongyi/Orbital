@@ -248,6 +248,38 @@ class _EditCategoriesState extends State<EditCategories> {
   }
 
   Widget _buildCategoryList(Set<String> categories, bool isIncomeCategories) {
+    if (categories.isEmpty) {
+      return Padding(
+        padding: isIncomeCategories ? const EdgeInsets.fromLTRB(8, 16, 8, 8) : const EdgeInsets.all(8),
+        child: const Row(
+          children: [
+            Expanded(
+              child: Divider(
+                indent: 20.0,
+                endIndent: 15, 
+                thickness: 1,
+                color: Colors.grey,
+              ),
+            ),
+            Text(
+              'No categories selected',
+              style: TextStyle(
+                color: Colors.grey, 
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Expanded(
+              child: Divider(
+                indent: 15, 
+                endIndent: 20.0,
+                thickness: 1,
+                color: Colors.grey,
+              ),
+            ),
+          ],
+        )
+      );
+    }
     return ListView.separated(
       separatorBuilder: (context, index) => const Divider(),
       shrinkWrap: true,

@@ -496,8 +496,10 @@ class _ExpensesState extends State<Expenses> {
                       await UserMethods().updateUserSalary(userId, newSalary);
                     }
                   }
-                  Navigator.pushAndRemoveUntil(context, 
-                      MaterialPageRoute(builder: (context) => Navigation(state: 1)), (route) => false);
+                  // Navigator.pushAndRemoveUntil(context, 
+                  //     MaterialPageRoute(builder: (context) => Navigation(state: 1)), (route) => false);
+                  Navigator.of(context).pop();
+                  setState(() {});
                 },
                 child: Text('Save'),
               ),

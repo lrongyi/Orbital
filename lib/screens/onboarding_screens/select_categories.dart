@@ -244,7 +244,7 @@ class _SelectCategoriesState extends State<SelectCategories> {
                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                       showCloseIcon: true,
                       content: Text(
-                        'Add some categories',
+                        'Select some categories',
                         style: TextStyle(fontSize: 18.0),
                       ),
                       backgroundColor: Colors.red,
@@ -275,47 +275,83 @@ class _SelectCategoriesState extends State<SelectCategories> {
               width: 2.0,
             )
           ),
-          title: const Text(
-            'Add New Category',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            )
+          title: Row(
+            // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Icon(
+                Icons.add_box,
+                color: Colors.black,
+              ),
+              const SizedBox(width: 20,),
+              const Text(
+                'Add New Category',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: Colors.black
+                ),
+              ),
+              const SizedBox(width: 35,),
+              IconButton(
+                onPressed: () {
+                  categoryController.clear();
+                  Navigator.of(context).pop();
+                },
+                icon: const Icon(Icons.close,
+                  color: Colors.black,
+                ),
+              )
+            ],
           ),
-          content: TextField(
+          content: TextFormField(
+            cursorColor: mainColor,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Enter Category';
+              } 
+              return null;
+            },
             controller: categoryController,
-            decoration: const InputDecoration(
-              hintText: 'Enter category name',
+            decoration: InputDecoration(
+              focusedBorder: UnderlineInputBorder(
+                borderSide: BorderSide(color: mainColor)
+              ),
+              hintText: 'Enter Category',
+              hintStyle: const TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.w300),
+              prefixIcon: const Icon(
+                applyTextScaling: true,
+                Icons.category_rounded,
+                color: Colors.black
+              )
             ),
           ),
           actions: [
-            TextButton(
-              child: const Text('Cancel'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: const Text('Add'),
-              onPressed: () {
-                final newCategory = categoryController.text.trim();
-                if (newCategory.isNotEmpty) {
-                  setState(() {
-                    if (categoryType == 'expense') {
-                      if (!_availableExpenseCategories.contains(newCategory)) {
-                        _availableExpenseCategories.add(newCategory);
-                        _selectedExpenseCategories.add(newCategory);
+            Center(
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: categoryType == 'expense' ? mainColor : incomeColor,
+                ),
+                onPressed: () {
+                  final newCategory = categoryController.text.trim();
+                  if (newCategory.isNotEmpty) {
+                    setState(() {
+                      if (categoryType == 'expense') {
+                        if (!_availableExpenseCategories.contains(newCategory)) {
+                          _availableExpenseCategories.add(newCategory);
+                          _selectedExpenseCategories.add(newCategory);
+                        }
+                      } else {
+                        if (!_availableIncomeCategories.contains(newCategory)) {
+                          _availableIncomeCategories.add(newCategory);
+                          _selectedIncomeCategories.add(newCategory);
+                        }
                       }
-                    } else {
-                      if (!_availableIncomeCategories.contains(newCategory)) {
-                        _availableIncomeCategories.add(newCategory);
-                        _selectedIncomeCategories.add(newCategory);
-                      }
-                    }
-                  });
-                  Navigator.of(context).pop();
-                }
-              },
+                    });
+                    Navigator.of(context).pop();
+                  }
+                },
+                child: const Text('Save', style: TextStyle(color: Colors.white),),
+              ),
             ),
           ],
         );
